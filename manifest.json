@@ -11,27 +11,31 @@
   },
   "custom": {
     "flywheel": {
-      "suite": "FW-Templates",
+      "suite": "Curation",
       "show-job": true
     },
     "gear-builder": {
       "category": "converter",
-      "image": "flywheel/fw-skeleton:0.3.0"
+      "image": "flywheel/file-validator:0.1.0"
     }
   },
-  "description": "{{ }}",
+  "description": "Validates a file based on a provided validation schema",
   "environment": {},
   "inputs": {
-    "{{text-input}}": {
+    "input_file": {
       "base": "file",
-      "description": "{{A text file.}}"
+      "description": "The file to validate"
+    },
+      "validation_schema": {
+      "base": "file",
+      "description": "the schema to use to validate the file"
     }
   },
-  "label": "FW skeleton gear",
+  "label": "File Validator",
   "license": "Other",
   "maintainer": "Flywheel <support@flywheel.io>",
-  "name": "fw-skeleton",
-  "source": "https://gitlab.com/flywheel-io/flywheel-apps/templates/skeleton",
-  "url": "https://gitlab.com/flywheel-io/flywheel-apps/templates/skeleton",
-  "version": "0.3.0"
+  "name": "file-validator",
+  "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
+  "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
+  "version": "0.1.0"
 }
