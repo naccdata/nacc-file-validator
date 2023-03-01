@@ -7,6 +7,16 @@
       "default": false,
       "description": "Log debug messages",
       "type": "boolean"
+    },
+    "tag": {
+      "default": "file-validator",
+      "description": "Tag to attach to files that gear runs on",
+      "type": "string"
+    },
+    "validate_metadata":{
+      "default": false,
+      "description": "If true, validate the metadata, not the file itself",
+      "type": "boolean"
     }
   },
   "custom": {
@@ -15,7 +25,7 @@
       "show-job": true
     },
     "gear-builder": {
-      "category": "converter",
+      "category": "qa",
       "image": "flywheel/file-validator:0.1.0"
     }
   },

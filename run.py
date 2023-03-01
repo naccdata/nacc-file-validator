@@ -9,8 +9,9 @@ from flywheel_gear_toolkit import GearToolkitContext
 # allows the gear to be publishable and the main interfaces
 # to it can then be imported in another project which enables
 # chaining multiple gears together.
-from fw_gear_file_classifier.main import run
-from fw_gear_file_classifier.parser import parse_config
+from fw_gear_file_validator.main import run
+from fw_gear_file_validator.parser import parse_config
+from fw_gear_file_validator.utils import create_metadata
 
 # The run.py should be as minimal as possible.
 # The gear is split up into 2 main components. The run.py file which is executed
@@ -26,15 +27,19 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
 
     # Call parse_config to extract the args, kwargs from the context
     # (e.g. config.json).
-    debug, text = parse_config(context)
+    debug, tag, schema_file, schema_file_type, input_file_object, input_file_path = parse_config(
+        context
+    )
 
-    # Pass the args, kwargs to fw_gear_skeleton.main.run function to execute
-    # the main functionality of the gear.
-    e_code = run(text)
+    valid = run(
+        schema_file["location"]["path"],
+        schema_file_type,
+        input_file_path,
+        context.output_dir,
+    )
 
-    # Exit the python script (and thus the container) with the exit
-    # code returned by example_gear.main.run function.
-    sys.exit(e_code)
+    create_metadata(context, valid, input_file_object)
+    context.metadata.add_file_tags(input_file_object, str(tag))
 
 
 # Only execute if file is run as main, not when imported by another module
