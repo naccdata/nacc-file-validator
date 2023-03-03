@@ -16,7 +16,7 @@ def run(
     input_file_path: t.Union[str, Path],
     input_file_type: str,
 ) -> t.Tuple[bool, t.List[t.Dict]]:
-    """
+    """runs the validation and returns valid (T|F) and packaged errors
 
     Args:
         schema_file_path: the location of the schema file to use for validation
@@ -35,6 +35,5 @@ def run(
     file_object = file_loader(input_file_path).load()
 
     valid, errors = schema_validator.validate(file_object)
-
 
     return valid, errors

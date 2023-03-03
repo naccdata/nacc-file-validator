@@ -8,12 +8,21 @@ from .loaders import Loader
 
 
 class Validator(ABC):
+    """Validator base class."""
+
     def __init__(self, schema_file_path: t.Union[str, Path], loader: Loader):
         self.schema_file_path = schema_file_path
         self.schema_loader = loader
 
     @abstractmethod
-    def process(self, file_object: t.Any) -> (bool, dict):
+    def process(self, file_object: t.Any) -> (bool, list):
+        """Method to process the data, will return valid (T|F) and packaged errors"""
+        pass
+
+    @abstractmethod
+    @staticmethod
+    def handle_errors(errors: t.Any) -> list:
+        """takes errors in whatever form they're given for that validator, and returns a processed list for logging"""
         pass
 
     def validate(self, file_object: t.Any) -> t.Tuple[bool, t.List[t.Dict]]:
@@ -25,6 +34,7 @@ class JsonValidator(Validator):
     import jsonschema
 
     def process(self, file_object: t.Dict) -> t.Tuple[bool, t.List[t.Dict]]:
+        """validates a json dict object."""
         import jsonschema
 
         schema = self.schema_loader(self.schema_file_path).load()
