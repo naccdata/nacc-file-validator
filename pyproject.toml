@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "fw-gear-skeleton"
-version = "0.3.1"
-description = "{{description}}"
+name = "fw_gear_file_validator"
+version = "0.1.0"
+description = "Validates a file"
 authors = ["Flywheel <support@flywheel.io>"]
 readme = "README.md"
 license = "MIT"
@@ -9,7 +9,7 @@ keywords = [
     "Flywheel",
     "Gears"
 ]
-repository = "https://gitlab.com/flywheel-io/flywheel-apps/templates/skeleton"
+repository = "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator"
 classifiers = [
     "Topic :: Scientific/Engineering"
 ]
@@ -18,6 +18,7 @@ classifiers = [
 python = "^3.8"
 flywheel-gear-toolkit = "^0.6"
 flywheel-sdk = "^16.8.0"
+fw-file = "^2.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"

@@ -1,15 +1,21 @@
 """Main module."""
 
 import logging
-from pathlib import Path
 import typing as t
+from pathlib import Path
+
 from fw_gear_file_validator.validators import factory
-from fw_gear_file_validator.utils import save_errors
+from fw_gear_file_validator.validators.loaders import Loader
 
 log = logging.getLogger(__name__)
 
 
-def run(schema_file_path: t.Union[str, Path], schema_file_type: str, input_file_path: t.Union[str, Path], output_dir: t.Union[str, Path]) -> bool:
+def run(
+    schema_file_path: t.Union[str, Path],
+    schema_file_type: str,
+    input_file_path: t.Union[str, Path],
+    input_file_type: str,
+) -> t.Tuple[bool, t.List[t.Dict]]:
     """
 
     Args:
@@ -22,11 +28,13 @@ def run(schema_file_path: t.Union[str, Path], schema_file_type: str, input_file_
         valid: True if the file passed validation, False otherwise
 
     """
-    log.info("This is the beginning of the run file")
 
-    validator_factory = factory.ValidatorFactory(schema_file_path, schema_file_type)
-    validator = validator_factory.get_type_validator()
-    valid, errors = validator.validate(Path(input_file_path))
-    save_errors(errors, output_dir)
+    schema_validator = factory.validator_factory(schema_file_path, schema_file_type)
+    file_loader = factory.loader_factory(input_file_type)
 
-    return valid
+    file_object = file_loader(input_file_path).load()
+
+    valid, errors = schema_validator.validate(file_object)
+
+
+    return valid, errors

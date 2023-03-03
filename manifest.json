@@ -13,10 +13,14 @@
       "description": "Tag to attach to files that gear runs on",
       "type": "string"
     },
-    "validate_metadata":{
-      "default": false,
-      "description": "If true, validate the metadata, not the file itself",
-      "type": "boolean"
+    "validation_level": {
+      "description": "Select if validation should run on the file or the flywheel representation of the file.  'Validate File Contents' will read the input file and run validation on it, 'Validate Flywheel Objects' will load the json representation of the file in flywheel, including the parent container objects of the file",
+      "type": "string",
+      "default": "Validate File Contents",
+      "enum": [
+        "Validate File Contents",
+        "Validate Flywheel Objects"
+      ]
     }
   },
   "custom": {
@@ -32,6 +36,9 @@
   "description": "Validates a file based on a provided validation schema",
   "environment": {},
   "inputs": {
+    "api-key": {
+      "base": "api-key"
+    },
     "input_file": {
       "base": "file",
       "description": "The file to validate"
@@ -47,5 +54,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.1.0"
+  "version": "0.1.0f"
 }

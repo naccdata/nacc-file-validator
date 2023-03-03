@@ -1,22 +1,23 @@
 """Parser module to parse gear config.json."""
 
-import logging
 import os
 import typing as t
-import flywheel
 from pathlib import Path
-import json
 
-import flywheel_gear_toolkit.context
 from flywheel_gear_toolkit import GearToolkitContext
-from env import SUPPORTED_FILE_EXTENSIONS, SUPPORTED_FLYWHEEL_MIMETYPES
 
+from fw_gear_file_validator.env import (SUPPORTED_FILE_EXTENSIONS,
+                                        SUPPORTED_FLYWHEEL_MIMETYPES)
+
+
+level_dict = {"Validate File Contents": "file",
+                "Validate Flywheel Objects": "flywheel"}
 
 # This function mainly parses gear_context's config.json file and returns relevant
 # inputs and options.
 def parse_config(
     gear_context: GearToolkitContext,
-) -> t.Tuple[bool, bool, str, dict, str, dict]:
+) -> t.Tuple[bool, str, str, Path, str, dict, Path, str]:
     """[Summary]
 
     Returns:
@@ -25,17 +26,27 @@ def parse_config(
 
     debug = gear_context.config.get("debug")
     tag = gear_context.config.get("tag", "file-validator")
+    validaton_level = gear_context.config.get("validation_level")
+    validaton_level = level_dict[validaton_level]
+
     schema_file_object = gear_context.get_input("validation_schema")
     schema_file_type = identify_file_type(schema_file_object)
     schema_file_path = schema_file_object["location"]["path"]
 
     input_file_object = gear_context.get_input("input_file")
     input_file_path = input_file_object["location"]["path"]
-    validate_metadata = gear_context.config.get("validate_metadata")
-    if validate_metadata:
-        input_file_path = save_metadata_to_file(gear_context.client, input_file_object)
+    input_file_type = identify_file_type(input_file_object)
 
-    return debug, tag, schema_file_path, schema_file_type, input_file_object, input_file_path
+    return (
+        debug,
+        tag,
+        validaton_level,
+        schema_file_path,
+        schema_file_type,
+        input_file_object,
+        input_file_path,
+        input_file_type,
+    )
 
 
 def identify_file_type(input_file: dict) -> str:
@@ -55,13 +66,3 @@ def identify_file_type(input_file: dict) -> str:
     return input_file_type
 
 
-def save_metadata_to_file(context: flywheel_gear_toolkit.context.GearToolkitContext, gear_file_object: t.Dict) -> Path:
-    file_id = gear_file_object['object']['file_id']
-    flywheel_file = context.client.get_file(file_id)
-    file_out = context.work_dir / "fw_file_object.json"
-    # Possible data type loss here with default set to str
-    file_str = json.dumps(flywheel_file.to_dict(), indent=4, sort_keys=True, default=str)
-    with open(file_out, 'w') as json_out:
-        json_out.write(file_str)
-
-    return file_out
