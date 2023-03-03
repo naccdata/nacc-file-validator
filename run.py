@@ -4,16 +4,14 @@ import logging
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-
 from fw_gear_file_validator.main import run
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import (
-    create_metadata,
-    save_errors,
-    make_fw_metadata_file,
     add_flywheel_location_to_errors,
+    create_metadata,
+    make_fw_metadata_file,
+    save_errors,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -43,10 +41,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         input_file_type = "json"
 
     valid, errors = run(
-        schema_file_path,
-        schema_file_type,
-        input_file_path,
-        input_file_type
+        schema_file_path, schema_file_type, input_file_path, input_file_type
     )
 
     # I'm sacrificing the simplicity of the run.py main function for the separation of generic validation vs

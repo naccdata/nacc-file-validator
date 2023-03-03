@@ -11,7 +11,6 @@ from fw_gear_file_validator.env import (
     SUPPORTED_FLYWHEEL_MIMETYPES,
 )
 
-
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
 
 
