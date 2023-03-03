@@ -46,13 +46,12 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         schema_file_path,
         schema_file_type,
         input_file_path,
-        input_file_type,
-        context.output_dir,
+        input_file_type
     )
 
     # I'm sacrificing the simplicity of the run.py main function for the separation of generic validation vs
     # flywheel specific stuff.  In my mind, the run.py has always been the wrapper to what should be a flywheel-agnostic
-    # algorithm, and flywheel specific things should go in here.
+    # algorithm, and flywheel specific things should go in here, if at all possible.
     errors = add_flywheel_location_to_errors(
         flywheel_hierarchy_path, validation_level, errors
     )
