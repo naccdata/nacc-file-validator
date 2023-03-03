@@ -56,7 +56,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     errors = add_flywheel_location_to_errors(
         flywheel_hierarchy_path, validation_level, errors
     )
-    save_errors(flywheel_hierarchy_path, errors, validation_level, context.output_dir)
+    save_errors(errors, context.output_dir)
 
     create_metadata(context, valid, input_file_object)
     context.metadata.add_file_tags(input_file_object, str(tag))
