@@ -19,7 +19,6 @@ class Validator(ABC):
         """Method to process the data, will return valid (T|F) and packaged errors"""
         pass
 
-    @abstractmethod
     @staticmethod
     def handle_errors(errors: t.Any) -> list:
         """takes errors in whatever form they're given for that validator, and returns a processed list for logging"""

@@ -21,7 +21,7 @@ def parse_config(
     gear_context: GearToolkitContext,
 ) -> t.Tuple[bool, str, str, Path, str, dict, Path, str]:
     """parses necessary items out of the context object"""
-
+    print(gear_context.config)
     debug = gear_context.config.get("debug")
     tag = gear_context.config.get("tag", "file-validator")
     validaton_level = gear_context.config.get("validation_level")
