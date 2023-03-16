@@ -1,39 +1,24 @@
 import typing as t
-from abc import ABC, abstractmethod
 from pathlib import Path
 
+import jsonschema
 
 from .loaders import Loader
 
 
-class Validator(ABC):
+class JsonValidator:
     """Validator base class."""
 
     def __init__(self, schema_file_path: t.Union[str, Path], loader: Loader):
         self.schema_file_path = schema_file_path
         self.schema_loader = loader
 
-    @abstractmethod
-    def process(self, file_object: t.Any) -> (bool, list):
-        """Method to process the data, will return valid (T|F) and packaged errors"""
-        pass
-
-    @staticmethod
-    def handle_errors(errors: t.Any) -> list:
-        """takes errors in whatever form they're given for that validator, and returns a processed list for logging"""
-        pass
-
     def validate(self, file_object: t.Any) -> t.Tuple[bool, t.List[t.Dict]]:
         valid, errors = self.process(file_object)
         return valid, errors
 
-
-class JsonValidator(Validator):
-    import jsonschema
-
     def process(self, file_object: t.Dict) -> t.Tuple[bool, t.List[t.Dict]]:
         """validates a json dict object."""
-        import jsonschema
 
         schema = self.schema_loader(self.schema_file_path).load()
         validator = jsonschema.Draft7Validator(schema)
@@ -65,3 +50,4 @@ class JsonValidator(Validator):
                 }
             )
         return error_report
+
