@@ -32,8 +32,12 @@ def parse_config(
     schema_file_path = schema_file_object["location"]["path"]
 
     input_file_object = gear_context.get_input("input_file")
-    input_file_path = input_file_object["location"]["path"]
-    input_file_type = identify_file_type(input_file_object)
+    if not input_file_object:
+        # TODO: Do things here to validate the container that it's launched from
+        pass
+    else:
+        input_file_path = input_file_object["location"]["path"]
+        input_file_type = identify_file_type(input_file_object)
 
     return (
         debug,
