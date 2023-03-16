@@ -122,7 +122,7 @@ def create_metadata(context: GearToolkitContext, valid: bool, file_input: t.Dict
     # Add qc information
     # context.metadata.add_qc_result(file_input, "validation", state=state)
     context.metadata.update_file(
-        file_input, info={"qc": {"file-validator": {"validation": state}}}
+        file_input, info={"qc": {"file-validator": {"validation": {"state": state}}}}
     )
 
 
@@ -135,7 +135,7 @@ def make_fw_metadata_file(
     flywheel_meta_object = {"file": flywheel_file.to_dict()}
     parents = flywheel_file.parents
     for parent, p_id in parents.items():
-        if p_id is None:
+        if p_id is None or parent == "group":
             continue
         getter = getattr(context.client, f"get_{parent}")
         parent_object = getter(p_id)

@@ -2,7 +2,6 @@ import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-import fw_file
 
 from .loaders import Loader
 
