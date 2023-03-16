@@ -1,31 +1,26 @@
 import typing as t
-from pathlib import Path
 
 import jsonschema
 
-from .loaders import Loader
 
 
 class JsonValidator:
     """Validator base class."""
 
-    def __init__(self, schema_file_path: t.Union[str, Path], loader: Loader):
-        self.schema_file_path = schema_file_path
-        self.schema_loader = loader
+    def __init__(self, schema: dict):
+        self.validator = jsonschema.Draft7Validator(schema)
 
-    def validate(self, file_object: t.Any) -> t.Tuple[bool, t.List[t.Dict]]:
-        valid, errors = self.process(file_object)
+    def validate(self, json_object: dict) -> t.Tuple[bool, t.List[t.Dict]]:
+        valid, errors = self.process(json_object)
         return valid, errors
 
-    def process(self, file_object: t.Dict) -> t.Tuple[bool, t.List[t.Dict]]:
+    def process(self, json_object: dict) -> t.Tuple[bool, t.List[t.Dict]]:
         """validates a json dict object."""
 
-        schema = self.schema_loader(self.schema_file_path).load()
-        validator = jsonschema.Draft7Validator(schema)
-        valid = validator.is_valid(file_object)
+        valid = self.validator.is_valid(json_object)
         if valid:
             return valid, {}
-        errors = validator.iter_errors(file_object)
+        errors = self.validator.iter_errors(json_object)
         packaged_errors = self.handle_errors(errors)
         return valid, packaged_errors
 
