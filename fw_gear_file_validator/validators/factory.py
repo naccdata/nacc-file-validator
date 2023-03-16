@@ -2,7 +2,7 @@ import typing as t
 from pathlib import Path
 
 from .loaders import JsonLoader, Loader
-from .validators import JsonValidator, Validator
+from .validator import JsonValidator, Validator
 
 VALIDATOR_FACTORY_MAP = {"json": JsonValidator}
 LOADER_FACTORY_MAP = {"json": JsonLoader}
