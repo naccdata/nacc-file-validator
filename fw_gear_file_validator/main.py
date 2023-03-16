@@ -4,17 +4,14 @@ import logging
 import typing as t
 from pathlib import Path
 
-from fw_gear_file_validator.validators import factory
-from fw_gear_file_validator.validators.loaders import Loader
+from fw_gear_file_validator.validators import validator
 
 log = logging.getLogger(__name__)
 
 
 def run(
-    schema_file_path: t.Union[str, Path],
-    schema_file_type: str,
-    input_file_path: t.Union[str, Path],
-    input_file_type: str,
+    schema: t.Dict,
+    input_json: t.Dict,
 ) -> t.Tuple[bool, t.List[t.Dict]]:
     """runs the validation and returns valid (T|F) and packaged errors
 
@@ -29,11 +26,7 @@ def run(
 
     """
 
-    schema_validator = factory.validator_factory(schema_file_path, schema_file_type)
-    file_loader = factory.loader_factory(input_file_type)
-
-    file_object = file_loader(input_file_path).load()
-
-    valid, errors = schema_validator.validate(file_object)
+    schema_validator = validator.JsonValidator(schema)
+    valid, errors = schema_validator.validate(input_json)
 
     return valid, errors

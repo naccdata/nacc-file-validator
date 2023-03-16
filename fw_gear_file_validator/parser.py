@@ -10,6 +10,7 @@ from fw_gear_file_validator.env import (
     SUPPORTED_FILE_EXTENSIONS,
     SUPPORTED_FLYWHEEL_MIMETYPES,
 )
+from fw_gear_file_validator.validators import loaders
 
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
@@ -19,35 +20,40 @@ level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "fl
 # inputs and options.
 def parse_config(
     gear_context: GearToolkitContext,
-) -> t.Tuple[bool, str, str, Path, str, dict, Path, str]:
+) -> t.Tuple[bool, str, str, Path, dict, dict, str]:
     """parses necessary items out of the context object"""
-    print(gear_context.config)
     debug = gear_context.config.get("debug")
     tag = gear_context.config.get("tag", "file-validator")
-    validaton_level = gear_context.config.get("validation_level")
-    validaton_level = level_dict[validaton_level]
+    add_parents = gear_context.config.get("add_parents")
+    validation_level = gear_context.config.get("validation_level")
+    validation_level = level_dict[validation_level]
 
     schema_file_object = gear_context.get_input("validation_schema")
-    schema_file_type = identify_file_type(schema_file_object)
     schema_file_path = schema_file_object["location"]["path"]
 
     input_file_object = gear_context.get_input("input_file")
-    if not input_file_object:
-        # TODO: Do things here to validate the container that it's launched from
-        pass
+    if validation_level == "flywheel":
+        strategy = "flywheel-file" if input_file_object else "flywheel-container"
     else:
-        input_file_path = input_file_object["location"]["path"]
-        input_file_type = identify_file_type(input_file_object)
+        strategy = "local-file" if input_file_object else "INVALID"
+
+    loader = loaders.FwLoader(
+        context=gear_context,
+        strategy=strategy,
+        add_parents=add_parents,
+        input_file_key="input_file",
+    )
+    input_json = loader.load()
+    flywheel_hierarchy = loader.fw_meta_dict
 
     return (
         debug,
         tag,
-        validaton_level,
+        validation_level,
         schema_file_path,
-        schema_file_type,
-        input_file_object,
-        input_file_path,
-        input_file_type,
+        input_json,
+        flywheel_hierarchy,
+        strategy,
     )
 
 

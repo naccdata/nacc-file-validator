@@ -8,10 +8,9 @@ from flywheel_gear_toolkit import GearToolkitContext
 from fw_gear_file_validator.main import run
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import (
-    create_metadata,
     save_errors,
-    make_fw_metadata_file,
     add_flywheel_location_to_errors,
+    handle_metadata,
 )
 
 
@@ -28,35 +27,23 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         tag,
         validation_level,
         schema_file_path,
-        schema_file_type,
-        input_file_object,
-        input_file_path,
-        input_file_type,
+        input_json,
+        flywheel_hierarchy,
+        strategy,
     ) = parse_config(context)
 
     # Generate a flywheel hierarchy json regardless of the level, it will be used
     # to populate flywheel hierarchy information later on of there are errors,
     # even if just the file is being validated.
-    flywheel_hierarchy_path = make_fw_metadata_file(context, input_file_object)
-    if validation_level == "flywheel":
-        input_file_path = flywheel_hierarchy_path
-        input_file_type = "json"
 
-    valid, errors = run(
-        schema_file_path,
-        schema_file_type,
-        input_file_path,
-        input_file_type
-    )
-
+    valid, errors = run(schema_file_path, input_json)
 
     errors = add_flywheel_location_to_errors(
-        flywheel_hierarchy_path, validation_level, errors
+        flywheel_hierarchy, validation_level, errors
     )
     save_errors(errors, context.output_dir)
 
-    create_metadata(context, valid, input_file_object)
-    context.metadata.add_file_tags(input_file_object, str(tag))
+    handle_metadata(context, strategy, valid, tag)
 
 
 # Only execute if file is run as main, not when imported by another module

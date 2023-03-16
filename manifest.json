@@ -21,6 +21,11 @@
         "Validate File Contents",
         "Validate Flywheel Objects"
       ]
+    },
+    "add_parents": {
+      "description": "If validating Flywheel Objects, add the parent containers of the object to the schema for validation",
+      "type": "boolean",
+      "default": "true"
     }
   },
   "custom": {

@@ -39,7 +39,7 @@ PARENT_ORDER = [
 ]
 
 
-def add_flywheel_location_to_errors(flywheel_hierarchy_path, validation_level, errors):
+def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
     """Takes a set of packaged errors and adds flywheel hierarchy information to them.
 
     If validation was run at the "flywheel" level, then validation was done on a json schema.
@@ -47,8 +47,6 @@ def add_flywheel_location_to_errors(flywheel_hierarchy_path, validation_level, e
     of that schema.
     """
 
-    # Load the hierarchy json
-    hierarchy_object = loaders.JsonLoader(flywheel_hierarchy_path).load()
     # If validation level is flywheel, then the input_file_object should have every parent object
     parents = {}
     for parent_level in hierarchy_object.keys():
@@ -111,28 +109,31 @@ def save_errors(errors: t.List[t.Dict], output_dir: t.Union[Path, str]):
         writer.writerows(errors)
 
 
-def create_metadata(context: GearToolkitContext, valid: bool, file_input: t.Dict):
+def create_metadata(context: GearToolkitContext, valid: bool, input_object: Container):
     """Populate .metadata.json.
 
     Args:
         context (GearToolkitContext): The gear context.
         valid: Did the file pass validation?
-        file_input: The gear context input file to modify metadata for
+        input_object: The flywheel container or gear context input file to modify metadata for
     """
     state = "PASS" if valid else "FAIL"
 
     # Add qc information
     # context.metadata.add_qc_result(file_input, "validation", state=state)
-    context.metadata.update_file(
-        file_input, info={"qc": {"file-validator": {"validation": {"state": state}}}}
+
+    if input_object["container_type"] == "file":
+        updator = context.metadata.update_file
+    else:
+        updator = context.metadata.update_container
+    updator(
+        input_object, info={"qc": {"file-validator": {"validation": {"state": state}}}}
     )
 
 
-def make_fw_metadata(
-    context: GearToolkitContext, container: Container
-) -> Path:
+def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
     """Creates a file that is the json representation of the flywheel hierarchy containing the file and its parents"""
-    container_type = container.get('container_type')
+    container_type = container.get("container_type")
     flywheel_meta_object = {container_type: container.to_dict()}
     parents = container.parents
     for parent, p_id in parents.items():
@@ -146,3 +147,13 @@ def make_fw_metadata(
         flywheel_meta_object[parent] = parent_object.to_dict()
 
     return flywheel_meta_object
+
+
+def handle_metadata(context, strategy, valid, tag):
+    if strategy == "flywheel-container":
+        input_object = context.client.get(context.destination["id"])
+    else:
+        input_object = context.client.get_input("input_file")
+        context.metadata.add_file_tags(input_object, str(tag))
+
+    create_metadata(context, valid, input_object)

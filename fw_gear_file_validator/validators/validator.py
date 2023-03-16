@@ -3,7 +3,6 @@ import typing as t
 import jsonschema
 
 
-
 class JsonValidator:
     """Validator base class."""
 
@@ -45,4 +44,3 @@ class JsonValidator:
                 }
             )
         return error_report
-

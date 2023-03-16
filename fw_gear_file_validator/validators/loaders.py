@@ -8,12 +8,13 @@ from fw_gear_file_validator.utils import make_fw_metadata
 
 
 class FwLoader:
-
-    def __init__(self, context: GearToolkitContext,
-                 strategy: str,
-                 add_parents: bool = True,
-                 input_file_key: str = None):
-
+    def __init__(
+        self,
+        context: GearToolkitContext,
+        strategy: str,
+        add_parents: bool = True,
+        input_file_key: str = None,
+    ):
         self.context = context
         self.strategy = strategy
         self.add_parents = add_parents
@@ -27,7 +28,9 @@ class FwLoader:
         """Get the flywheel metadata dictionary.  Needed for logging and possibly for validation"""
         if self.input_file_key:
             input_file_object = self.context.get_input(self.input_file_key)
-            starting_container = self.context.client.get_file(input_file_object["object"]["file_id"])
+            starting_container = self.context.client.get_file(
+                input_file_object["object"]["file_id"]
+            )
         else:
             ctype = self.context.destination["type"]
             cid = self.context.destination["id"]
@@ -45,9 +48,13 @@ class FwLoader:
         elif self.strategy == "flywheel-container":
             return self._load_flywheel_container()
 
+        raise ValueError("Invalid Loader Settings")
+
     def _load_flywheel_file(self) -> t.Dict:
         # Otherwise isolate the target object (file if present, or the destination container)
-        ctype = "file" if "file" in self.fw_meta_dict else self.context.destination["type"]
+        ctype = (
+            "file" if "file" in self.fw_meta_dict else self.context.destination["type"]
+        )
         return {ctype: self.fw_meta_dict[ctype]}
 
     def _load_flywheel_container(self) -> t.Dict:
@@ -61,6 +68,3 @@ class FwLoader:
         with open(file_path, "r", encoding="UTF-8") as file_instance:
             file_object = json.load(file_instance)
         return file_object
-
-
-
