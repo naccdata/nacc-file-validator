@@ -6,6 +6,8 @@ from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
 from fw_gear_file_validator.validators import loaders
 
+from flywheel_gear_toolkit.utils.datatypes import Container
+
 PARENT_INCLUDE = [
     # General values
     "label",
@@ -126,14 +128,13 @@ def create_metadata(context: GearToolkitContext, valid: bool, file_input: t.Dict
     )
 
 
-def make_fw_metadata_file(
-    context: GearToolkitContext, gear_file_object: t.Dict
+def make_fw_metadata(
+    context: GearToolkitContext, container: Container
 ) -> Path:
     """Creates a file that is the json representation of the flywheel hierarchy containing the file and its parents"""
-    file_id = gear_file_object["object"]["file_id"]
-    flywheel_file = context.client.get_file(file_id)
-    flywheel_meta_object = {"file": flywheel_file.to_dict()}
-    parents = flywheel_file.parents
+    container_type = container.get('container_type')
+    flywheel_meta_object = {container_type: container.to_dict()}
+    parents = container.parents
     for parent, p_id in parents.items():
         if p_id is None or parent == "group":
             continue
@@ -144,8 +145,4 @@ def make_fw_metadata_file(
         }
         flywheel_meta_object[parent] = parent_object.to_dict()
 
-    file_out = context.work_dir / "fw_object.json"
-    with open(file_out, "w") as json_out:
-        json.dump(flywheel_meta_object, json_out, indent=4, sort_keys=True, default=str)
-
-    return file_out
+    return flywheel_meta_object
