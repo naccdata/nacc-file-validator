@@ -13,7 +13,6 @@ from fw_gear_file_validator.env import (
 )
 from fw_gear_file_validator.validators import loaders
 
-
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
 
 
