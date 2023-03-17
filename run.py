@@ -26,7 +26,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         debug,
         tag,
         validation_level,
-        schema_file_path,
+        schema,
         input_json,
         flywheel_hierarchy,
         strategy,
@@ -36,7 +36,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     # to populate flywheel hierarchy information later on of there are errors,
     # even if just the file is being validated.
 
-    valid, errors = run(schema_file_path, input_json)
+    valid, errors = run(schema, input_json)
 
     errors = add_flywheel_location_to_errors(
         flywheel_hierarchy, validation_level, errors

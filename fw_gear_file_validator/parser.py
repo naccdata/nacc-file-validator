@@ -3,6 +3,7 @@
 import os
 import typing as t
 from pathlib import Path
+import json
 
 from flywheel_gear_toolkit import GearToolkitContext
 
@@ -20,7 +21,7 @@ level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "fl
 # inputs and options.
 def parse_config(
     gear_context: GearToolkitContext,
-) -> t.Tuple[bool, str, str, Path, dict, dict, str]:
+) -> t.Tuple[bool, str, str, dict, dict, dict, str]:
     """parses necessary items out of the context object"""
     debug = gear_context.config.get("debug")
     tag = gear_context.config.get("tag", "file-validator")
@@ -30,6 +31,8 @@ def parse_config(
 
     schema_file_object = gear_context.get_input("validation_schema")
     schema_file_path = schema_file_object["location"]["path"]
+    with open(schema_file_path, "r", encoding="UTF-8") as file_instance:
+        schema = json.load(file_instance)
 
     input_file_object = gear_context.get_input("input_file")
     if validation_level == "flywheel":
@@ -50,7 +53,7 @@ def parse_config(
         debug,
         tag,
         validation_level,
-        schema_file_path,
+        schema,
         input_json,
         flywheel_hierarchy,
         strategy,

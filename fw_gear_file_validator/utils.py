@@ -133,7 +133,7 @@ def create_metadata(context: GearToolkitContext, valid: bool, input_object: Cont
 
 def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
     """Creates a file that is the json representation of the flywheel hierarchy containing the file and its parents"""
-    container_type = container.get("container_type")
+    container_type = container.get("container_type", "file")
     flywheel_meta_object = {container_type: container.to_dict()}
     parents = container.parents
     for parent, p_id in parents.items():
@@ -153,7 +153,7 @@ def handle_metadata(context, strategy, valid, tag):
     if strategy == "flywheel-container":
         input_object = context.client.get(context.destination["id"])
     else:
-        input_object = context.client.get_input("input_file")
+        input_object = context.get_input_file_object("input_file")
         context.metadata.add_file_tags(input_object, str(tag))
 
     create_metadata(context, valid, input_object)

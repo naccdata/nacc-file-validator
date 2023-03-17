@@ -1,9 +1,15 @@
 """Module to test parser.py"""
-from unittest.mock import MagicMock
-
+from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
+import flywheel
+import os
+
+from fw_gear_file_validator import parser
 
 # from fw_gear_{{gear_package}}.parser import parse_config
+BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = BASE_DIR / "tests"
+test_config = BASE_DIR / "assets" / "config.json"
 
 
 def test_parse_config():
@@ -16,4 +22,21 @@ def test_parse_config():
     assert gear_context.get_input.call_count == 0
 
     """
-    pass
+
+    context = GearToolkitContext(config_path=test_config)
+
+    client = flywheel.Client(os.environ["FWGA_API"])
+    context._client = client
+    (
+        debug,
+        tag,
+        validation_level,
+        schema_file_path,
+        input_json,
+        flywheel_hierarchy,
+        strategy,
+    ) = parser.parse_config(context)
+
+    assert validation_level == "file"
+    assert strategy == "local-file"
+

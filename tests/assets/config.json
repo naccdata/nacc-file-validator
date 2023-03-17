@@ -10,6 +10,7 @@
                 "type": "acquisition"
             },
             "object": {
+                "container_type": "file",
                 "type": "source code",
                 "mimetype": "application/json",
                 "modality": "Form",
@@ -138,8 +139,8 @@
                 }
             },
             "location": {
-                "path": "/flywheel/v0/input/input_file/NACC283268_FTLDv3_Visit12.json",
-                "name": "NACC283268_FTLDv3_Visit12.json"
+                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_input_valid.json",
+                "name": "test_input_valid.json"
             },
             "base": "file"
         },
@@ -149,6 +150,7 @@
                 "type": "project"
             },
             "object": {
+                "container_type": "file",
                 "type": "source code",
                 "mimetype": "application/json",
                 "modality": null,
@@ -165,8 +167,8 @@
                 }
             },
             "location": {
-                "path": "/flywheel/v0/input/validation_schema/ftld_schema.json",
-                "name": "ftld_schema.json"
+                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_schema.json",
+                "name": "test_schema.json"
             },
             "base": "file"
         }
@@ -174,6 +176,7 @@
     "config": {
         "debug": false,
         "tag": "file-validator",
-        "validation_level": "Validate Flywheel Objects"
+        "validation_level": "Validate File Contents",
+        "add_parents": true
     }
 }

@@ -39,6 +39,8 @@ class FwLoader:
         return make_fw_metadata(self.context, starting_container)
 
     def load(self):
+        # Loader is now has flywheel dependencies, mixing the two together increases complexity of
+        # loading logic.
         if self.strategy == "local-file":
             return self._load_local_file()
         elif self.add_parents:
@@ -64,6 +66,7 @@ class FwLoader:
 
     def _load_local_file(self) -> t.Dict:
         """Loads the file and returns it as a dict."""
+        # Loader now doesn't work with anything other than flywheel gears
         file_path = self.context.get_input_path(self.input_file_key)
         with open(file_path, "r", encoding="UTF-8") as file_instance:
             file_object = json.load(file_instance)
