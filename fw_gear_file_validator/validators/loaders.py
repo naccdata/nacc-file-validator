@@ -1,7 +1,8 @@
+import json
 import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
-import json
+
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.utils import make_fw_metadata

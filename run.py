@@ -4,15 +4,13 @@ import logging
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-
 from fw_gear_file_validator.main import run
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import (
-    save_errors,
     add_flywheel_location_to_errors,
     handle_metadata,
+    save_errors,
 )
-
 
 log = logging.getLogger(__name__)
 

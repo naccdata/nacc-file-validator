@@ -4,10 +4,9 @@ import typing as t
 from pathlib import Path
 
 from flywheel_gear_toolkit import GearToolkitContext
+from flywheel_gear_toolkit.utils.datatypes import Container
 
 from fw_gear_file_validator.validators import loaders
-
-from flywheel_gear_toolkit.utils.datatypes import Container
 
 PARENT_INCLUDE = [
     # General values

@@ -1,8 +1,9 @@
 """Module to test parser.py"""
-from pathlib import Path
-from flywheel_gear_toolkit import GearToolkitContext
-import flywheel
 import os
+from pathlib import Path
+
+import flywheel
+from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import parser
 
@@ -39,4 +40,3 @@ def test_parse_config():
 
     assert validation_level == "file"
     assert strategy == "local-file"
-
