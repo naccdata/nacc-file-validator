@@ -1,4 +1,4 @@
-from fw_gear_file_validator.validators import validator
+from fw_gear_file_validator.validator_utils import validator
 
 
 def test_process():

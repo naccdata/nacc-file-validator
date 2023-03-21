@@ -1,18 +1,25 @@
 #!/usr/bin/env python
 """The run script"""
 import logging
+from pathlib import Path
 
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.main import run
-from fw_gear_file_validator.parser import parse_config
-from fw_gear_file_validator.utils import (
-    add_flywheel_location_to_errors,
-    handle_metadata,
-    save_errors,
-)
+from fw_gear_file_validator.parser import parse_config, FwReference
+from fw_gear_file_validator.flywheel_utils.metadata_utils import handle_metadata
+from fw_gear_file_validator.flywheel_utils.error_parsing import add_flywheel_location_to_errors, save_errors
+from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig, FwLoader
 
 log = logging.getLogger(__name__)
+
+
+def prepare_fw_gear_json(context, validation_level: str, add_parents: bool,fw_reference: FwReference):
+    config = FwLoaderConfig(add_parents, validation_level)
+    fw_loader = FwLoader(context, config)
+    full_fw_meta, validation_dict = fw_loader.load(fw_reference)
+
+    return full_fw_meta, validation_dict
 
 
 def main(context: GearToolkitContext) -> None:  # pragma: no cover
@@ -24,24 +31,24 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         debug,
         tag,
         validation_level,
-        schema,
-        input_json,
-        flywheel_hierarchy,
-        strategy,
+        add_parents,
+        schema_file_path,
+        fw_reference,
     ) = parse_config(context)
 
     # Generate a flywheel hierarchy json regardless of the level, it will be used
     # to populate flywheel hierarchy information later on of there are errors,
     # even if just the file is being validated.
 
-    valid, errors = run(schema, input_json)
+    fw_meta, input_json = prepare_fw_gear_json(context, validation_level, add_parents, fw_reference)
+    valid, errors = run(schema_file_path, input_json)
 
     errors = add_flywheel_location_to_errors(
-        flywheel_hierarchy, validation_level, errors
+        fw_meta, validation_level, errors
     )
-    save_errors(errors, context.output_dir)
 
-    handle_metadata(context, strategy, valid, tag)
+    save_errors(errors, context.output_dir)
+    handle_metadata(context, validation_level, valid, tag)
 
 
 # Only execute if file is run as main, not when imported by another module

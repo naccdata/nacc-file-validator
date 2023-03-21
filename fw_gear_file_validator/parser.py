@@ -1,9 +1,9 @@
 """Parser module to parse gear config.json."""
 
-import json
 import os
-import typing as t
 from pathlib import Path
+from typing import Tuple, Union
+from dataclasses import dataclass
 
 from flywheel_gear_toolkit import GearToolkitContext
 
@@ -11,67 +11,83 @@ from fw_gear_file_validator.env import (
     SUPPORTED_FILE_EXTENSIONS,
     SUPPORTED_FLYWHEEL_MIMETYPES,
 )
-from fw_gear_file_validator.validators import loaders
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
+
+
+@dataclass
+class FwReference:
+    dest_id: str = None
+    dest_type: str = None
+    file_id: str = None
+    file_name: str = None
+    file_type: str = None
+
+    @property
+    def is_file(self):
+        return self.file_id is not None
 
 
 # This function mainly parses gear_context's config.json file and returns relevant
 # inputs and options.
 def parse_config(
-    gear_context: GearToolkitContext,
-) -> t.Tuple[bool, str, str, dict, dict, dict, str]:
+        gear_context: GearToolkitContext,
+) -> Tuple[bool, str, str, str, Path, FwReference]:
     """parses necessary items out of the context object"""
+
     debug = gear_context.config.get("debug")
     tag = gear_context.config.get("tag", "file-validator")
     add_parents = gear_context.config.get("add_parents")
     validation_level = gear_context.config.get("validation_level")
     validation_level = level_dict[validation_level]
+    schema_file_path = Path(gear_context.get_input_path("validation_schema"))
 
-    schema_file_object = gear_context.get_input("validation_schema")
-    schema_file_path = schema_file_object["location"]["path"]
-    with open(schema_file_path, "r", encoding="UTF-8") as file_instance:
-        schema = json.load(file_instance)
+    local_file_object = gear_context.get_input("input_file")
+    local_file_type = identify_file_type(local_file_object)
 
-    input_file_object = gear_context.get_input("input_file")
-    if validation_level == "flywheel":
-        strategy = "flywheel-file" if input_file_object else "flywheel-container"
-    else:
-        strategy = "local-file" if input_file_object else "INVALID"
-
-    loader = loaders.FwLoader(
-        context=gear_context,
-        strategy=strategy,
-        add_parents=add_parents,
-        input_file_key="input_file",
-    )
-    input_json = loader.load()
-    flywheel_hierarchy = loader.fw_meta_dict
+    fw_reference = FwReference()
+    fw_reference.dest_id = gear_context.destination["id"]
+    fw_reference.dest_type = gear_context.destination["type"]
+    fw_reference.file_id = local_file_object.get("object", {}).get("file_id")
+    fw_reference.file_name = local_file_object.get("location", {}).get("name")
+    fw_reference.file_type = local_file_type
 
     return (
         debug,
         tag,
         validation_level,
-        schema,
-        input_json,
-        flywheel_hierarchy,
-        strategy,
+        add_parents,
+        schema_file_path,
+        fw_reference,
     )
 
 
-def identify_file_type(input_file: dict) -> str:
+def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     """Given a flywheel config input file object, identify the file type."""
-    # First try to just check the file type from the file extension:
-    file_name = input_file["location"]["name"]
-    base, ext = os.path.splitext(file_name)
+    ext = None
+    mime = None
+    input_file_type = None
+    # see if the input file object has a value
+    if not input_file:
+        return ""
+    # If it's a string make it a path
+    if isinstance(input_file, str):
+        input_file = Path(input_file)
+    # If it's a path try to get the extension from the suffix
+    if isinstance(input_file, Path):
+        ext = input_file.suffix
+    elif isinstance(input_file, dict):
+        # First try to just check the file type from the file extension:
+        file_name = input_file.get("location", {}).get("name")
+        base, ext = os.path.splitext(file_name)
+        mime = input_file["object"]["mimetype"]
+
+    # If we managed to get an extension, that means that
     if ext:
         input_file_type = SUPPORTED_FILE_EXTENSIONS.get(ext)
-        if input_file_type is None:
-            raise TypeError(f"file type {ext} is not supported")
-        return input_file_type
-
-    mime = input_file["object"]["mimetype"]
-    input_file_type = SUPPORTED_FLYWHEEL_MIMETYPES.get(mime)
+    elif mime:
+        input_file_type = SUPPORTED_FLYWHEEL_MIMETYPES.get(mime)
     if input_file_type is None:
         raise TypeError(f"file type {mime} is not supported")
+
     return input_file_type
