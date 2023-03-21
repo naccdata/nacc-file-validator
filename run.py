@@ -6,10 +6,11 @@ from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.main import run
-from fw_gear_file_validator.parser import parse_config, FwReference
+from fw_gear_file_validator.parser import parse_config
+from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference, FwLoaderConfig
 from fw_gear_file_validator.flywheel_utils.metadata_utils import handle_metadata
 from fw_gear_file_validator.flywheel_utils.error_parsing import add_flywheel_location_to_errors, save_errors
-from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig, FwLoader
+from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoader
 
 log = logging.getLogger(__name__)
 

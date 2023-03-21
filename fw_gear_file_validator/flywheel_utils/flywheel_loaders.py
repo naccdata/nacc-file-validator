@@ -1,18 +1,11 @@
 import copy
 import typing as t
-from dataclasses import dataclass
 
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.flywheel_utils.metadata_utils import make_fw_metadata, get_lowest_container_level
-from fw_gear_file_validator.parser import FwReference
+from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference, FwLoaderConfig
 from fw_gear_file_validator.validator_utils.file_loaders import FileLoader
-
-
-@dataclass
-class FwLoaderConfig:
-    add_parents: bool = False
-    validation_level: str = "file"
 
 
 class FwLoader:

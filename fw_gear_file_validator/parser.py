@@ -3,7 +3,6 @@
 import os
 from pathlib import Path
 from typing import Tuple, Union
-from dataclasses import dataclass
 
 from flywheel_gear_toolkit import GearToolkitContext
 
@@ -11,21 +10,9 @@ from fw_gear_file_validator.env import (
     SUPPORTED_FILE_EXTENSIONS,
     SUPPORTED_FLYWHEEL_MIMETYPES,
 )
+from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
-
-
-@dataclass
-class FwReference:
-    dest_id: str = None
-    dest_type: str = None
-    file_id: str = None
-    file_name: str = None
-    file_type: str = None
-
-    @property
-    def is_file(self):
-        return self.file_id is not None
 
 
 # This function mainly parses gear_context's config.json file and returns relevant

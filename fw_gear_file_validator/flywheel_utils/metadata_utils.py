@@ -3,8 +3,7 @@ from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
 from flywheel_gear_toolkit.utils.datatypes import Container
 
-from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_INCLUDE, PARENT_ORDER
-from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig
+from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_INCLUDE, PARENT_ORDER, FwLoaderConfig
 
 
 def get_lowest_container_level(levels):
