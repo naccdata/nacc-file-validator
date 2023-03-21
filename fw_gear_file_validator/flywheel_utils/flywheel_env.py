@@ -26,4 +26,3 @@ PARENT_ORDER = [
     "analysis",
     "file",
 ]
-HIERARCHY_ORDER = ["group", "project", "subject", "session", "acquisition", "analysis", "file"]

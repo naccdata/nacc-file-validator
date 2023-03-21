@@ -3,12 +3,13 @@ from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
 from flywheel_gear_toolkit.utils.datatypes import Container
 
-from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_INCLUDE, HIERARCHY_ORDER
+from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_INCLUDE, PARENT_ORDER
+from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig
 
 
 def get_lowest_container_level(levels):
-    lowest = max([HIERARCHY_ORDER.index(l) for l in levels])
-    return HIERARCHY_ORDER[lowest]
+    lowest = max([PARENT_ORDER.index(l) for l in levels])
+    return PARENT_ORDER[lowest]
 
 
 def create_metadata(context: GearToolkitContext, valid: bool, input_object: Container):
@@ -52,11 +53,32 @@ def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
     return flywheel_meta_object
 
 
-def handle_metadata(context, validation_level, valid, tag):
-    if validation_level == "flywheel":
+def tag_failed_containers(errors, config: FwLoaderConfig, context: GearToolkitContext):
+    level_has_errors = {p: False for p in PARENT_ORDER}
+    if config.validation_level_level == "flywheel" or (config.validation_level == "file" and config.add_parents):
+        error_levels = set([e["Error_Location"].split(".")[0] for e in errors])
+        for level in error_levels:
+            level_has_errors[level] = True
+    else:
+        if len(errors) > 0:
+            level_has_errors["file"] = True
+
+    failed_tag = ["Failed_JsonValidator"]
+    for level, has_errors in level_has_errors.items():
+        if level == "file":
+            input_file = context.get_input_file_object("input_file")
+            context.metadata.add_file_tags(input_file, tags=failed_tag)
+            continue
+        context.metadata.update_container(level, tags=failed_tag)
+
+
+def handle_metadata(errors, config: FwLoaderConfig, context, valid, tag):
+    if config.validation_level == "flywheel":
         input_object = context.client.get(context.destination["id"])
     else:
         input_object = context.get_input_file_object("input_file")
         context.metadata.add_file_tags(input_object, str(tag))
 
     create_metadata(context, valid, input_object)
+    tag_failed_containers(errors, config, context)
+

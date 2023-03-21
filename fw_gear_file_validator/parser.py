@@ -32,7 +32,7 @@ class FwReference:
 # inputs and options.
 def parse_config(
         gear_context: GearToolkitContext,
-) -> Tuple[bool, str, str, str, Path, FwReference]:
+) -> Tuple[bool, str, str, bool, Path, FwReference]:
     """parses necessary items out of the context object"""
 
     debug = gear_context.config.get("debug")

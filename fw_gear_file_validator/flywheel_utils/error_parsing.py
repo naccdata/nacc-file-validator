@@ -12,7 +12,6 @@ def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
     When this creates flywheel URLs for that, it relies heavily on the predictable structure
     of that schema.
     """
-
     # If validation level is flywheel, then the input_file_object should have every parent object
     parents = {}
     for parent_level in hierarchy_object.keys():

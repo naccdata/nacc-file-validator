@@ -14,8 +14,8 @@ from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfi
 log = logging.getLogger(__name__)
 
 
-def prepare_fw_gear_json(context, validation_level: str, add_parents: bool,fw_reference: FwReference):
-    config = FwLoaderConfig(add_parents, validation_level)
+def prepare_fw_gear_json(context, config: FwLoaderConfig, fw_reference: FwReference):
+
     fw_loader = FwLoader(context, config)
     full_fw_meta, validation_dict = fw_loader.load(fw_reference)
 
@@ -39,8 +39,8 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     # Generate a flywheel hierarchy json regardless of the level, it will be used
     # to populate flywheel hierarchy information later on of there are errors,
     # even if just the file is being validated.
-
-    fw_meta, input_json = prepare_fw_gear_json(context, validation_level, add_parents, fw_reference)
+    config = FwLoaderConfig(add_parents, validation_level)
+    fw_meta, input_json = prepare_fw_gear_json(context, config, fw_reference)
     valid, errors = run(schema_file_path, input_json)
 
     errors = add_flywheel_location_to_errors(
@@ -48,7 +48,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     )
 
     save_errors(errors, context.output_dir)
-    handle_metadata(context, validation_level, valid, tag)
+    handle_metadata(errors, config, context, valid, tag)
 
 
 # Only execute if file is run as main, not when imported by another module
