@@ -5,7 +5,9 @@ from pathlib import Path
 from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_ORDER
 
 
-def add_flywheel_location_to_errors(hierarchy_object, validation_level, packaged_errors):
+def add_flywheel_location_to_errors(
+    hierarchy_object, validation_level, packaged_errors
+):
     """Takes a set of packaged errors and adds flywheel hierarchy information to them.
 
     If validation was run at the "flywheel" level, then validation was done on a json schema.

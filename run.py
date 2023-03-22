@@ -5,18 +5,23 @@ from pathlib import Path
 
 from flywheel_gear_toolkit import GearToolkitContext
 
+from fw_gear_file_validator.flywheel_utils.error_parsing import (
+    add_flywheel_location_to_errors,
+    save_errors,
+)
+from fw_gear_file_validator.flywheel_utils.flywheel_env import (
+    FwLoaderConfig,
+    FwReference,
+)
+from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoader
+from fw_gear_file_validator.flywheel_utils.metadata_utils import handle_metadata
 from fw_gear_file_validator.main import run
 from fw_gear_file_validator.parser import parse_config
-from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference, FwLoaderConfig
-from fw_gear_file_validator.flywheel_utils.metadata_utils import handle_metadata
-from fw_gear_file_validator.flywheel_utils.error_parsing import add_flywheel_location_to_errors, save_errors
-from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoader
 
 log = logging.getLogger(__name__)
 
 
 def prepare_fw_gear_json(context, config: FwLoaderConfig, fw_reference: FwReference):
-
     fw_loader = FwLoader(context, config)
     full_fw_meta, validation_dict = fw_loader.load(fw_reference)
 
@@ -45,9 +50,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     valid, errors = run(schema_file_path, input_json)
     print("ERRORS")
     print(errors)
-    errors = add_flywheel_location_to_errors(
-        fw_meta, validation_level, errors
-    )
+    errors = add_flywheel_location_to_errors(fw_meta, validation_level, errors)
 
     save_errors(errors, context.output_dir)
     handle_metadata(errors, config, context, valid, tag)

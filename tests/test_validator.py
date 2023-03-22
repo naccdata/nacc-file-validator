@@ -34,7 +34,6 @@ def test_validate():
 
 
 def test_handle_errors():
-
     schema = {"properties": {"list": {"type": "array", "maxItems": 3}}}
     json_object = {"list": [1, 2, 3, 4]}
     jvalidator = validator.JsonValidator(schema)
@@ -49,4 +48,3 @@ def test_handle_errors():
     assert packaged_error["Message"] == "[1, 2, 3, 4] is too long"
     assert packaged_error["Error_Type"] == "maxItems"
     assert packaged_error["Value"] == "[1, 2, 3, 4]"
-

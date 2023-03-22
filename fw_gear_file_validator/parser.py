@@ -18,7 +18,7 @@ level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "fl
 # This function mainly parses gear_context's config.json file and returns relevant
 # inputs and options.
 def parse_config(
-        gear_context: GearToolkitContext,
+    gear_context: GearToolkitContext,
 ) -> Tuple[bool, str, str, bool, Path, FwReference]:
     """parses necessary items out of the context object"""
 
@@ -62,7 +62,7 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     if isinstance(input_file, dict):
         # First try to just check the file type from the file extension:
 
-        mime = input_file["object"]["mimetype"]    # If it's a string make it a path
+        mime = input_file["object"]["mimetype"]  # If it's a string make it a path
         input_file = input_file.get("location", {}).get("name")
 
     if isinstance(input_file, str):

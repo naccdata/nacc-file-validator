@@ -4,8 +4,9 @@ import logging
 import typing as t
 from pathlib import Path
 
-from fw_gear_file_validator.validator_utils import validator, file_loaders
 from fw_gear_file_validator.parser import identify_file_type
+from fw_gear_file_validator.validator_utils import file_loaders, validator
+
 log = logging.getLogger(__name__)
 
 

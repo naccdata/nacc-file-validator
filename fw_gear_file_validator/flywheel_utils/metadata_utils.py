@@ -3,7 +3,11 @@ from pathlib import Path
 from flywheel_gear_toolkit import GearToolkitContext
 from flywheel_gear_toolkit.utils.datatypes import Container
 
-from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_INCLUDE, PARENT_ORDER, FwLoaderConfig
+from fw_gear_file_validator.flywheel_utils.flywheel_env import (
+    PARENT_INCLUDE,
+    PARENT_ORDER,
+    FwLoaderConfig,
+)
 
 
 def get_lowest_container_level(levels):
@@ -33,7 +37,6 @@ def create_metadata(context: GearToolkitContext, valid: bool, input_object: Cont
     )
 
 
-
 def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
     """Creates a file that is the json representation of the flywheel hierarchy containing the file and its parents"""
     container_type = container.get("container_type", "file")
@@ -54,7 +57,9 @@ def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
 
 def tag_failed_containers(errors, config: FwLoaderConfig, context: GearToolkitContext):
     level_has_errors = {p: False for p in PARENT_ORDER}
-    if config.validation_level == "flywheel" or (config.validation_level == "file" and config.add_parents):
+    if config.validation_level == "flywheel" or (
+        config.validation_level == "file" and config.add_parents
+    ):
         error_levels = set([e["Error_Location"].split(".")[0] for e in errors])
         for level in error_levels:
             level_has_errors[level] = True
@@ -80,4 +85,3 @@ def handle_metadata(errors, config: FwLoaderConfig, context, valid, tag):
 
     create_metadata(context, valid, input_object)
     tag_failed_containers(errors, config, context)
-

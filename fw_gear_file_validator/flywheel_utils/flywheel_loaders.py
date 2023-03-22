@@ -3,8 +3,14 @@ import typing as t
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-from fw_gear_file_validator.flywheel_utils.metadata_utils import make_fw_metadata, get_lowest_container_level
-from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference, FwLoaderConfig
+from fw_gear_file_validator.flywheel_utils.flywheel_env import (
+    FwLoaderConfig,
+    FwReference,
+)
+from fw_gear_file_validator.flywheel_utils.metadata_utils import (
+    get_lowest_container_level,
+    make_fw_metadata,
+)
 from fw_gear_file_validator.validator_utils.file_loaders import FileLoader
 
 
@@ -43,7 +49,9 @@ class FwLoader:
         # "file" flywheel object with the actual contents of the file itself
         if self.validation_level == "file":
             # Here we replace the "file" object with the loaded filedata
-            file_dict = self.load_local_file_contents(fw_reference.input_name, fw_reference.file_type)
+            file_dict = self.load_local_file_contents(
+                fw_reference.input_name, fw_reference.file_type
+            )
             validation_dict["file"] = file_dict
 
         # Case 2/3, we're validating any of the above without the parents in the hierarchy

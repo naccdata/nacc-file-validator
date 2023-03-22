@@ -1,9 +1,9 @@
 """Module to test parser.py"""
 import os
 from pathlib import Path
-import pytest
 
 import flywheel
+import pytest
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import parser
@@ -55,7 +55,6 @@ def test_parse_config():
 
 
 def test_identify_file_type():
-
     file_str = "test_file_name.json"
     str_ext = parser.identify_file_type(file_str)
     assert str_ext == "json"
@@ -76,5 +75,3 @@ def test_identify_file_type():
     bad_str = "unsupported.ext"
     with pytest.raises(TypeError) as e_info:
         _ = parser.identify_file_type(bad_str)
-
-
