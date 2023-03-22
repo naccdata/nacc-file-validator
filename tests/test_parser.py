@@ -1,6 +1,7 @@
 """Module to test parser.py"""
 import os
 from pathlib import Path
+import pytest
 
 import flywheel
 from flywheel_gear_toolkit import GearToolkitContext
@@ -32,11 +33,48 @@ def test_parse_config():
         debug,
         tag,
         validation_level,
+        add_parents,
         schema_file_path,
-        input_json,
-        flywheel_hierarchy,
-        strategy,
+        fw_reference,
     ) = parser.parse_config(context)
 
     assert validation_level == "file"
-    assert strategy == "local-file"
+
+    assert add_parents is True
+
+    assert fw_reference.dest_id == "63bece9e873b883e03663191"
+    assert fw_reference.dest_type == "acquisition"
+    assert fw_reference.file_id == "63e410b863f5924e85240486"
+    assert fw_reference.file_name == "test_input_valid.json"
+    assert fw_reference.file_type == "json"
+    assert fw_reference.input_name == "input_file"
+
+    assert tag == "file-validator"
+
+    assert debug is False
+
+
+def test_identify_file_type():
+
+    file_str = "test_file_name.json"
+    str_ext = parser.identify_file_type(file_str)
+    assert str_ext == "json"
+
+    file_path = Path(file_str)
+    path_ext = parser.identify_file_type(file_path)
+    assert path_ext == "json"
+
+    context = GearToolkitContext(config_path=test_config)
+    file_fw = context.get_input("input_file")
+    fw_ext = parser.identify_file_type(file_fw)
+    assert fw_ext == "json"
+
+    file_fw["location"]["name"] = "noext"
+    mime_ext = parser.identify_file_type(file_fw)
+    assert mime_ext == "json"
+
+    bad_str = "unsupported.ext"
+    with pytest.raises(TypeError) as e_info:
+        _ = parser.identify_file_type(bad_str)
+
+

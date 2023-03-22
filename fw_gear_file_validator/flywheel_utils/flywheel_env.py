@@ -37,6 +37,7 @@ class FwReference:
     file_id: str = None
     file_name: str = None
     file_type: str = None
+    input_name: str = None
 
     @property
     def is_file(self):

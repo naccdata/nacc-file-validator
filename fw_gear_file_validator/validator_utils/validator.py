@@ -24,7 +24,7 @@ class JsonValidator:
 
         valid = self.validator.is_valid(json_object)
         if valid:
-            return valid, [{}]
+            return valid, []
         errors = self.validator.iter_errors(json_object)
         packaged_errors = self.handle_errors(errors)
         return valid, packaged_errors
@@ -38,6 +38,7 @@ class JsonValidator:
         """Processes errors into a standard output format."""
 
         errors = sorted(json_schema_errors, key=lambda e: e.path)
+
         error_report = []
         for error in errors:
             error_report.append(

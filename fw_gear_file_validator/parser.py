@@ -38,6 +38,7 @@ def parse_config(
     fw_reference.file_id = local_file_object.get("object", {}).get("file_id")
     fw_reference.file_name = local_file_object.get("location", {}).get("name")
     fw_reference.file_type = local_file_type
+    fw_reference.input_name = "input_file"
 
     return (
         debug,
@@ -57,17 +58,17 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     # see if the input file object has a value
     if not input_file:
         return ""
-    # If it's a string make it a path
+
+    if isinstance(input_file, dict):
+        # First try to just check the file type from the file extension:
+
+        mime = input_file["object"]["mimetype"]    # If it's a string make it a path
+        input_file = input_file.get("location", {}).get("name")
+
     if isinstance(input_file, str):
         input_file = Path(input_file)
     # If it's a path try to get the extension from the suffix
-    if isinstance(input_file, Path):
-        ext = input_file.suffix
-    elif isinstance(input_file, dict):
-        # First try to just check the file type from the file extension:
-        file_name = input_file.get("location", {}).get("name")
-        base, ext = os.path.splitext(file_name)
-        mime = input_file["object"]["mimetype"]
+    ext = input_file.suffix
 
     # If we managed to get an extension, that means that
     if ext:
@@ -75,6 +76,6 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     elif mime:
         input_file_type = SUPPORTED_FLYWHEEL_MIMETYPES.get(mime)
     if input_file_type is None:
-        raise TypeError(f"file type {mime} is not supported")
+        raise TypeError(f"file type {mime},{ext} is not supported")
 
     return input_file_type

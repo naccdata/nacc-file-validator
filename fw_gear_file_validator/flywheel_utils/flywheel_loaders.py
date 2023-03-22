@@ -43,7 +43,7 @@ class FwLoader:
         # "file" flywheel object with the actual contents of the file itself
         if self.validation_level == "file":
             # Here we replace the "file" object with the loaded filedata
-            file_dict = self.load_local_file_contents(fw_reference.file_name, fw_reference.file_type)
+            file_dict = self.load_local_file_contents(fw_reference.input_name, fw_reference.file_type)
             validation_dict["file"] = file_dict
 
         # Case 2/3, we're validating any of the above without the parents in the hierarchy
@@ -52,15 +52,15 @@ class FwLoader:
 
         return full_fw_meta, validation_dict
 
-    def load_local_file_contents(self, file_name: str, file_type: str):
-        file_path = self.context.get_input_path(file_name)
+    def load_local_file_contents(self, input_name: str, file_type: str):
+        file_path = self.context.get_input_path(input_name)
         loader = FileLoader.factory(file_type)
         file_dict = loader.load(file_path)
         return file_dict
 
     @staticmethod
     def remove_parents_from_dict(hierarchy_dict):
-        levels = hierarchy_dict.keys()
+        levels = list(hierarchy_dict.keys())
         lowest = get_lowest_container_level(levels)
         for level in levels:
             if level == lowest:

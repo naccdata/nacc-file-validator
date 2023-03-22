@@ -12,8 +12,11 @@ class FileLoader(ABC):
         for subclass in cls.__subclasses__():
             if subclass.name == name:
                 loader = subclass()
+                return loader
 
-        return loader
+        raise ValueError(f"Type {name} not supported")
+
+
 
     @staticmethod
     @abstractmethod
@@ -22,7 +25,7 @@ class FileLoader(ABC):
 
 
 
-class JsonLoader(ABC):
+class JsonLoader(FileLoader):
     name = "json"
     @staticmethod
     def load(file_path: Path):

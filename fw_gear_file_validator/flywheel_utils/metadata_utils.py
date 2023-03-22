@@ -54,7 +54,7 @@ def make_fw_metadata(context: GearToolkitContext, container: Container) -> Path:
 
 def tag_failed_containers(errors, config: FwLoaderConfig, context: GearToolkitContext):
     level_has_errors = {p: False for p in PARENT_ORDER}
-    if config.validation_level_level == "flywheel" or (config.validation_level == "file" and config.add_parents):
+    if config.validation_level == "flywheel" or (config.validation_level == "file" and config.add_parents):
         error_levels = set([e["Error_Location"].split(".")[0] for e in errors])
         for level in error_levels:
             level_has_errors[level] = True

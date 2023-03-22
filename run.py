@@ -43,7 +43,8 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     config = FwLoaderConfig(add_parents, validation_level)
     fw_meta, input_json = prepare_fw_gear_json(context, config, fw_reference)
     valid, errors = run(schema_file_path, input_json)
-
+    print("ERRORS")
+    print(errors)
     errors = add_flywheel_location_to_errors(
         fw_meta, validation_level, errors
     )

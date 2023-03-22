@@ -5,7 +5,7 @@ from pathlib import Path
 from fw_gear_file_validator.flywheel_utils.flywheel_env import PARENT_ORDER
 
 
-def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
+def add_flywheel_location_to_errors(hierarchy_object, validation_level, packaged_errors):
     """Takes a set of packaged errors and adds flywheel hierarchy information to them.
 
     If validation was run at the "flywheel" level, then validation was done on a json schema.
@@ -22,9 +22,10 @@ def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
 
     ordered_parents = [parents[order] for order in PARENT_ORDER if order in parents]
     # if the validation level was the file, we just need to add the same flywheel path to every error
+
     if validation_level == "file":
         fw_url = "fw://" + "/".join(ordered_parents)
-        for e in errors:
+        for e in packaged_errors:
             e["Flywheel_Path"] = fw_url
             e["Container_ID"] = hierarchy_object["file"]["file_id"]
 
@@ -33,7 +34,8 @@ def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
     # to general schema error handling.
 
     elif validation_level == "flywheel":
-        for e in errors:
+        for e in packaged_errors:
+            print("PACKAGING FLYWHEEL")
             location = e["Error_Location"].split(".")[0]
             if location not in PARENT_ORDER:
                 raise ValueError(
@@ -54,7 +56,7 @@ def add_flywheel_location_to_errors(hierarchy_object, validation_level, errors):
 
             e["Container_ID"] = hierarchy_object[location][id_location]
 
-    return errors
+    return packaged_errors
 
 
 def save_errors(errors: t.List[t.Dict], output_dir: t.Union[Path, str]):
