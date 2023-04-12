@@ -1,53 +1,49 @@
 """Parser module to parse gear config.json."""
 
-import os
 from pathlib import Path
 from typing import Tuple, Union
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-from fw_gear_file_validator.env import (
-    SUPPORTED_FILE_EXTENSIONS,
-    SUPPORTED_FLYWHEEL_MIMETYPES,
-)
-from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference
+from fw_gear_file_validator.utils import FwReference
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
 
 
-# This function mainly parses gear_context's config.json file and returns relevant
-# inputs and options.
 def parse_config(
-    gear_context: GearToolkitContext,
-) -> Tuple[bool, str, str, bool, Path, FwReference]:
-    """parses necessary items out of the context object"""
+    context: GearToolkitContext,
+) -> Tuple[bool, str, Path, FwReference, dict]:
+    """Parses necessary items out of the context object"""
 
-    debug = gear_context.config.get("debug")
-    tag = gear_context.config.get("tag", "file-validator")
-    add_parents = gear_context.config.get("add_parents")
-    validation_level = gear_context.config.get("validation_level")
-    validation_level = level_dict[validation_level]
-    schema_file_path = Path(gear_context.get_input_path("validation_schema"))
+    debug = context.config.get("debug")
+    tag = context.config.get("tag")
+    add_parents = context.config.get("add_parents")
+    schema_file_path = Path(context.get_input_path("validation_schema"))
 
-    local_file_object = gear_context.get_input("input_file")
-    local_file_type = identify_file_type(local_file_object)
+    validation_level = level_dict[context.config.get("validation_level")]
+    if validation_level == "file" and not context.get_input_filename("input_file"):
+        raise ValueError("No input file provided for validation_level 'file'")
 
-    fw_reference = FwReference()
-    fw_reference.dest_id = gear_context.destination["id"]
-    fw_reference.dest_type = gear_context.destination["type"]
-    fw_reference.file_id = local_file_object.get("object", {}).get("file_id")
-    fw_reference.file_name = local_file_object.get("location", {}).get("name")
-    fw_reference.file_type = local_file_type
-    fw_reference.input_name = "input_file"
+    file_name = None
+    file_type = None
+    file_path = None
+    if context.get_input("input_file"):
+        file_name = context.get_input_filename("input_file")
+        file_type = identify_file_type(context.get_input("input_file"))
+        if validation_level == "file":
+            file_path = Path(context.get_input_path("input_file"))
 
-    return (
-        debug,
-        tag,
-        validation_level,
-        add_parents,
-        schema_file_path,
-        fw_reference,
+    fw_ref = FwReference(
+        cont_id=context.destination["id"],
+        cont_type=context.destination["type"],
+        file_name=file_name,
+        file_path=file_path,
+        file_type=file_type,
     )
+
+    loader_config = {"client": context.client, "add_parents": add_parents}
+
+    return debug, tag, schema_file_path, fw_ref, loader_config
 
 
 def identify_file_type(input_file: Union[dict, str, Path]) -> str:
@@ -61,7 +57,6 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
 
     if isinstance(input_file, dict):
         # First try to just check the file type from the file extension:
-
         mime = input_file["object"]["mimetype"]  # If it's a string make it a path
         input_file = input_file.get("location", {}).get("name")
 
@@ -79,3 +74,7 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
         raise TypeError(f"file type {mime},{ext} is not supported")
 
     return input_file_type
+
+
+SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
+SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}

@@ -4,10 +4,8 @@ import flywheel
 import flywheel_gear_toolkit
 
 import fw_gear_file_validator.flywheel_utils.flywheel_loaders
-from fw_gear_file_validator.flywheel_utils.flywheel_env import (
-    FwLoaderConfig,
-    FwReference,
-)
+from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference
+from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig
 
 client = flywheel.Client(os.environ["FWGA_API"])
 context = flywheel_gear_toolkit.GearToolkitContext(
@@ -21,8 +19,8 @@ def test_loader_init():
     fw_reference = FwReference
     fw_reference.file_name = context.get_input_filename("input_file")
     fw_reference.file_id = context.get_input_file_object_value("input_file", "file_id")
-    fw_reference.dest_type = context.destination["type"]
-    fw_reference.dest_id = context.destination["id"]
+    fw_reference.cont_type = context.destination["type"]
+    fw_reference.cont_id = context.destination["id"]
     fw_reference.file_type = "json"
     fw_reference.input_name = "input_file"
 

@@ -42,8 +42,8 @@ def test_parse_config():
 
     assert add_parents is True
 
-    assert fw_reference.dest_id == "63bece9e873b883e03663191"
-    assert fw_reference.dest_type == "acquisition"
+    assert fw_reference.cont_id == "63bece9e873b883e03663191"
+    assert fw_reference.cont_type == "acquisition"
     assert fw_reference.file_id == "63e410b863f5924e85240486"
     assert fw_reference.file_name == "test_input_valid.json"
     assert fw_reference.file_type == "json"
