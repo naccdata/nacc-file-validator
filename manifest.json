@@ -25,7 +25,7 @@
     "add_parents": {
       "description": "If validating Flywheel Objects, add the parent containers of the object to the schema for validation",
       "type": "boolean",
-      "default": "true"
+      "default": true
     }
   },
   "custom": {
@@ -35,7 +35,7 @@
     },
     "gear-builder": {
       "category": "qa",
-      "image": "flywheel/file-validator:0.1.0"
+      "image": "flywheel/file-validator:0.1.1"
     }
   },
   "description": "Validates a file based on a provided validation schema",

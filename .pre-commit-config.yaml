@@ -8,6 +8,7 @@ repos:
       - id: yamllint
       - id: black
       - id: isort
+      # - id: pytest
   - repo: https://gitlab.com/flywheel-io/scientific-solutions/etc/sse-qa-ci
     rev: 86f3649f27409ebe46ccada4dbf0bf0a75332b38
     hooks:
