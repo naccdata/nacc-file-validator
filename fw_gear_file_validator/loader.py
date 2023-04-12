@@ -50,14 +50,9 @@ class Loader(ABC):
 
         return loader
 
-    def load_schema(self, file_path: Path) -> dict:
-        """Returns the schema as a dict."""
-        try:
-            with open(file_path, "r", encoding="UTF-8") as fp:
-                schema = json.load(fp)
-            return schema
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            raise ValueError(f"Error loading schema: {e}")
+    @staticmethod
+    def load_schema(file_path: Path) -> dict:
+        return JsonLoader().load_object(file_path)
 
     def load_config(self, config: t.Any) -> None:
         """Loads the config for the loader."""
