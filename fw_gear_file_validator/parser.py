@@ -8,7 +8,8 @@ from flywheel_gear_toolkit import GearToolkitContext
 from fw_gear_file_validator.utils import FwReference
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
-
+SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
+SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
 
 def parse_config(
     context: GearToolkitContext,
@@ -46,19 +47,20 @@ def parse_config(
     return debug, tag, schema_file_path, fw_ref, loader_config
 
 
-def check_mimetype(input_file: Union[dict, Path, str]):
-    if isinstance(input_file, dict):
-        mime = input_file["object"]["mimetype"]
-        input_file = input_file.get("location", {}).get("name")
-        return mime, input_file
-    return None, input_file
+def get_fw_type_info(input_file: dict) -> (str, str):
+    """Gets a mimetype from a flywheel config input file object, and extracts the local path of that file."""
+    mime = input_file.get("object", {}).get("mimetype")
+    path = input_file.get("location", {}).get("name")
+    return mime, path
 
-
-def check_ext(input_file: Union[Path, str]):
+def get_ext(input_file: Union[Path, str]) -> str:
+    """ Extracts the extension from a string or Path"""
     if isinstance(input_file, str):
         input_file = Path(input_file)
-    # If it's a path try to get the extension from the suffix
+    if not isinstance(input_file, Path):
+        return None
     return input_file.suffix
+
 
 def validate_filetype(ext: str, mime: str):
     """ Ensures detected filetype is supported and errors if not"""
@@ -74,20 +76,21 @@ def validate_filetype(ext: str, mime: str):
 
 
 def identify_file_type(input_file: Union[dict, str, Path]) -> str:
-    """Given a flywheel config input file object, identify the file type."""
-    ext = None
-    mime = None
-    input_file_type = None
+    """Given a flywheel config input file object, identify a valid file type if possible"""
     # see if the input file object has a value
     if not input_file:
         return ""
 
-    mime, input_file = check_mimetype(input_file)
-    ext = check_ext(input_file)
+    # Order is don this way, because IF it's a flywheel file, it's possible that the
+    # MIMEtype may not be populated correctly or recognized, however the file may still
+    # have a valid extension, which we want to extract from the flywheel object
+    mime = None
+    if isinstance(input_file, dict):
+        mime, input_file = get_fw_type_info(input_file)
+    ext = get_ext(input_file)
     input_file_type = validate_filetype(ext, mime)
 
     return input_file_type
 
 
-SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
-SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
+
