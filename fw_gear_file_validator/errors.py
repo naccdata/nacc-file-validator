@@ -11,8 +11,8 @@ log = logging.getLogger(__name__)
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors):
     """Takes a set of packaged errors and adds flywheel hierarchy info to them."""
     hierarchy = fw_ref.all
-    fw_url = fw_ref.lookup_path
-    if fw_ref.is_local():
+    fw_url = fw_ref.get_lookup_path()
+    if fw_ref.validate_file_contents():
         for e in packaged_errors:
             e["Flywheel_Path"] = fw_url
             e["Container_ID"] = hierarchy["file"]["file_id"]
@@ -23,7 +23,7 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors):
                 raise ValueError(
                     f"Value {location} not valid flywheel hierarchy location"
                 )
-            e["Flywheel_Path"] = fw_url
+            e["Flywheel_Path"] = fw_ref.get_lookup_path(level=location)
             id_loc = "file_id" if location == "file" else "id"
             e["Container_ID"] = hierarchy[location][id_loc]
 

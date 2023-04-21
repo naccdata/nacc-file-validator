@@ -22,8 +22,12 @@ def parse_config(
     schema_file_path = Path(context.get_input_path("validation_schema"))
 
     validation_level = level_dict[context.config.get("validation_level")]
-    if validation_level == "file" and not context.get_input_filename("input_file"):
-        raise ValueError("No input file provided for validation_level 'file'")
+
+    if validation_level == "file":
+        if not context.get_input_filename("input_file"):
+            raise ValueError("No input file provided for validation_level 'file'")
+        if add_parents:
+            raise ValueError("Cannot attach flywheel parents to file-content validation")
 
     file_name = None
     file_type = None
@@ -34,15 +38,19 @@ def parse_config(
         if validation_level == "file":
             file_path = Path(context.get_input_path("input_file"))
 
+    if validation_level == "flywheel":
+        file_path = None
+
     fw_ref = FwReference(
         cont_id=context.destination["id"],
         cont_type=context.destination["type"],
         file_name=file_name,
         file_path=file_path,
         file_type=file_type,
+        _client=context.client
     )
 
-    loader_config = {"client": context.client, "add_parents": add_parents}
+    loader_config = {"add_parents": add_parents}
 
     return debug, tag, schema_file_path, fw_ref, loader_config
 
@@ -53,7 +61,8 @@ def get_fw_type_info(input_file: dict) -> (str, str):
     path = input_file.get("location", {}).get("name")
     return mime, path
 
-def get_ext(input_file: Union[Path, str]) -> str:
+
+def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
     """ Extracts the extension from a string or Path"""
     if isinstance(input_file, str):
         input_file = Path(input_file)
@@ -62,7 +71,7 @@ def get_ext(input_file: Union[Path, str]) -> str:
     return input_file.suffix
 
 
-def validate_filetype(ext: str, mime: str):
+def validate_filetype(ext: str, mime: str) -> Union[str, None]:
     """ Ensures detected filetype is supported and errors if not"""
     input_file_type = None
     if ext:
@@ -81,7 +90,7 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     if not input_file:
         return ""
 
-    # Order is don this way, because IF it's a flywheel file, it's possible that the
+    # Order is done this way, because IF it's a flywheel file, it's possible that the
     # MIMEtype may not be populated correctly or recognized, however the file may still
     # have a valid extension, which we want to extract from the flywheel object
     mime = None

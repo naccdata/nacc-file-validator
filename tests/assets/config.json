@@ -132,7 +132,7 @@
                 "size": 532,
                 "zip_member_count": null,
                 "version": 1,
-                "file_id": "63e410b863f5924e85240486",
+                "file_id": "6442f29a9bb0718c0adfaf9f",
                 "origin": {
                     "type": "user",
                     "id": "davidparker@flywheel.io"
@@ -177,6 +177,6 @@
         "debug": false,
         "tag": "file-validator",
         "validation_level": "Validate File Contents",
-        "add_parents": true
+        "add_parents": false
     }
 }

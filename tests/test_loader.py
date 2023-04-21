@@ -1,11 +1,12 @@
 import os
+from pathlib import Path
 
 import flywheel
 import flywheel_gear_toolkit
 
-import fw_gear_file_validator.flywheel_utils.flywheel_loaders
-from fw_gear_file_validator.flywheel_utils.flywheel_env import FwReference
-from fw_gear_file_validator.flywheel_utils.flywheel_loaders import FwLoaderConfig
+import fw_gear_file_validator
+from fw_gear_file_validator.loader import FwLoader
+from fw_gear_file_validator.utils import FwReference
 
 client = flywheel.Client(os.environ["FWGA_API"])
 context = flywheel_gear_toolkit.GearToolkitContext(
@@ -15,29 +16,35 @@ context._client = client
 
 
 def test_loader_init():
-    config = FwLoaderConfig(add_parents=False, validation_level="file")
-    fw_reference = FwReference
-    fw_reference.file_name = context.get_input_filename("input_file")
-    fw_reference.file_id = context.get_input_file_object_value("input_file", "file_id")
-    fw_reference.cont_type = context.destination["type"]
-    fw_reference.cont_id = context.destination["id"]
-    fw_reference.file_type = "json"
-    fw_reference.input_name = "input_file"
 
-    print(fw_reference.file_name)
-    loader = fw_gear_file_validator.flywheel_utils.flywheel_loaders.FwLoader(
-        context=context, config=config
+    fw_reference = FwReference(
+        cont_id=context.destination["id"],
+        cont_type=context.destination["type"],
+        file_name=context.get_input_filename("input_file"),
+        file_path=None,
+        file_type="json",
+        _client=context.client
     )
 
-    full_fw_meta, validation_dict = loader.load(fw_reference)
+    config = {'add_parents': True}
+    loader = FwLoader(config=config)
+    validation_dict = loader.load_object(fw_reference)
 
-    assert "file" not in validation_dict
-
-    config = FwLoaderConfig(add_parents=True, validation_level="file")
-
-    loader = fw_gear_file_validator.flywheel_utils.flywheel_loaders.FwLoader(
-        context=context, config=config
-    )
-
-    full_fw_meta, validation_dict = loader.load(fw_reference)
     assert "file" in validation_dict
+    assert "project" in validation_dict
+    assert "subject" in validation_dict
+    assert "session" in validation_dict
+    assert "acquisition" in validation_dict
+    assert "analysis" not in validation_dict
+
+    config = {'add_parents': False}
+    loader = FwLoader(config=config)
+    validation_dict = loader.load_object(fw_reference)
+
+    assert "file" in validation_dict
+    assert "project" not in validation_dict
+    assert "subject" not in validation_dict
+    assert "session" not in validation_dict
+    assert "acquisition" not in validation_dict
+    assert "analysis" not in validation_dict
+

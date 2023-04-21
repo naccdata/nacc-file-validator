@@ -33,30 +33,28 @@ class Loader(ABC):
     This is used to load the schema and the object to be validated."""
 
     name = None
+    has_config = False
 
     @classmethod
-    def factory(cls, name: str, config) -> "Loader":
+    def factory(cls, name: str, config: t.Dict[str, t.Any] = None) -> "Loader":
         """Returns a configured loader based on the name and config provided."""
         loader = None
         for subclass in cls.__subclasses__():
             if subclass.name == name:
-                loader = subclass()
+                if subclass.has_config:
+                    loader = subclass(config)
+                else:
+                    loader = subclass()
                 break
 
         if not loader:
             raise ValueError(f"Loader {name} not found")
-
-        loader.load_config(config)
 
         return loader
 
     @staticmethod
     def load_schema(file_path: Path) -> dict:
         return JsonLoader().load_object(file_path)
-
-    def load_config(self, config: t.Any) -> None:
-        """Loads the config for the loader."""
-        pass
 
     @abstractmethod
     def load_object(self, file: t.Union[Path, dict]) -> dict:
@@ -68,6 +66,10 @@ class JsonLoader(Loader):
     """Loads a JSON file."""
 
     name = "json"
+    has_config = False
+
+    def __init__(self):
+        super().__init__()
 
     def load_object(self, file_path: Path) -> dict:
         """Returns the content of the JSON file as a dict."""
@@ -83,17 +85,13 @@ class FwLoader(Loader):
     """Loads a Flywheel object."""
 
     name = "flywheel"
-    client = None
-    add_parents = None
+    has_config = True
 
-    def load_config(self, config: t.Any) -> None:
-        """Loads the config for the loader."""
-        self.client = config.get("client")
+    def __init__(self, config: t.Dict[str, t.Any]):
         self.add_parents = config.get("add_parents")
 
     def load_object(self, fw_ref: FwReference) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
-        fw_ref.add_client(self.client)
         if self.add_parents:
             containers_d = fw_ref.all
         else:
