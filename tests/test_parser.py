@@ -29,13 +29,9 @@ def test_parse_config():
 
     client = flywheel.Client(os.environ["FWGA_API"])
     context._client = client
-    (
-        debug,
-        tag,
-        schema_file_path,
-        fw_reference,
-        loader_config
-    ) = parser.parse_config(context)
+    (debug, tag, schema_file_path, fw_reference, loader_config) = parser.parse_config(
+        context
+    )
     assert fw_reference.is_file()
 
     assert loader_config["add_parents"] is False

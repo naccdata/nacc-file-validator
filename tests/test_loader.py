@@ -12,9 +12,7 @@ client = flywheel.Client(os.environ["FWGA_API"])
 BASE_DIR = d = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
-context = flywheel_gear_toolkit.GearToolkitContext(
-    config_path=test_config
-)
+context = flywheel_gear_toolkit.GearToolkitContext(config_path=test_config)
 context._client = client
 
 
