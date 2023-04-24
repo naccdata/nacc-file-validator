@@ -1,5 +1,6 @@
+from flywheel import Acquisition, FileEntry, Group, Project, Session, Subject
+
 from fw_gear_file_validator import utils
-from flywheel import Group, Project, Subject, Session, Acquisition, FileEntry
 
 
 def test_get_lookup_path():
@@ -9,7 +10,7 @@ def test_get_lookup_path():
         file_name="test_file_name.ext",
         file_path=None,
         file_type="test_file_type",
-        _client=None
+        _client=None,
     )
 
     group = Group()
@@ -25,16 +26,14 @@ def test_get_lookup_path():
     file = FileEntry()
     file.name = "test_file_name.ext"
 
-
-
     parent_dict = {
         "group": group,
-                   "project": project,
-                   "subject": subject,
-                   "session": session,
-                   "acquisition": acquisition,
-                   "file": file
-                   }
+        "project": project,
+        "subject": subject,
+        "session": session,
+        "acquisition": acquisition,
+        "file": file,
+    }
 
     fw_ref.__dict__["container"] = file
     fw_ref.__dict__["parents"] = parent_dict
@@ -56,4 +55,3 @@ def test_get_lookup_path():
 
     url = f"fw://{group.label}"
     assert fw_ref.get_lookup_path(level="group") == url
-

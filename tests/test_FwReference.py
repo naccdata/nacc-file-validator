@@ -5,24 +5,22 @@ import flywheel
 import flywheel_gear_toolkit
 import pytest
 
-from fw_gear_file_validator.utils import FwReference, PARENT_ORDER
+from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
 config_file = "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/config.json"
 
 client = flywheel.Client(os.environ["FWGA_API"])
-context = flywheel_gear_toolkit.GearToolkitContext(
-    config_path=config_file
-)
+context = flywheel_gear_toolkit.GearToolkitContext(config_path=config_file)
 context._client = client
 
 
 def test_is_valid():
     with pytest.raises(ValueError):
         ref = FwReference(file_path=Path("does/not/exist.txt"))
-    
+
     ref = FwReference(file_path=Path(config_file))
     assert ref.is_valid()
-    
+
     with pytest.raises(ValueError):
         ref = FwReference(cont_type="none")
 
@@ -30,7 +28,7 @@ def test_is_valid():
         ref = FwReference(cont_type=parent)
         assert ref.is_valid()
 
-    
+
 def test_loc():
     ref = FwReference(file_path=Path(config_file))
     assert ref.loc() == Path(config_file)
@@ -57,24 +55,23 @@ def test_client():
 
 
 def test_container():
-
     ses_id = "63ceeda12bae5aafaf66306e"
     file_id = "6442edd40e732989de85e54d"
     file_name = "json_classifier.yaml"
     file_type = "json"
 
-    ref = FwReference(cont_type="session",
-                      cont_id=ses_id,
-                      _client=client)
+    ref = FwReference(cont_type="session", cont_id=ses_id, _client=client)
 
     ses = client.get_session(ses_id)
     assert ref.container.id == ses.id
 
-    ref = FwReference(cont_type="session",
-                      cont_id=ses_id,
-                      _client=client,
-                      file_name=file_name,
-                      file_type=file_type)
+    ref = FwReference(
+        cont_type="session",
+        cont_id=ses_id,
+        _client=client,
+        file_name=file_name,
+        file_type=file_type,
+    )
 
     file = client.get_file(file_id)
     assert ref.container.file_id == file.file_id
@@ -86,9 +83,7 @@ def test_parents():
     file_name = "json_classifier.yaml"
     file_type = "json"
 
-    ref = FwReference(cont_type="session",
-                      cont_id=ses_id,
-                      _client=client)
+    ref = FwReference(cont_type="session", cont_id=ses_id, _client=client)
 
     ses = client.get_session(ses_id)
     parents = ref.parents
@@ -99,11 +94,13 @@ def test_parents():
         print(ses.parents[parent])
         assert parents[parent].id == ses.parents[parent]
 
-    ref = FwReference(cont_type="session",
-                      cont_id=ses_id,
-                      _client=client,
-                      file_name=file_name,
-                      file_type=file_type)
+    ref = FwReference(
+        cont_type="session",
+        cont_id=ses_id,
+        _client=client,
+        file_name=file_name,
+        file_type=file_type,
+    )
 
     file = client.get_file(file_id)
     parents = ref.parents
@@ -122,33 +119,16 @@ def test_all():
     wront_file_name = "nothere.txt"
     file_type = "json"
 
-    ref = FwReference(cont_type="acquisition",
-                      cont_id=acq_id,
-                      _client=client)
+    ref = FwReference(cont_type="acquisition", cont_id=acq_id, _client=client)
 
     a = ref.all
 
-    ref = FwReference(cont_type="acquisition",
-                      cont_id=acq_id,
-                      _client=client,
-                      file_name=file_name,
-                      file_type=file_type)
+    ref = FwReference(
+        cont_type="acquisition",
+        cont_id=acq_id,
+        _client=client,
+        file_name=file_name,
+        file_type=file_type,
+    )
 
     b = ref.all
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

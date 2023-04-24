@@ -16,17 +16,16 @@ context._client = client
 
 
 def test_loader_init():
-
     fw_reference = FwReference(
         cont_id=context.destination["id"],
         cont_type=context.destination["type"],
         file_name=context.get_input_filename("input_file"),
         file_path=None,
         file_type="json",
-        _client=context.client
+        _client=context.client,
     )
 
-    config = {'add_parents': True}
+    config = {"add_parents": True}
     loader = FwLoader(config=config)
     validation_dict = loader.load_object(fw_reference)
 
@@ -37,7 +36,7 @@ def test_loader_init():
     assert "acquisition" in validation_dict
     assert "analysis" not in validation_dict
 
-    config = {'add_parents': False}
+    config = {"add_parents": False}
     loader = FwLoader(config=config)
     validation_dict = loader.load_object(fw_reference)
 
@@ -47,4 +46,3 @@ def test_loader_init():
     assert "session" not in validation_dict
     assert "acquisition" not in validation_dict
     assert "analysis" not in validation_dict
-
