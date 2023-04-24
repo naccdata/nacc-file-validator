@@ -32,22 +32,18 @@ def test_parse_config():
     (
         debug,
         tag,
-        validation_level,
-        add_parents,
         schema_file_path,
         fw_reference,
+        loader_config
     ) = parser.parse_config(context)
+    assert fw_reference.is_file()
 
-    assert validation_level == "file"
-
-    assert add_parents is True
+    assert loader_config["add_parents"] is False
 
     assert fw_reference.cont_id == "63bece9e873b883e03663191"
     assert fw_reference.cont_type == "acquisition"
-    assert fw_reference.file_id == "63e410b863f5924e85240486"
     assert fw_reference.file_name == "test_input_valid.json"
     assert fw_reference.file_type == "json"
-    assert fw_reference.input_name == "input_file"
 
     assert tag == "file-validator"
 
