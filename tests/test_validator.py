@@ -14,6 +14,7 @@ def test_process():
     valid, errors = jvalidator.process(json_object)
     assert not valid
     assert len(errors) == 1
+    print(errors)
 
 
 def test_validate():

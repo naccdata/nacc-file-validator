@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import typing as t
 from dataclasses import dataclass
-from functools import cached_property, cache
+from functools import cached_property
 from pathlib import Path
 
 import flywheel
@@ -137,10 +137,10 @@ def handle_metadata(
     tag,
 ):
     state = "PASS" if valid else "FAIL"
-    if not fw_ref.is_file():
+    if fw_ref.is_file():
         input_object = context.get_input("input_file")
         context.metadata.add_qc_result(
-            input_object, name=context.manifest.name, state=state
+            input_object, name=context.manifest["name"], state=state
         )
         context.metadata.add_file_tags(input_object, str(tag))
     else:

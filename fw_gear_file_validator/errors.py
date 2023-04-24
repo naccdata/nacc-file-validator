@@ -27,6 +27,8 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors):
             id_loc = "file_id" if location == "file" else "id"
             e["Container_ID"] = hierarchy[location][id_loc]
 
+    return packaged_errors
+
 
 def save_errors(
     errors: t.List[t.Dict], output_dir: t.Union[Path, str], filename: str = None
@@ -45,3 +47,5 @@ def save_errors(
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         writer.writerows(errors)
+
+    log.debug(f"saved errors to {error_file}")
