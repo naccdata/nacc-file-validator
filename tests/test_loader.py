@@ -9,8 +9,11 @@ from fw_gear_file_validator.loader import FwLoader
 from fw_gear_file_validator.utils import FwReference
 
 client = flywheel.Client(os.environ["FWGA_API"])
+BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = BASE_DIR / "tests"
+test_config = BASE_DIR / "assets" / "config.json"
 context = flywheel_gear_toolkit.GearToolkitContext(
-    config_path="/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/config.json"
+    config_path=test_config
 )
 context._client = client
 

@@ -1,17 +1,19 @@
 import os
 from pathlib import Path
+from flywheel import Group, Project, Subject, Session, Acquisition, FileEntry
 
 import flywheel
 import flywheel_gear_toolkit
 import pytest
 
 from fw_gear_file_validator.utils import FwReference, PARENT_ORDER
-
-config_file = "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/config.json"
+BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = BASE_DIR / "tests"
+test_config = BASE_DIR / "assets" / "config.json"
 
 client = flywheel.Client(os.environ["FWGA_API"])
 context = flywheel_gear_toolkit.GearToolkitContext(
-    config_path=config_file
+    config_path=test_config
 )
 context._client = client
 
@@ -20,7 +22,7 @@ def test_is_valid():
     with pytest.raises(ValueError):
         ref = FwReference(file_path=Path("does/not/exist.txt"))
     
-    ref = FwReference(file_path=Path(config_file))
+    ref = FwReference(file_path=Path(test_config))
     assert ref.is_valid()
     
     with pytest.raises(ValueError):
@@ -32,15 +34,15 @@ def test_is_valid():
 
     
 def test_loc():
-    ref = FwReference(file_path=Path(config_file))
-    assert ref.loc() == Path(config_file)
+    ref = FwReference(file_path=Path(test_config))
+    assert ref.loc() == Path(test_config)
 
     ref = FwReference(cont_type="subject")
     assert ref.loc() == ref
 
 
 def test_validate_file_contents():
-    ref = FwReference(file_path=Path(config_file))
+    ref = FwReference(file_path=Path(test_config))
     assert ref.validate_file_contents()
 
     ref = FwReference(cont_type="subject")
@@ -48,11 +50,11 @@ def test_validate_file_contents():
 
 
 def test_client():
-    ref = FwReference(file_path=Path(config_file))
+    ref = FwReference(file_path=Path(test_config))
     with pytest.raises(ValueError):
         ref.client
 
-    ref = FwReference(file_path=Path(config_file), _client=client)
+    ref = FwReference(file_path=Path(test_config), _client=client)
     assert ref.client == client
 
 
@@ -138,6 +140,61 @@ def test_all():
 
 
 
+
+def test_get_lookup_path():
+    fw_ref = FwReference(
+        cont_id="test_container_id",
+        cont_type="acquisition",
+        file_name="test_file_name.ext",
+        file_path=None,
+        file_type="test_file_type",
+        _client=None
+    )
+
+    group = Group()
+    group.label = "test_group"
+    project = Project()
+    project.label = "test_project"
+    subject = Subject()
+    subject.label = "test_subject"
+    session = Session()
+    session.label = "test_session"
+    acquisition = Acquisition()
+    acquisition.label = "test_acquisition"
+    file = FileEntry()
+    file.name = "test_file_name.ext"
+
+
+
+    parent_dict = {
+        "group": group,
+                   "project": project,
+                   "subject": subject,
+                   "session": session,
+                   "acquisition": acquisition,
+                   "file": file
+                   }
+
+    fw_ref.__dict__["container"] = file
+    fw_ref.__dict__["parents"] = parent_dict
+
+    url = f"fw://{group.label}/{project.label}/{subject.label}/{session.label}/{acquisition.label}/{file.name}"
+    assert fw_ref.get_lookup_path() == url
+
+    url = f"fw://{group.label}/{project.label}/{subject.label}/{session.label}/{acquisition.label}"
+    assert fw_ref.get_lookup_path(level="acquisition") == url
+
+    url = f"fw://{group.label}/{project.label}/{subject.label}/{session.label}"
+    assert fw_ref.get_lookup_path(level="session") == url
+
+    url = f"fw://{group.label}/{project.label}/{subject.label}"
+    assert fw_ref.get_lookup_path(level="subject") == url
+
+    url = f"fw://{group.label}/{project.label}"
+    assert fw_ref.get_lookup_path(level="project") == url
+
+    url = f"fw://{group.label}"
+    assert fw_ref.get_lookup_path(level="group") == url
 
 
 
