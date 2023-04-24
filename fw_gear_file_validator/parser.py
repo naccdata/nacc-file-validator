@@ -11,6 +11,7 @@ level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "fl
 SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
 SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
 
+
 def parse_config(
     context: GearToolkitContext,
 ) -> Tuple[bool, str, Path, FwReference, dict]:
@@ -27,7 +28,9 @@ def parse_config(
         if not context.get_input_filename("input_file"):
             raise ValueError("No input file provided for validation_level 'file'")
         if add_parents:
-            raise ValueError("Cannot attach flywheel parents to file-content validation")
+            raise ValueError(
+                "Cannot attach flywheel parents to file-content validation"
+            )
 
     file_name = None
     file_type = None
@@ -47,7 +50,7 @@ def parse_config(
         file_name=file_name,
         file_path=file_path,
         file_type=file_type,
-        _client=context.client
+        _client=context.client,
     )
 
     loader_config = {"add_parents": add_parents}
@@ -63,7 +66,7 @@ def get_fw_type_info(input_file: dict) -> (str, str):
 
 
 def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
-    """ Extracts the extension from a string or Path"""
+    """Extracts the extension from a string or Path"""
     if isinstance(input_file, str):
         input_file = Path(input_file)
     if not isinstance(input_file, Path):
@@ -72,7 +75,7 @@ def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
 
 
 def validate_filetype(ext: str, mime: str) -> Union[str, None]:
-    """ Ensures detected filetype is supported and errors if not"""
+    """Ensures detected filetype is supported and errors if not"""
     input_file_type = None
     if ext:
         input_file_type = SUPPORTED_FILE_EXTENSIONS.get(ext)
@@ -100,6 +103,3 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     input_file_type = validate_filetype(ext, mime)
 
     return input_file_type
-
-
-
