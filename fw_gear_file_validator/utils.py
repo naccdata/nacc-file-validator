@@ -1,8 +1,10 @@
+import time
 import typing as t
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
+import logging
 
 import flywheel
 import flywheel_gear_toolkit
@@ -18,6 +20,10 @@ PARENT_ORDER = [
     "file",
 ]
 
+log = logging.getLogger()
+
+N_TRIES = 5
+SLEEP_TIME = 5
 
 @dataclass
 class FwReference:
@@ -96,7 +102,20 @@ class FwReference:
     def container(self) -> Container:
         """Returns the container for the provided Flywheel reference."""
         getter = getattr(self.client, f"get_{self.cont_type}")
-        container = getter(self.cont_id)
+
+        tries = 0
+        while tries < N_TRIES:
+            container = getter(self.cont_id)
+            if container:
+                break
+            tries += 1
+            log.debug('Empty parent object, retrying')
+            time.sleep(SLEEP_TIME)
+
+        if not container:
+            # Better to exit here with a good error than crash later
+            raise ValueError(f"Unable to retrieve container {self.cont_type}: {self.cont_id}")
+
         if self.file_name:
             container = container.get_file(self.file_name)
         return container
@@ -108,11 +127,21 @@ class FwReference:
         container = self.container
         parents = container.parents
         for p_type, p_id in parents.items():
-            if p_type == "group":
-                parents_hierarchy[p_type] = p_id
             if p_id:  # some parents are None
                 getter = getattr(self.client, f"get_{p_type}")
-                parent_object = getter(p_id)
+                tries = 0
+                while tries < N_TRIES:
+                    parent_object = getter(p_id)
+                    if parent_object:
+                        break
+                    tries += 1
+                    log.debug('Empty parent object, retrying')
+                    time.sleep(SLEEP_TIME)
+
+                if not parent_object:
+                    # Better to exit here with a good error than crash later
+                    raise ValueError(f"Unable to retrieve parent {p_type}: {p_id}")
+
                 parents_hierarchy[p_type] = parent_object
         return parents_hierarchy
 
