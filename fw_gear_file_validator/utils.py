@@ -1,10 +1,10 @@
+import logging
 import time
 import typing as t
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-import logging
 
 import flywheel
 import flywheel_gear_toolkit
@@ -24,6 +24,7 @@ log = logging.getLogger()
 
 N_TRIES = 5
 SLEEP_TIME = 5
+
 
 @dataclass
 class FwReference:
@@ -109,12 +110,14 @@ class FwReference:
             if container:
                 break
             tries += 1
-            log.debug('Empty parent object, retrying')
+            log.debug("Empty parent object, retrying")
             time.sleep(SLEEP_TIME)
 
         if not container:
             # Better to exit here with a good error than crash later
-            raise ValueError(f"Unable to retrieve container {self.cont_type}: {self.cont_id}")
+            raise ValueError(
+                f"Unable to retrieve container {self.cont_type}: {self.cont_id}"
+            )
 
         if self.file_name:
             container = container.get_file(self.file_name)
@@ -135,7 +138,7 @@ class FwReference:
                     if parent_object:
                         break
                     tries += 1
-                    log.debug('Empty parent object, retrying')
+                    log.debug("Empty parent object, retrying")
                     time.sleep(SLEEP_TIME)
 
                 if not parent_object:
