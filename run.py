@@ -27,9 +27,9 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     valid, errors = schema_validator.validate(d)
 
     if fw_ref.is_file():
-        error_filemame = f"{fw_ref.file_name}-validation-errors.json"
+        error_filemame = f"{fw_ref.file_name}-validation-errors.csv"
     else:
-        error_filemame = "validation-errors.json"
+        error_filemame = "validation-errors.csv"
     errors = add_flywheel_location_to_errors(fw_ref, errors)
     save_errors(errors, context.output_dir, error_filemame)
     handle_metadata(context, fw_ref, valid, tag)

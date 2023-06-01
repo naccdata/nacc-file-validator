@@ -1,6 +1,7 @@
 """Module to test parser.py"""
 import os
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import flywheel
 import pytest
@@ -15,23 +16,15 @@ test_config = BASE_DIR / "assets" / "config.json"
 
 
 def test_parse_config():
-    """Here is an example of what you should add in your parse_config Testing
-    gear_context = MagicMock(spec=GearToolkitContext)
-
-    parse_config(gear_context)
-
-    assert gear_context.get_input_path.call_count == 1
-    assert gear_context.get_input.call_count == 0
-
-    """
 
     context = GearToolkitContext(config_path=test_config)
 
-    client = flywheel.Client(os.environ["FWGA_API"])
+    client = MagicMock()
     context._client = client
     (debug, tag, schema_file_path, fw_reference, loader_config) = parser.parse_config(
         context
     )
+
     assert fw_reference.is_file()
 
     assert loader_config["add_parents"] is False

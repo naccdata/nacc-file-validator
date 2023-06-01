@@ -9,7 +9,7 @@ import run
 BASE_DIR = d = Path(__file__).resolve().parents[1]
 manifest_path = BASE_DIR / "manifest.json"
 BASE_DIR = BASE_DIR / "tests"
-test_config = BASE_DIR / "assets" / "config.json"
+test_config = BASE_DIR / "assets" / "integration_config.json"
 
 
 # BASE_DIR="/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/tests/integration"

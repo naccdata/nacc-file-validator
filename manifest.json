@@ -49,7 +49,7 @@
       "description": "The file to validate",
       "optional": true
     },
-      "validation_schema": {
+    "validation_schema": {
       "base": "file",
       "description": "the schema to use to validate the file"
     }
@@ -60,5 +60,11 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.1.4"
+  "version": "0.1.4",
+  "custom": {
+    "gear-builder": {
+      "category": "qa",
+      "image": "flywheel/file-validator:0.1.4"
+    }
+  }
 }

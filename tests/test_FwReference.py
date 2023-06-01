@@ -16,9 +16,6 @@ BASE_DIR = d = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
-client = flywheel.Client(os.environ["FWGA_API"])
-context = flywheel_gear_toolkit.GearToolkitContext(config_path=test_config)
-context._client = client
 
 
 def test_is_valid():
@@ -53,6 +50,7 @@ def test_validate_file_contents():
 
 
 def test_client():
+    client = MagicMock
     ref = FwReference(file_path=Path(test_config))
     with pytest.raises(ValueError):
         ref.client
@@ -63,15 +61,23 @@ def test_client():
 
 def test_container():
     ses_id = "63ceeda12bae5aafaf66306e"
-    file_id = "6442edd40e732989de85e54d"
     file_name = "json_classifier.yaml"
     file_type = "json"
 
-    ref = FwReference(cont_type="session", cont_id=ses_id, _client=client)
+    client = MagicMock()
 
-    ses = client.get_session(ses_id)
-    assert ref.container.id == ses.id
+    ref = FwReference(
+        cont_type="session",
+        cont_id=ses_id,
+        _client=client,
+    )
+    ref.container
+    client.get_session.assert_called_once()
+    client.get_session().get_file.assert_not_called()
 
+
+
+    client = MagicMock()
     ref = FwReference(
         cont_type="session",
         cont_id=ses_id,
@@ -80,8 +86,8 @@ def test_container():
         file_type=file_type,
     )
 
-    file = client.get_file(file_id)
-    assert ref.container.file_id == file.file_id
+    ref.container
+    client.get_session().get_file.assert_called_once()
 
 
 def test_parents():
@@ -90,17 +96,15 @@ def test_parents():
     file_name = "json_classifier.yaml"
     file_type = "json"
 
+    client = MagicMock()
     ref = FwReference(cont_type="session", cont_id=ses_id, _client=client)
-
-    ses = client.get_session(ses_id)
     parents = ref.parents
-    # print(parents)
-    for parent in ses.parents.keys():
-        print(parent)
-        print(parents[parent].id)
-        print(ses.parents[parent])
-        assert parents[parent].id == ses.parents[parent]
 
+    client.get_session.assert_called_once()
+    client.get_session().get_file.assert_not_called()
+    client.get_session().parents.items.assert_called_once()
+
+    client = MagicMock()
     ref = FwReference(
         cont_type="session",
         cont_id=ses_id,
@@ -109,14 +113,9 @@ def test_parents():
         file_type=file_type,
     )
 
-    file = client.get_file(file_id)
     parents = ref.parents
-    for parent in file.parents.keys():
-        print(parent)
-        if parent in parents:
-            print(parents[parent].id)
-            print(ref.parents[parent])
-            assert parents[parent].id == file.parents[parent]
+    client.get_session().get_file.assert_called_once()
+    client.get_session().get_file().parents.items.assert_called_once()
 
 
 def test_all():
@@ -124,9 +123,19 @@ def test_all():
     file_name = "test_json_form.json"
     file_type = "json"
 
+    client = MagicMock()
     ref = FwReference(cont_type="acquisition", cont_id=acq_id, _client=client)
 
     a = ref.all
+
+
+
+    client.get_acquisition.assert_called_once()
+    client.get_acquisition().parents.items.assert_called_once()
+    client.get_acquisition().get_file.assert_not_called()
+
+
+    client = MagicMock()
 
     ref = FwReference(
         cont_type="acquisition",
@@ -137,6 +146,9 @@ def test_all():
     )
 
     b = ref.all
+    client.get_acquisition.assert_called_once()
+    client.get_acquisition().get_file.assert_called_once()
+    client.get_acquisition().get_file().parents.items.assert_called_once()
 
 
 def test_get_lookup_path():
@@ -210,7 +222,6 @@ def test_container_retrys():
     with pytest.raises(ValueError) as e_info:
         fw_ref.container
 
-    print(my_client.get_session.call_count)
     assert my_client.get_session.call_count == utils.N_TRIES
 
 

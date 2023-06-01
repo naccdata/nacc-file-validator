@@ -7,7 +7,7 @@ from jsonschema.exceptions import ValidationError
 
 
 class JsonValidator:
-    """Validator base class."""
+    """Validator class."""
 
     def __init__(self, schema: t.Union[dict, Path, str]):
         if isinstance(schema, str):
