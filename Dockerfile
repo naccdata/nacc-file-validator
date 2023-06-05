@@ -1,10 +1,10 @@
-FROM python:3.8-slim
+FROM python:3.9-slim
 ENV FLYWHEEL="/flywheel/v0"
 WORKDIR ${FLYWHEEL}
 
 # Dev install. git for pip editable install.
 RUN apt-get update &&  \
-    apt-get install --no-install-recommends -y git=1:2.30.2-1 && \
+    apt-get install --no-install-recommends -y git=1:2.30.2-1+deb11u2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

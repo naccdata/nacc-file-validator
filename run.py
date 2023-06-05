@@ -1,49 +1,41 @@
 #!/usr/bin/env python
 """The run script"""
 import logging
-import sys
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-# This design with a separate main and parser module
-# allows the gear to be publishable and the main interfaces
-# to it can then be imported in another project which enables
-# chaining multiple gears together.
-from fw_gear_skeleton.main import run
-from fw_gear_skeleton.parser import parse_config
-
-# The run.py should be as minimal as possible.
-# The gear is split up into 2 main components. The run.py file which is executed
-# when the container runs. The run.py file then imports the rest of the gear as a
-# module.
-
+from fw_gear_file_validator import validator
+from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors
+from fw_gear_file_validator.loader import Loader
+from fw_gear_file_validator.parser import parse_config
+from fw_gear_file_validator.utils import handle_metadata
 
 log = logging.getLogger(__name__)
 
 
 def main(context: GearToolkitContext) -> None:  # pragma: no cover
-    """Parses gear config and run"""
+    """Parses gear config, runs main algorithm, and performs flywheel-specific actions."""
 
-    # Call parse_config to extract the args, kwargs from the context
-    # (e.g. config.json).
-    debug, text = parse_config(context)
+    (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
 
-    # Pass the args, kwargs to fw_gear_skeleton.main.run function to execute
-    # the main functionality of the gear.
-    e_code = run(text)
+    loader_type = fw_ref.file_type if fw_ref.validate_file_contents() else "flywheel"
+    loader = Loader.factory(loader_type, config=loader_config)
+    d = loader.load_object(fw_ref.loc())
+    schema = loader.load_schema(schema_file_path)
 
-    # Exit the python script (and thus the container) with the exit
-    # code returned by example_gear.main.run function.
-    sys.exit(e_code)
+    schema_validator = validator.JsonValidator(schema)
+    valid, errors = schema_validator.validate(d)
+
+    if fw_ref.is_file():
+        error_filemame = f"{fw_ref.file_name}-validation-errors.csv"
+    else:
+        error_filemame = "validation-errors.csv"
+    errors = add_flywheel_location_to_errors(fw_ref, errors)
+    save_errors(errors, context.output_dir, error_filemame)
+    handle_metadata(context, fw_ref, valid, tag)
 
 
-# Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover
-    # Get access to gear config, inputs, and sdk client if enabled.
     with GearToolkitContext() as gear_context:
-        # Initialize logging, set logging level based on `debug` configuration
-        # key in gear config.
         gear_context.init_logging()
-
-        # Pass the gear context into main function defined above.
         main(gear_context)
