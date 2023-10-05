@@ -168,6 +168,7 @@ def handle_metadata(
     tag,
 ):
     state = "PASS" if valid else "FAIL"
+    tag = f"{tag}-{state}"
     if fw_ref.is_file():
         input_object = context.get_input("input_file")
         context.metadata.add_qc_result(
