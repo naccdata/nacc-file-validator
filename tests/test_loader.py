@@ -19,7 +19,6 @@ def test_loader_init():
     client = MagicMock()
     context._client = client
 
-
     fw_reference = FwReference(
         cont_id=context.destination["id"],
         cont_type=context.destination["type"],
@@ -52,4 +51,3 @@ def test_loader_init():
 
     client.get_acquisition().get_file.assert_called_once()
     client.get_acquisition().get_file().parents.items.assert_not_called()
-

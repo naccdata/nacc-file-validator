@@ -16,7 +16,6 @@ test_config = BASE_DIR / "assets" / "config.json"
 
 
 def test_parse_config():
-
     context = GearToolkitContext(config_path=test_config)
 
     client = MagicMock()

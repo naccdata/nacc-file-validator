@@ -17,7 +17,6 @@ BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
 
-
 def test_is_valid():
     with pytest.raises(ValueError):
         ref = FwReference(file_path=Path("does/not/exist.txt"))
@@ -75,8 +74,6 @@ def test_container():
     client.get_session.assert_called_once()
     client.get_session().get_file.assert_not_called()
 
-
-
     client = MagicMock()
     ref = FwReference(
         cont_type="session",
@@ -128,12 +125,9 @@ def test_all():
 
     a = ref.all
 
-
-
     client.get_acquisition.assert_called_once()
     client.get_acquisition().parents.items.assert_called_once()
     client.get_acquisition().get_file.assert_not_called()
-
 
     client = MagicMock()
 
