@@ -9,7 +9,7 @@ repos:
       - id: yamllint
       - id: ruff
         args: [
-          --ignore, "E501, E722",
+          --ignore, "E501,E722",
           --fix,
         ]
       - id: pytest
