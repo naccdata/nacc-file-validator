@@ -5,7 +5,7 @@ import flywheel
 import flywheel_gear_toolkit
 import pytest
 from flywheel import Acquisition, FileEntry, Group, Project, Session, Subject
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from fw_gear_file_validator import utils
 
