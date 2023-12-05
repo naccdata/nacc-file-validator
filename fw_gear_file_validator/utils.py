@@ -171,7 +171,9 @@ def handle_metadata(
 
     if fw_ref.is_file():
         input_filename = context.get_input_filename("input_file")
-        file_ = flywheel_gear_toolkit.utils.metadata.get_file(input_filename, context, None)
+        file_ = flywheel_gear_toolkit.utils.metadata.get_file(
+            input_filename, context, None
+        )
         fail_tag = f"{tag}-FAIL"
         pass_tag = f"{tag}-PASS"
         tag = f"{tag}-{state}"
