@@ -171,6 +171,9 @@
                 "name": "test_schema.json"
             },
             "base": "file"
+        },
+        "api-key": {
+            "key": "fake_key"
         }
     },
     "config": {

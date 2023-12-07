@@ -1,22 +1,40 @@
 """Module to test parser.py"""
-import os
+import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import flywheel
 import pytest
-from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import parser
 
 # from fw_gear_{{gear_package}}.parser import parse_config
-BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
+with open(test_config) as f:
+    CONFIG_JSON = json.load(f)
+
+
+def context_get_input_path_side_effect(value):
+    return CONFIG_JSON["inputs"][value]["location"]["path"]
+
+
+def context_get_input_filename_side_effect(value):
+    return CONFIG_JSON["inputs"][value]["location"]["name"]
+
+
+def context_get_input_side_effect(value):
+    return CONFIG_JSON["inputs"][value]
+
 
 def test_parse_config():
-    context = GearToolkitContext(config_path=test_config)
+    context = MagicMock()
+    context.get_input_path.side_effect = context_get_input_path_side_effect
+    context.get_input_filename.side_effect = context_get_input_filename_side_effect
+    context.get_input.side_effect = context_get_input_side_effect
+    context.config = CONFIG_JSON["config"]
+    context.destination = CONFIG_JSON["destination"]
 
     client = MagicMock()
     context._client = client
@@ -47,7 +65,13 @@ def test_identify_file_type():
     path_ext = parser.identify_file_type(file_path)
     assert path_ext == "json"
 
-    context = GearToolkitContext(config_path=test_config)
+    context = MagicMock()
+    context.get_input_path.side_effect = context_get_input_path_side_effect
+    context.get_input_filename.side_effect = context_get_input_filename_side_effect
+    context.get_input.side_effect = context_get_input_side_effect
+    context.config = CONFIG_JSON["config"]
+    context.destination = CONFIG_JSON["destination"]
+
     file_fw = context.get_input("input_file")
     fw_ext = parser.identify_file_type(file_fw)
     assert fw_ext == "json"
