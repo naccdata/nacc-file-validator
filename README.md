@@ -180,7 +180,7 @@ the CSV file will contain a single validation error:
 
 | Error_Type | Error_Location | Value | Expected                           | Message                 | Flywheel_Path                                                                          | Container_ID                 |
 |------------|----------------|-------|------------------------------------|-------------------------|---------------------------------------------------------------------------------------|-----------------------------|
-| maxLength  | MyKey          | val   | "{'type': 'string', 'maxLength': 4}" | 'Some-Value' is too long | fw://path/to/file/in/flywheel.json | 656ec1611b428ce88b11d303"   |
+| maxLength  | MyKey          | val   | "{'type': 'string', 'maxLength': 4}" | 'Some-Value' is too long | fw://path/to/file/in/flywheel.json | 656ec1611b428ce88b11d303   |
 
 
 ### Workflow
