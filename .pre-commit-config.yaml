@@ -1,15 +1,15 @@
 repos:
   - repo: https://gitlab.com/flywheel-io/tools/etc/qa-ci
-    rev: 072f91ed3240516ff4153aa16676a30663bc0617
+    rev: a2246a4cbc9100a962c3f196737dc73bf41e162c
     hooks:
+      - id: gearcheck
+        always_run: true
       - id: poetry_export
       - id: docker_build
-      - id: markdownlint
       - id: yamllint
-      - id: black
-      - id: isort
+      - id: ruff
+        args: [
+          --ignore, "E501,E722",
+          --fix,
+        ]
       - id: pytest
-  - repo: https://gitlab.com/flywheel-io/scientific-solutions/etc/sse-qa-ci
-    rev: 86f3649f27409ebe46ccada4dbf0bf0a75332b38
-    hooks:
-      - id: validate-manifest
