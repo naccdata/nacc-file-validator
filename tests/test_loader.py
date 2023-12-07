@@ -14,7 +14,7 @@ with open(test_config) as f:
 
 
 def context_get_input_path_side_effect(value):
-    return CONFIG_JSON["inputs"][value]["location"]["path"]
+    return BASE_DIR / "assets" / CONFIG_JSON["inputs"][value]["location"]["name"]
 
 
 def context_get_input_filename_side_effect(value):
