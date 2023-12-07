@@ -1,33 +1,29 @@
-# {{gear_name}} ({{gear_label}})
+# file-validator (File Validator)
 
 ## Overview
 
-*{Link To Usage}*
-
-*{Link To FAQ}*
+This gear is used to validate files content, Flywheel file metadata
+or Flywheel container metadata according to a user provided
+JSONSchema file. It can be run at the project, subject, session or acquisition level.
 
 ### Summary
 
-*{From the "description" section of the manifest}*
+Validates a file based on a provided validation schema
 
-### Cite
+### License
 
-*{From the "cite" section of the manifest}*
-
-### License 
-
-*License:* *{From the "license" section of the manifest. Be as specific as possible, specifically when marked as Other.}*
+*License:* MIT
 
 ### Classification
 
-*Category:* *{From the "custom.gear-builder.category" section of the manifest}*
+*Category:* utility
 
 *Gear Level:*
 
-- [ ] Project
-- [ ] Subject
-- [ ] Session
-- [ ] Acquisition
+- [X] Project
+- [X] Subject
+- [X] Session
+- [X] Acquisition
 - [ ] Analysis
 
 ----
@@ -38,130 +34,170 @@
 
 ### Inputs
 
-- *{Input-File}*
-  - __Name__: *{From "inputs.Input-File"}*
-  - __Type__: *{From "inputs.Input-File.base"}*
-  - __Optional__: *{From "inputs.Input-File.optional"}*
-  - __Classification__: *{Based on "inputs.Input-File.base"}*
-  - __Description__: *{From "inputs.Input-File.description"}*
-  - __Notes__: *{Any additional notes to be provided by the user}*
+- *input_file*
+    - __Name__: *input_file*
+    - __Type__: *file*
+    - __Optional__: *true*
+    - __Description__: *The file to validate. If none is provided, only the destination
+      container metadata will be validated*
+- *validation_schema*:
+    - __Name__: *validation_schema*
+    - __Type__: *file*
+    - __Optional__: *false*
+    - __Description__: *The JSONSchema to use to validate the file and/or container
+      metadata*
 
 ### Config
 
-- *{Config-Option}*
-  - __Name__: *{From "config.Config-Option"}*
-  - __Type__: *{From "config.Config-Option.type"}*
-  - __Description__: *{From "config.Config-Option.description"}*
-  - __Default__: *{From "config.Config-Option.default"}*
+- *validation_level*
+    - __Name__: *validation_level*
+    - __Type__: *string*
+    - __Description__: *Select if validation should run on the file or the flywheel
+      representation of the file.  'Validate File Contents' will read the input file and
+      run validation on it, 'Validate Flywheel Objects' will load the json
+      representation of the file in flywheel, including the parent container objects of
+      the file*
+    - __Default__: *Validate File Contents*
+    - __Choices__: *['Validate File Contents', 'Validate Flywheel Objects']*
+
+- *add_parents*:
+    - __Name__: *add_parents*
+    - __Type__: *boolean*
+    - __Description__: *If validating Flywheel Objects, add the parent containers of the object to the schema for validation*
+    - __Default__: *false*
+  
+  - *tag*:
+    - __Name__: *tag*
+    - __Type__: *string*
+    - __Description__: *Tag to attach to files that gear runs on upon run completion*
+
+  - *debug*: 
+    - __Name__: *debug*
+    - __Type__: *boolean*
+    - __Description__: *Tag to attach to files that gear runs on upon run completion*
+    - __Default__: *false*
 
 ### Outputs
 
 #### Files
 
-*{A list of output files (if possible?)}*
-
 - *{Output-File}*
-  - __Name__: *{From "outputs.Input-File"}*
-  - __Type__: *{From "outputs.Input-File.base"}*
-  - __Optional__: *{From "outputs.Input-File.optional"}*
-  - __Classification__: *{Based on "outputs.Input-File.base"}*
-  - __Description__: *{From "outputs.Input-File.description"}*
-  - __Notes__: *{Any additional notes to be provided by the user}*
+    - __Name__: *{input file name}-validation-errors.csv*
+    - __Type__: *file*
+    - __Optional__: *True*
+    - __Description__: *A CSV file containing the JSONSchema error found*
+
+The CSV file will contain the JSONSchema validation errors found, each row 
+corresponding to a unique error found. The columns are:
+
+* `Error_type`: The JSONSchema error type
+* `Error_location`: The key in the input_file where the error was found
+* `Value`: The value of the key in the input_file where the error was found
+* `Expected`: The expected value of the key in the input_file where the error was found
+* `Message`: The error message
+* `Flywheel_Path`: The Flywheel path to the file
+* `Container_ID`: The Flywheel ID of the container containing the file
+
 
 #### Metadata
 
-Any notes on metadata created by this gear
+The gear will add the following metadata to the file or container under the file
+custom information:
+
+```yaml
+qc:
+  file-validator:
+    validation:
+      state": "PASS"   # or "FAIL" depending on the file validation
+```
 
 ### Pre-requisites
 
-This section contains any prerequisites
-
-#### Prerequisite Gear Runs
-
-A list of gears, in the order they need to be run:
-
-1. __*{Gear-Name}__*
-    - Level: *{Level at which gear needs to be run}*
-
-#### Prerequisite Files
-
-A list of any files (OTHER than those specified by the input) that the gear will need.
-If possible, list as many specific files as you can:
-
-1. ____{File-Name}__*
-    - Origin: *{Gear-Name, or Scanner, or Upload?}*
-    - Level: *{Container level the file is at}*
-    - Classification: *{Required classification(s) that the file can be}*
-
-#### Prerequisite Metadata
-
-A description of any metadata that is needed for the gear to run.
-If possible, list as many specific metadata objects that are required:
-
-1. __*{Metadata-Key}__*
-    - Location: *{Nested Metadata Location (info.object1, age, etc)}*
-    - Level: *{Container level that metadata is at}*
+When validating Flywheel file metadata, file content first need to be parsed. The
+[`form-importer`](https://gitlab.com/flywheel-io/scientific-solutions/gears/form-importer)
+gear can be used to parse the file content and add it to the file metadata.
 
 ## Usage
 
-This section provides a more detailed description of the gear, including not just WHAT it does, but HOW it works in flywheel.
-
 ### Description
 
-*{A detailed description of how the gear works}*
+This gear can be used to validate different file content and extracted file metadata
+against a JSONSchema. The JSONSchema file can be provided as a gear input and much
+easier describe the content of the file or the metadata of the file and optionally
+its parent container. The gear can be triggered automatically through gear rule
+when configured as such or be used as part of a validation pipeline.
 
 #### File Specifications
 
 This section contains specifications on any input files that the gear may need
 
-##### *{Input-File}*
+##### *input_file*
 
-A description of the input file
+The input file content or metadata extracted from the file will be validated against
+against the JSONSchema
+
+##### *validation_schema*
+
+The JSONSchema to use to validate the file and/or container metadata must be provided
+as a gear input and much easier describe the content of the file or the metadata 
+extracted. The file content must be a valid JSON following the [JSONSchema](https://json-schema.org/) standard.
+
+For example, if the `input_file` is a JSON with the following content:
+
+```json
+{
+    "KeyA": "Some-Value"
+}
+```
+and the following JSONSchema is used:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$comment": "JSON Schema for my file",
+  "$id": "MyID",
+  "title": "MyTitle",
+  "type": "object",
+  "required": ["MyKey"],
+  "definitions": {
+    "MyKey": {
+      "type": "string",
+      "maxLength": 4
+    }
+  },
+  "properties": {
+    "MyKey": {
+      "$ref": "#/definitions/MyKey"
+    }
+  }
+}
+```
+
+The gear will validate the content of the `input_file` and reports any valiation error
+found in the `{input file name}-validation-errors.csv` file. In this case, 
+the CSV file will contain a single validation error:
+
+
+|Error_Type | Error_Location | Value | Expected | Message | Flywheel_Path | Container_ID"
+|-----------|----------------|-------|----------|---------|---------------|-------------"
+|maxLength  | MyKey | Some-Value | "{'type': 'string', 'maxLength': 4}" | 'Some-Value' is too long | fw://nicolas/dumpster/file-validator/file-validator/test/test.json | 656ec1611b428ce88b11d303"
+
 
 ### Workflow
 
-A picture and description of the workflow
-
 ```mermaid
 graph LR;
-    A[Input-File]:::input --> C;
-    C[Upload] --> D[Parent Container <br> Project, Subject, etc];
-    D:::container --> E((Gear));
-    E:::gear --> F[Analysis]:::container;
+    A[input_file]:::input --> E((Gear));
+    B[validation_schema]:::input --> E;
+    E:::gear --> F[validation-errors.csv]:::container;
+    E:::gear --> G[file qc metadata]:::output;
     
     classDef container fill:#57d,color:#fff
     classDef input fill:#7a9,color:#fff
     classDef gear fill:#659,color:#fff
-
 ```
 
-Description of workflow
-
-1. Upload file to container
-1. Select file as input to gear
-1. Geat places output in Analysis
-
-### Use Cases
-
-This section is very gear dependent, and covers a detailed walkthrough of some use cases.  Should include Screenshots, example files, etc.
-
-#### Use Case 1
-
-__*Conditions__*:
-
-- *{A list of conditions that result in this use case}*
-- [ ] Possibly a list of check boxes indicating things that are absent
-- [x] and things that are present
-
-*{Description of the use case}*
-
-### Logging
-
 An overview/orientation of the logging and how to interpret it.
-
-## FAQ
-
-[FAQ.md](FAQ.md)
 
 ## Contributing
 

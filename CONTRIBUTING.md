@@ -110,29 +110,6 @@ reviewer to identify what relevant changes
 they should expect and look for in the MR, and
 2. It makes it easier to create a release.
 
-#### Populating release notes
-
-For example, if the gear is currently on version `0.2.1`
-and you are working on a bugfix under the branch GEAR-999-my-bugfix.  
-When you create a merge request against `main`,
-you should add a section to `docs/release_notes.md` such as the following:
-
-```markdown
-## 0.2.2
-BUG:
-* Fixed my-bug, see [GEAR-999](https://flywheelio.atlassian.net/browse/GEAR-999)
-
-```
-
-Where the rest of the file contains release notes for previous versions.
-
-#### Adding changelog entry
-
-The [changelog](./docs/changelog.md) is a place to put more
-informal notes about large design decisions.  
-This is useful to look back on design decisions made by you,
-or other engineers and try to understand why.
-This is not required, but is encouraged for large changes.
 
 ### Creating a release
 

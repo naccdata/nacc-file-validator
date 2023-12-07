@@ -1,8 +1,5 @@
-import os
 from pathlib import Path
 
-import flywheel
-import flywheel_gear_toolkit
 import pytest
 from flywheel import Acquisition, FileEntry, Group, Project, Session, Subject
 from mock import MagicMock, patch
