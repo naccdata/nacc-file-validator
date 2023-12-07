@@ -139,7 +139,7 @@
                 }
             },
             "location": {
-                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_input_valid.json",
+                "path": "./test_input_valid.json",
                 "name": "test_input_valid.json"
             },
             "base": "file"
@@ -167,10 +167,13 @@
                 }
             },
             "location": {
-                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_schema.json",
+                "path": "./test_schema.json",
                 "name": "test_schema.json"
             },
             "base": "file"
+        },
+        "api-key": {
+            "key": "fake_key"
         }
     },
     "config": {

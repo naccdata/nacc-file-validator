@@ -19,6 +19,7 @@ python = "^3.9"
 fw-file = "^2.1.1"
 flywheel-gear-toolkit = "^0.6.10"
 flywheel-sdk = "^16.16.4"
+argparse = "1.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"

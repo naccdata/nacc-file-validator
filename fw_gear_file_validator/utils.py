@@ -167,8 +167,24 @@ def handle_metadata(
     tag,
 ):
     state = "PASS" if valid else "FAIL"
+
     if fw_ref.is_file():
+        input_filename = context.get_input_filename("input_file")
+        file_ = flywheel_gear_toolkit.utils.metadata.get_file(
+            input_filename, context, None
+        )
+        fail_tag = f"{tag}-FAIL"
+        pass_tag = f"{tag}-PASS"
+        tag = f"{tag}-{state}"
         input_object = context.get_input("input_file")
+        tags = file_.tags
+        if state == "PASS" and fail_tag in tags:
+            tags.remove(fail_tag)
+            context.metadata.update_file(input_filename, tags=tags)
+        elif state == "FAIL" and pass_tag in tags:
+            tags.remove(pass_tag)
+            context.metadata.update_file(input_filename, tags=tags)
+
         context.metadata.add_qc_result(
             input_object, name=context.manifest["name"], state=state
         )

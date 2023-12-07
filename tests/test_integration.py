@@ -12,8 +12,11 @@ BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "integration_config.json"
 
 
-# BASE_DIR="/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/tests/integration"
 def test_integration():
+    if "FWGA_API" not in os.environ:
+        assert True
+        return
+
     print(BASE_DIR)
     context = flywheel_gear_toolkit.GearToolkitContext(
         manifest_path=manifest_path, config_path=test_config
