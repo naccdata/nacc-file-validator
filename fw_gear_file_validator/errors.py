@@ -9,7 +9,7 @@ from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
 log = logging.getLogger(__name__)
 
-AnyContainer = [models.project, models.subject, models.session, models.acquisition, models.analysis, models.file]
+AnyContainer = [models.project, models.subject, models.session, models.acquisition, models.analysis, models.File]
 
 
 def validate_file_contents(fw_ref) -> bool:
