@@ -46,10 +46,10 @@ def test_parse_config():
 
     assert loader_config["add_parents"] is False
 
-    assert fw_reference.cont_id == "63bece9e873b883e03663191"
-    assert fw_reference.cont_type == "acquisition"
-    assert fw_reference.file_name == "test_input_valid.json"
-    assert fw_reference.file_type == "json"
+    assert fw_reference.id == "63bece9e873b883e03663191"
+    assert fw_reference.type == "acquisition"
+    assert fw_reference.name == "test_input_valid.json"
+    assert fw_reference.type == "json"
 
     assert tag == "file-validator"
 

@@ -34,7 +34,43 @@ class JsonValidator:
 
     @staticmethod
     def handle_errors(errors: list[ValidationError]) -> t.List[t.Dict]:
-        """Processes errors into a standard output format."""
+        """Processes errors into a standard output format.
+        A typical error looks like this in python:
+        {
+            'message': '[1, 2, 3, 4] is too long',
+             'path': deque(['list']),
+             'relative_path': deque(['list']),
+             'schema_path': deque(['properties', 'list', 'maxItems']),
+             'relative_schema_path': deque(['properties', 'list', 'maxItems']),
+             'context': [],
+             'cause': None,
+             'validator': 'maxItems',
+             'validator_value': 3,
+             'instance': [1, 2, 3, 4],
+             'schema': {'type': 'array', 'maxItems': 3},
+             'parent': None,
+             '_type_checker': <TypeChecker types={'array', 'boolean', 'integer', 'null', 'number', 'object', 'string'}>
+         }
+
+        This must be converted to the FW/NACC Error standard:
+        type: str – “error” (always error)
+        code: str – Type of the error (e.g. MaxLength)
+        location: str – Location of the error
+        flywheel_path: str – Flywheel path to the container/file
+        container_id: str – ID of the source container/file
+        value: str – current value
+        expected: str – expected value
+        message: str – error message description
+        Additionally, the value for location will be formatted as such:
+        For JSON input file: { “key_path”: string }, with string being the JSON key
+
+        The flywheel relative items will be handled by a later function.
+        They are omitted here to keep jsonvalidator flywheel client independent.
+        These items are:
+            - flywheel_path
+            - container_id
+
+        """
 
         errors = sorted(errors, key=lambda e: e.path)
 
@@ -42,11 +78,14 @@ class JsonValidator:
         for error in errors:
             error_report.append(
                 {
-                    "Error_Type": str(error.validator),
-                    "Error_Location": str(".".join(error.path)),
-                    "Value": str(error.instance),
-                    "Expected": str(error.schema),
-                    "Message": error.message,
+                    "type": "error",  # For now, jsonValidaor can only produce errors.
+                    "code": str(error.validator),
+                    "location": {"key_path": ".".join(list(error.schema_path)[:-1])},
+                    "value": str(error.instance),
+                    "expected": str(error.schema),
+                    "message": error.message,
                 }
             )
         return error_report
+
+

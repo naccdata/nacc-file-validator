@@ -5,7 +5,7 @@ import logging
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import validator
-from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors
+from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors_metadata
 from fw_gear_file_validator.loader import Loader
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import handle_metadata
@@ -18,20 +18,16 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
 
     (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
 
-    loader_type = fw_ref.file_type if fw_ref.validate_file_contents() else "flywheel"
+    loader_type = fw_ref.type if fw_ref.validate_file_contents() else "flywheel"
     loader = Loader.factory(loader_type, config=loader_config)
     d = loader.load_object(fw_ref.loc())
     schema = loader.load_schema(schema_file_path)
 
     schema_validator = validator.JsonValidator(schema)
     valid, errors = schema_validator.validate(d)
-
-    if fw_ref.is_file():
-        error_filemame = f"{fw_ref.file_name}-validation-errors.csv"
-    else:
-        error_filemame = "validation-errors.csv"
     errors = add_flywheel_location_to_errors(fw_ref, errors)
-    save_errors(errors, context.output_dir, error_filemame)
+
+    save_errors_metadata(errors, fw_ref, context)
     handle_metadata(context, fw_ref, valid, tag)
 
 

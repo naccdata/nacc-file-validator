@@ -93,9 +93,9 @@ class FwLoader(Loader):
     def load_object(self, fw_ref: FwReference) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
         if self.add_parents:
-            containers_d = fw_ref.all
+            containers_d = fw_ref.hierarchy_objects
         else:
-            container = fw_ref.container
+            container = fw_ref.fw_object
             containers_d = {container.container_type: container}
 
         for k, container in containers_d.items():
