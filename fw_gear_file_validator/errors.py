@@ -62,14 +62,6 @@ def save_errors_csv(
     log.debug(f"saved errors to {error_file}")
 
 
-def make_meta_dict(meta_location: str, errors: t.List[t.Dict]):
-    result = errors
-    keys = meta_location.split(".")
-    for k in reversed(keys):
-        result = {k: result}
-    return result
-
-
 def save_errors_metadata(errors: t.List[t.Dict], input_file: FwReference, gtk_context: GearToolkitContext):
     """Saves the packaged errors to file metadata.
 
@@ -81,6 +73,5 @@ def save_errors_metadata(errors: t.List[t.Dict], input_file: FwReference, gtk_co
         state = "FAIL"
         meta_dict = {"data": errors}
 
-    gtk_context.metadata.add_qc_result(input_file.name, "my_qc", state=state, data=meta_dict)
-    # Set the modality and classification of an output file
-    pass
+    gtk_context.metadata.add_qc_result(input_file.name, "validation", state=state, data=meta_dict)
+

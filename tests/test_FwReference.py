@@ -16,141 +16,63 @@ test_config = BASE_DIR / "assets" / "config.json"
 
 def test_is_valid():
     with pytest.raises(ValueError):
-        ref = FwReference(file_path=Path("does/not/exist.txt"))
+        ref = FwReference(type="file", parents={})
+        ref.file_path = Path("does/not/exist.txt")
+        ref.is_valid()
 
-    ref = FwReference(file_path=Path(test_config))
+    ref = FwReference(type="file", parents={})
+    ref.file_path = Path(test_config)
     assert ref.is_valid()
 
     with pytest.raises(ValueError):
-        ref = FwReference(cont_type="none")
+        _ = FwReference(type="none", parents={})
 
     for parent in PARENT_ORDER:
-        ref = FwReference(cont_type=parent)
+        ref = FwReference(type=parent, parents={})
         assert ref.is_valid()
 
 
-def test_loc():
-    ref = FwReference(file_path=Path(test_config))
-    assert ref.loc() == Path(test_config)
-
-    ref = FwReference(cont_type="subject")
-    assert ref.loc() == ref
-
-
-def test_validate_file_contents():
-    ref = FwReference(file_path=Path(test_config))
-    assert ref.validate_file_contents()
-
-    ref = FwReference(cont_type="subject")
-    assert ref.validate_file_contents() is False
-
-
-def test_client():
-    client = MagicMock
-    ref = FwReference(file_path=Path(test_config))
-    with pytest.raises(ValueError):
-        ref.client
-
-    ref = FwReference(file_path=Path(test_config), _client=client)
-    assert ref.client == client
-
-
-def test_container():
-    ses_id = "63ceeda12bae5aafaf66306e"
-    file_name = "json_classifier.yaml"
-    file_type = "json"
-
-    client = MagicMock()
-
-    ref = FwReference(
-        cont_type="session",
-        cont_id=ses_id,
-        _client=client,
-    )
-    ref.container
-    client.get_session.assert_called_once()
-    client.get_session().get_file.assert_not_called()
-
-    client = MagicMock()
-    ref = FwReference(
-        cont_type="session",
-        cont_id=ses_id,
-        _client=client,
-        file_name=file_name,
-        file_type=file_type,
-    )
-
-    ref.container
-    client.get_session().get_file.assert_called_once()
 
 
 def test_parents():
     ses_id = "63ceeda12bae5aafaf66306e"
+    ses_label = "test_ses"
+    client = MagicMock()
+    parents = {
+        "group": "gid",
+        "project": "pid",
+        "subject": "sid",
+        "session": None,
+        "acquisition": None,
+    }
+    session = Session(id=ses_id, label=ses_label, parents=parents)
+
+
+    ref = FwReference.init_from_object(client, session)
+    _ = ref.fw_object()
+
+    client.get_session.assert_called_once()
+    client.get_session().get_file.assert_not_called()
+
+    client = MagicMock()
+    parents = {"session":ses_id}
     file_id = "6442edd40e732989de85e54d"
     file_name = "json_classifier.yaml"
     file_type = "json"
 
-    client = MagicMock()
-    ref = FwReference(cont_type="session", cont_id=ses_id, _client=client)
-    parents = ref.parents
 
+    file = FileEntry(name=file_name,
+                     file_id=file_id,
+                     type=file_type,
+                     parents=parents)
+
+    ref = FwReference.init_from_object(client, file)
+    _ = ref.hierarchy_objects
+    client.get_file.assert_called_once()
     client.get_session.assert_called_once()
-    client.get_session().get_file.assert_not_called()
-    client.get_session().parents.items.assert_called_once()
-
-    client = MagicMock()
-    ref = FwReference(
-        cont_type="session",
-        cont_id=ses_id,
-        _client=client,
-        file_name=file_name,
-        file_type=file_type,
-    )
-
-    parents = ref.parents
-    client.get_session().get_file.assert_called_once()
-    client.get_session().get_file().parents.items.assert_called_once()
-
-
-def test_all():
-    acq_id = "63ceedbd866bff5a5fc6082e"
-    file_name = "test_json_form.json"
-    file_type = "json"
-
-    client = MagicMock()
-    ref = FwReference(cont_type="acquisition", cont_id=acq_id, _client=client)
-
-    a = ref.all
-
-    client.get_acquisition.assert_called_once()
-    client.get_acquisition().parents.items.assert_called_once()
-    client.get_acquisition().get_file.assert_not_called()
-
-    client = MagicMock()
-
-    ref = FwReference(
-        cont_type="acquisition",
-        cont_id=acq_id,
-        _client=client,
-        file_name=file_name,
-        file_type=file_type,
-    )
-
-    b = ref.all
-    client.get_acquisition.assert_called_once()
-    client.get_acquisition().get_file.assert_called_once()
-    client.get_acquisition().get_file().parents.items.assert_called_once()
 
 
 def test_get_lookup_path():
-    fw_ref = FwReference(
-        cont_id="test_container_id",
-        cont_type="acquisition",
-        file_name="test_file_name.ext",
-        file_path=None,
-        file_type="test_file_type",
-        _client=None,
-    )
 
     group = Group()
     group.label = "test_group"
@@ -162,21 +84,32 @@ def test_get_lookup_path():
     session.label = "test_session"
     acquisition = Acquisition()
     acquisition.label = "test_acquisition"
-    file = FileEntry()
-    file.name = "test_file_name.ext"
-
+    file_name = "test_file_name.ext"
+    file_id = "test_container_id"
+    file_type = "test_file_type"
     parent_dict = {
         "group": group,
         "project": project,
         "subject": subject,
         "session": session,
         "acquisition": acquisition,
-        "file": file,
     }
 
-    fw_ref.__dict__["container"] = file
-    fw_ref.__dict__["parents"] = parent_dict
+    file = FileEntry(name=file_name,
+                     file_id=file_id,
+                     type=file_type,
+                     parents=parent_dict)
+    object_hierarchy = {
+        "group": group,
+        "project": project,
+        "subject": subject,
+        "session": session,
+        "acquisition": acquisition,
+        "file": file
+    }
 
+    fw_ref = FwReference.init_from_object(None, file)
+    fw_ref.hierarchy_objects = object_hierarchy
     url = f"fw://{group.label}/{project.label}/{subject.label}/{session.label}/{acquisition.label}/{file.name}"
     assert fw_ref.get_lookup_path() == url
 
@@ -200,28 +133,32 @@ def test_container_retrys():
     utils.SLEEP_TIME = 0.1
 
     my_client = MagicMock()
-    my_client.get_session = MagicMock(return_value=None)
-    fw_ref = FwReference(
-        cont_id="test_container_id",
-        cont_type="session",
-        file_name="test_file_name.ext",
-        file_path=None,
-        file_type="test_file_type",
-        _client=my_client,
-    )
+    my_client.get_file = MagicMock(return_value=None)
+    file_name = "test_file_name.ext"
+    file_id = "test_container_id"
+    file_type = "test_file_type"
+    parents = {}
+
+    file = FileEntry(name=file_name,
+                   file_id=file_id,
+                   type=file_type,
+                   parents=parents)
+
+    fw_ref = FwReference.init_from_object(my_client, file)
 
     with pytest.raises(ValueError) as e_info:
-        fw_ref.container
+        fw_ref.fw_object
 
-    assert my_client.get_session.call_count == utils.N_TRIES
+    assert my_client.get_file.call_count == utils.N_TRIES
 
 
 def test_parent_retrys():
     utils.SLEEP_TIME = 0.1
 
+    session_label = "test_session"
     my_client = MagicMock()
     session = Session()
-    session.label = "test_session"
+    session.label = session_label
     session.parents = {
         "group": "gid",
         "project": "pid",
@@ -236,15 +173,16 @@ def test_parent_retrys():
     my_client.get_group = MagicMock(return_value=None)
 
     fw_ref = FwReference(
-        cont_id="test_container_id",
-        cont_type="session",
-        file_name=None,
-        file_path=None,
-        file_type=None,
+        id="test_container_id",
+        type="session",
+        name=session_label,
+        is_file=False,
         _client=my_client,
+        input_object=session,
+        parents=session.parents
     )
 
     with pytest.raises(ValueError) as e_info:
-        fw_ref.parents
+        fw_ref.hierarchy_objects
 
     assert my_client.get_group.call_count == utils.N_TRIES

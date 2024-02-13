@@ -32,12 +32,13 @@ def parse_config(
             )
 
         object_to_validate = context.get_input("input_file")
-        ext, mime = get_fw_type_info(object_to_validate)
-        validate_filetype(ext, mime)
+        ext, mime = get_filetype_data(object_to_validate)
         file_type = identify_file_type(ext, mime)
+        validate_filetype(ext, mime)
+
 
     fw_ref = FwReference.init_from_object(context.client, object_to_validate)
-    fw_ref.type = file_type
+    fw_ref.file_type = file_type
     loader_config = {"add_parents": add_parents}
 
     return debug, tag, schema_file_path, fw_ref, loader_config
@@ -46,7 +47,7 @@ def parse_config(
 def get_fw_type_info(input_file: dict) -> (str, str):
     """Gets a mimetype from a flywheel config input file object, and extracts the local path of that file."""
     mime = input_file.get("object", {}).get("mimetype")
-    path = input_file.get("location", {}).get("name")
+    path = Path(input_file.get("location", {}).get("name"))
     return mime, path
 
 

@@ -8,7 +8,7 @@ from fw_gear_file_validator import validator
 from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors_metadata
 from fw_gear_file_validator.loader import Loader
 from fw_gear_file_validator.parser import parse_config
-from fw_gear_file_validator.utils import handle_metadata
+from fw_gear_file_validator.utils import add_tags_metadata
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     errors = add_flywheel_location_to_errors(fw_ref, errors)
 
     save_errors_metadata(errors, fw_ref, context)
-    handle_metadata(context, fw_ref, valid, tag)
+    add_tags_metadata(context, fw_ref, valid, tag)
 
 
 if __name__ == "__main__":  # pragma: no cover

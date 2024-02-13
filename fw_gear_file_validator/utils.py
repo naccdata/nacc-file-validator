@@ -74,7 +74,8 @@ class FwReference:
             file_object = fw_object["object"]
         else:
             file_object = fw_object
-
+        if 'parents' not in file_object:
+            file_object = fw_client.get_file(file_object["file_id"])
         return cls(
             input_object=fw_object,
             id=file_object["file_id"],
@@ -83,22 +84,23 @@ class FwReference:
             is_file=True,
             file_type=file_object.type,
             _client=fw_client,
-            parents=dict(fw_object.parents),
+            parents=dict(file_object.parents),
         )
 
     @classmethod
     def init_from_container(cls, fw_client, fw_object):
         return cls(
-            id=fw_object["id"],
+            id=fw_object.id,
             type=fw_object.container_type,
             name=fw_object.label,
             _client=fw_client,
             parents=dict(fw_object.parents),
+            input_object=fw_object
         )
 
     @staticmethod
     def _object_is_file(fw_object):
-        if isinstance(fw_object, flywheel.FileEntry) or "mimetype" in fw_object:
+        if isinstance(fw_object, flywheel.FileEntry) or "mimetype" in fw_object or "location" in fw_object:
             return True
         return False
 
@@ -106,12 +108,6 @@ class FwReference:
         self.is_valid()
         self.parents = {k: v for k, v in self.parents.items() if v} # remove None's
         self.ref = {**self.parents, self.type: self.id}
-
-    @property
-    def file_path(self) -> t.Union[Path, None]:
-        if not self.is_file:
-            return None
-        return Path(self.input_object.get("location", {}).get("path"))
 
 
     def is_valid(self) -> bool:
@@ -125,7 +121,7 @@ class FwReference:
     #USED
     @cached_property
     def file_path(self):
-        if "location" in self.input_object:
+        if self.input_object and "location" in self.input_object:
             path = Path(self.input_object["location"]["path"])
         else:
             path = None

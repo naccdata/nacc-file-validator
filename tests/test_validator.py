@@ -41,11 +41,11 @@ def test_handle_errors():
     errors = jvalidator.validator.iter_errors(json_object)
     packaged_errors = jvalidator.handle_errors(errors)
     packaged_error = packaged_errors[0]
-    print(packaged_error["Value"])
+    print(packaged_error["value"])
 
-    assert packaged_error["Error_Type"] == "maxItems"
-    assert packaged_error["Error_Location"] == "list"
-    assert packaged_error["Expected"] == "{'type': 'array', 'maxItems': 3}"
-    assert packaged_error["Message"] == "[1, 2, 3, 4] is too long"
-    assert packaged_error["Error_Type"] == "maxItems"
-    assert packaged_error["Value"] == "[1, 2, 3, 4]"
+    assert packaged_error["type"] == "error"
+    assert packaged_error["location"] == {"key_path": "properties.list"}
+    assert packaged_error["expected"] == "{'type': 'array', 'maxItems': 3}"
+    assert packaged_error["message"] == "[1, 2, 3, 4] is too long"
+    assert packaged_error["code"] == "maxItems"
+    assert packaged_error["value"] == "[1, 2, 3, 4]"
