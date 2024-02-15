@@ -13,7 +13,7 @@ SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json", "text/csv": "csv"}
 
 
 def parse_config(
-    context: GearToolkitContext,
+        context: GearToolkitContext,
 ) -> Tuple[bool, str, Path, FwReference, dict]:
     """Parses necessary items out of the context object"""
 
@@ -27,6 +27,8 @@ def parse_config(
     ext, mime = get_filetype_data(file_to_validate)
 
     if validation_level == "file":
+        if not context.get_input_filename("input_file"):
+            raise ValueError("No input file provided for validation_level 'file'")
         if add_parents:
             raise ValueError(
                 "Cannot attach flywheel parents to file-content validation"
