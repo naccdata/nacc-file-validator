@@ -25,7 +25,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     d = loader.load_object(fw_ref.loc)
     schema = loader.load_schema(schema_file_path)
 
-    schema_validator = validator.JsonValidator(schema)
+    schema_validator = validator.validatorfactory(loader_type, schema)
     valid, errors = schema_validator.validate(d)
     errors = add_flywheel_location_to_errors(fw_ref, errors)
 

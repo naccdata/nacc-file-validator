@@ -1,13 +1,15 @@
 import json
 import typing as t
 from pathlib import Path
+import pandas as pd
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
 
+
 class JsonValidator:
-    """Validator class."""
+    """Json Validator class."""
 
     def __init__(self, schema: t.Union[dict, Path, str]):
         if isinstance(schema, str):
@@ -87,3 +89,90 @@ class JsonValidator:
                 }
             )
         return error_report
+
+
+class CsvValidator(JsonValidator):
+    """CSV Validator class."""
+
+    def __init__(self, schema: t.Union[dict, Path, str]):
+        super().__init__(schema)
+
+    def validate(self, table: pd.DataFrame) -> t.Tuple[bool, t.List[t.Dict]]:
+        csv_valid = True
+        csv_errors = []
+        for row_num, row_contents, in table.iterrows():
+            valid, errors = self.process(row_contents.to_dict())
+            csv_valid = csv_valid & valid
+            csv_errors.extend(errors)
+
+        return csv_valid, csv_errors
+
+
+    @staticmethod
+    def handle_errors(errors: list[ValidationError], row_num: int) -> t.List[t.Dict]:
+        """Processes errors into a standard output format.
+        A jsonschema error in python has the following data structure:
+        {
+            'message': '[1, 2, 3, 4] is too long',
+             'path': deque(['list']),
+             'relative_path': deque(['list']),
+             'schema_path': deque(['properties', 'list', 'maxItems']),
+             'relative_schema_path': deque(['properties', 'list', 'maxItems']),
+             'context': [],
+             'cause': None,
+             'validator': 'maxItems',
+             'validator_value': 3,
+             'instance': [1, 2, 3, 4],
+             'schema': {'type': 'array', 'maxItems': 3},
+             'parent': None,
+             '_type_checker': <TypeChecker types={'array', 'boolean', 'integer', 'null', 'number', 'object', 'string'}>
+         }
+
+        This must be converted to the FW Error standard:
+        type: str – “error” (always error)
+        code: str – Type of the error (e.g. MaxLength)
+        location: str – Location of the error
+        flywheel_path: str – Flywheel path to the container/file
+        container_id: str – ID of the source container/file
+        value: str – current value
+        expected: str – expected value
+        message: str – error message description
+        Additionally, the value for location will be formatted as such:
+        For JSON input file: { “key_path”: string }, with string being the JSON key
+
+        The flywheel relative items will be handled by a later function.
+        They are omitted here to keep jsonvalidator flywheel client independent.
+        These items are:
+            - flywheel_path
+            - container_id
+
+        """
+
+        errors = sorted(errors, key=lambda e: e.path)
+
+        error_report = []
+        for error in errors:
+            error_report.append(
+                {
+                    "type": "error",  # For now, jsonValidaor can only produce errors.
+                    "code": str(error.validator),
+                    "location": {"line": row_num,
+                                    "column_name": error.relative_path[0]},
+                    "value": str(error.instance),
+                    "expected": str(error.schema),
+                    "message": error.message,
+                }
+            )
+        return error_report
+
+
+def validatorfactory(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
+    if file_type == "json":
+        return JsonValidator(schema)
+    elif file_type == "csv":
+        return CsvValidator(schema)
+    else:
+        raise ValueError("file type " + file_type + " Not supported")
+
+
+
