@@ -4,7 +4,7 @@ from pathlib import Path
 import flywheel
 import flywheel_gear_toolkit
 
-import run
+from ..run import main
 
 BASE_DIR = d = Path(__file__).resolve().parents[1]
 manifest_path = BASE_DIR / "manifest.json"
@@ -23,4 +23,8 @@ def test_integration():
     )
     client = flywheel.Client(os.environ["FWGA_API"])
     context._client = client
-    run.main(context)
+    main(context)
+
+
+if __name__ == "__main__":
+    test_integration()

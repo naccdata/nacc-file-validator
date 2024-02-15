@@ -22,7 +22,7 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors):
     """Takes a set of packaged errors and adds flywheel hierarchy info to them."""
     hierarchy = fw_ref.hierarchy_objects
     fw_url = fw_ref.get_lookup_path()
-    if validate_file_contents():
+    if validate_file_contents(fw_ref):
         for e in packaged_errors:
             e["flywheel_path"] = fw_url
             e["container_id"] = hierarchy["file"]["file_id"]
@@ -73,5 +73,5 @@ def save_errors_metadata(errors: t.List[t.Dict], input_file: FwReference, gtk_co
         state = "FAIL"
         meta_dict = {"data": errors}
 
-    gtk_context.metadata.add_qc_result(input_file.name, "validation", state=state, data=meta_dict)
+    gtk_context.metadata.add_qc_result(input_file.name, "validation", state=state, **meta_dict)
 

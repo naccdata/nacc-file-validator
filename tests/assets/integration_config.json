@@ -1,12 +1,12 @@
 {
     "destination": {
-        "id": "63bece9e873b883e03663191",
+        "id": "6556596f215ac8633d0590ca",
         "type": "acquisition"
     },
     "inputs": {
         "input_file": {
             "hierarchy": {
-                "id": "63bece9e873b883e03663191",
+                "id": "6556596f215ac8633d0590ca",
                 "type": "acquisition"
             },
             "object": {
@@ -132,7 +132,7 @@
                 "size": 532,
                 "zip_member_count": null,
                 "version": 1,
-                "file_id": "6442f29a9bb0718c0adfaf9f",
+                "file_id": "65565972c88a09c05168e463",
                 "origin": {
                     "type": "user",
                     "id": "davidparker@flywheel.io"
@@ -140,7 +140,7 @@
             },
             "location": {
                 "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_input_valid.json",
-                "name": "NACC283268_FTLDv3_Visit12.json"
+                "name": "sub01-new-ses_UDSv4.json"
             },
             "base": "file"
         },
@@ -160,7 +160,7 @@
                 "size": 87203,
                 "zip_member_count": null,
                 "version": 1,
-                "file_id": "63ffba45c241d877f5579d06",
+                "file_id": "651f174376ab892eb1b67afb",
                 "origin": {
                     "type": "user",
                     "id": "davidparker@flywheel.io"

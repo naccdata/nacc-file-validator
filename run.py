@@ -5,7 +5,7 @@ import logging
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import validator
-from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors_metadata
+from fw_gear_file_validator.errors import add_flywheel_location_to_errors, save_errors_metadata, validate_file_contents
 from fw_gear_file_validator.loader import Loader
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import add_tags_metadata
@@ -18,9 +18,9 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
 
     (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
 
-    loader_type = fw_ref.type if fw_ref.validate_file_contents() else "flywheel"
+    loader_type = fw_ref.file_type if validate_file_contents(fw_ref) else "flywheel"
     loader = Loader.factory(loader_type, config=loader_config)
-    d = loader.load_object(fw_ref.loc())
+    d = loader.load_object(fw_ref.loc)
     schema = loader.load_schema(schema_file_path)
 
     schema_validator = validator.JsonValidator(schema)

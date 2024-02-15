@@ -222,8 +222,8 @@ def add_tags_metadata(
 ):
     state = "PASS" if valid else "FAIL"
 
-    if fw_ref.is_file():
-        log.debut("tagging file")
+    if fw_ref.is_file:
+        log.debug("tagging file")
         input_filename = context.get_input_filename("input_file")
         file_ = flywheel_gear_toolkit.utils.metadata.get_file(
             input_filename, context, None
