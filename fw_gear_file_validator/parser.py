@@ -8,8 +8,8 @@ from flywheel_gear_toolkit import GearToolkitContext
 from fw_gear_file_validator.utils import FwReference
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
-SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
-SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
+SUPPORTED_FILE_EXTENSIONS = {".json": "json", ".csv": "csv"}
+SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json", "text/csv": "csv"}
 
 
 def parse_config(
