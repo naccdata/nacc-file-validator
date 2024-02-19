@@ -1,7 +1,7 @@
 from fw_gear_file_validator import validator
 
 
-def test_process():
+def test_process_json():
     schema = {"properties": {"list": {"type": "array", "maxItems": 3}}}
     json_object = {"list": [1, 2, 3]}
     jvalidator = validator.JsonValidator(schema)
@@ -17,7 +17,7 @@ def test_process():
     print(errors)
 
 
-def test_validate():
+def test_validate_json():
     # Note presently this test is identical to test_process, except we
     # call validate
     schema = {"properties": {"list": {"type": "array", "maxItems": 3}}}
@@ -34,7 +34,7 @@ def test_validate():
     assert len(errors) == 1
 
 
-def test_handle_errors():
+def test_handle_errors_json():
     schema = {"properties": {"list": {"type": "array", "maxItems": 3}}}
     json_object = {"list": [1, 2, 3, 4]}
     jvalidator = validator.JsonValidator(schema)

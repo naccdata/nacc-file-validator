@@ -3,6 +3,8 @@ import typing as t
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
+import json
+from json import JSONDecodeError
 
 import flywheel
 import flywheel_gear_toolkit
@@ -210,3 +212,56 @@ def add_tags_metadata(
         context.metadata.update_file(input_filename, tags=tags)
 
     context.metadata.add_file_tags(input_object, str(tag))
+
+
+def is_int(item):
+    return item.isdigit() or (item.startswith("-") and item[1:].isdigit())
+
+
+def is_float(item):
+    if item.count(".") != 1:
+        return False
+    return is_int(item[:item.find(".")]) & is_int(item[item.find(".")+1:])
+
+
+def is_dict(item):
+    return item.startswith("{") and item.endswith("}")
+
+
+def is_list(item):
+    return item.startswith("[") and item.endswith("]")
+
+
+def cast_item(item):
+    """Casts an item out of a string to a python data type"""
+    if not isinstance(item, str):
+        return item
+
+    # Check for integer
+    if is_int(item):
+        return int(item)
+
+    # check for float:
+    if is_float(item):
+        return float(item)
+
+    # Check for Dict
+    if is_dict(item):
+        dict_item = load_str(item)
+        return {key: cast_item(val) for key, val in dict_item}
+
+    # Check for list
+    if is_list(item):
+        list_item = load_str(item)
+        return [cast_item(val) for val in list_item]
+
+    # It's just a string if we make it here
+    return item
+
+
+def load_str(item):
+    try:
+        loaded_item = json.loads(item)
+    except JSONDecodeError:
+        loaded_item = eval(item)
+    return loaded_item

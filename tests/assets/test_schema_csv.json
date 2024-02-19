@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$comment": "JSON Schema for testing gear",
+  "$id": "test",
+  "title": "test",
+  "type": "object",
+  "required": [],
+  "definitions": {
+    "num": {
+      "type": "number",
+      "maximum": 5,
+      "minimum": 0
+    },
+    "string": {
+      "type": "string",
+      "maxLength": 10
+    }
+  },
+  "properties": {
+    "Col1": {
+      "$ref": "#/definitions/string"
+    },
+    "Col2": {
+      "$ref": "#/definitions/num"
+    },
+    "Col3": {
+      "$ref": "#/definitions/string"
+    }
+  }
+}
