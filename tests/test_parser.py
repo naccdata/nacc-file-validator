@@ -71,7 +71,7 @@ def test_parse_config():
     assert debug is False
 
 
-def test_identify_file_type():
+def test_identify_json_type():
     ext = ".json"
     str_ext = parser.identify_file_type(ext=ext)
     assert str_ext == "json"
@@ -93,6 +93,46 @@ def test_identify_file_type():
     file_fw["location"]["name"] = "noext"
     fw_ext, mime = parser.get_filetype_data(file_fw)
     assert mime == "application/json"
+
+
+
+def test_identify_csv_type():
+    ext = ".csv"
+    str_ext = parser.identify_file_type(ext=ext)
+    assert str_ext == "csv"
+    mime = "text/csv"
+    str_ext = parser.identify_file_type(mime=mime)
+    assert str_ext == "csv"
+
+    context = MagicMock()
+    context.get_input_path.side_effect = context_get_input_path_side_effect
+    context.get_input_filename.side_effect = context_get_input_filename_side_effect
+    context.get_input.side_effect = context_get_input_side_effect
+    context.config = CONFIG_JSON["config"]
+    context.destination = CONFIG_JSON["destination"]
+
+    file_fw = context.get_input("input_file")
+    file_fw["object"]["mimetype"] = "text/csv"
+    file_fw["location"]["name"] = "file.csv"
+    fw_ext, mime = parser.get_filetype_data(file_fw)
+    assert fw_ext == ".csv"
+    assert mime == "text/csv"
+
+
+def test_identify_unsupported_type():
+    ext = ".json"
+    str_ext = parser.identify_file_type(ext=ext)
+    assert str_ext == "json"
+    mime = "application/json"
+    str_ext = parser.identify_file_type(mime=mime)
+    assert str_ext == "json"
+
+    context = MagicMock()
+    context.get_input_path.side_effect = context_get_input_path_side_effect
+    context.get_input_filename.side_effect = context_get_input_filename_side_effect
+    context.get_input.side_effect = context_get_input_side_effect
+    context.config = CONFIG_JSON["config"]
+    context.destination = CONFIG_JSON["destination"]
 
     bad_str = "unsupported.ext"
     with pytest.raises(TypeError) as e_info:
