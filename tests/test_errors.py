@@ -33,6 +33,4 @@ def test_save_errors_metadata():
     fw_ref = utils.FwReference.init_from_object(None, file)
 
     errors.save_errors_metadata(error_dict, fw_ref, context)
-    context.metadata.add_qc_result.assert_called_with(
-        file_name, "validation", state="FAIL", data={"data": error_dict}
-    )
+    context.metadata.add_qc_result.assert_called_with(file_name, "validation", state="FAIL", data=error_dict)
