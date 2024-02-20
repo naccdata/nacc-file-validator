@@ -265,3 +265,28 @@ def load_str(item):
     except JSONDecodeError:
         loaded_item = eval(item)
     return loaded_item
+
+
+def validate_file_contents(fw_ref: FwReference) -> bool:
+    """Returns True if the object is a local file, False otherwise."""
+    if fw_ref.file_path:
+        return True
+    return False
+
+def get_loader_type(fw_ref, loader_config):
+    """ Determines what kind of loader we'll be using.
+    A flywheel loader (loads the flywheel sdk representation of a container)
+    or loads file contents.
+
+    Args:
+        fw_ref: the reference to the flywheel object
+        loader_config: the loader config specified by the gear config
+
+    Returns:
+
+    """
+    if loader_config["load_type"] == "flywheel" or not validate_file_contents(fw_ref):
+        loader_type = "flywheel"
+    else:
+        loader_type = fw_ref.file_type
+    return loader_type

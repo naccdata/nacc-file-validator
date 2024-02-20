@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from flywheel_gear_toolkit.utils.datatypes import Container
-
+from fw_gear_file_validator.utils import FwReference
 
 PARENT_INCLUDE = [
     # General values
@@ -71,8 +71,9 @@ class JsonLoader(Loader):
     def __init__(self):
         super().__init__()
 
-    def load_object(self, file_path: Path) -> dict:
+    def load_object(self, fw_ref: FwReference) -> dict:
         """Returns the content of the JSON file as a dict."""
+        file_path = fw_ref.file_path
         try:
             with open(file_path, "r", encoding="UTF-8") as fp:
                 content = json.load(fp)
@@ -90,10 +91,12 @@ class FwLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         self.add_parents = config.get("add_parents")
 
-    def load_object(self, fw_hierarchy: dict) -> dict:
+    def load_object(self, fw_ref: FwReference) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
         if not self.add_parents:
-            fw_hierarchy = {"file": fw_hierarchy["file"]}
+            fw_hierarchy = {"file": fw_ref.fw_object}
+        else:
+            fw_hierarchy = fw_ref.hierarchy_objects
 
         for k, container in fw_hierarchy.items():
             fw_hierarchy[k] = self._filter_container(container)
@@ -115,8 +118,9 @@ class CsvLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         super().__init__()
 
-    def load_object(self, file_path: Path) -> dict:
+    def load_object(self, fw_ref: FwReference) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
+        file_path = fw_ref.file_path
         try:
             dataframe = pd.read_csv(file_path)
             return dataframe

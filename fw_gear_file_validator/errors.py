@@ -3,16 +3,9 @@ import typing as t
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
+from fw_gear_file_validator.utils import PARENT_ORDER, FwReference, validate_file_contents
 
 log = logging.getLogger(__name__)
-
-
-def validate_file_contents(fw_ref: FwReference) -> bool:
-    """Returns True if the object is a local file, False otherwise."""
-    if fw_ref.file_path:
-        return True
-    return False
 
 
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
