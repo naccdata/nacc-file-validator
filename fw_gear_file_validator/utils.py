@@ -72,6 +72,9 @@ class FwReference:
 
         """
 
+        if "label" in fw_object:
+            raise ValueError("Only files are valid FwReference Inputs")
+
         file_object = fw_client.get_file(fw_object.get("object", {}).get("file_id"))
         return cls(
             input_object=fw_object,

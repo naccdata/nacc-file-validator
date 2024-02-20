@@ -23,8 +23,8 @@ def parse_config(
     schema_file_path = Path(context.get_input_path("validation_schema"))
     validation_level = level_dict[context.config.get("validation_level")]
 
-    object_to_validate = context.get_input("input_file")
-    ext, mime = get_filetype_data(object_to_validate)
+    file_to_validate = context.get_input("input_file")
+    ext, mime = get_filetype_data(file_to_validate)
 
     if validation_level == "file":
         if add_parents:
@@ -34,7 +34,7 @@ def parse_config(
         # No need to validate file type if we're not validating the file contents.
         validate_filetype(ext, mime)
 
-    fw_ref = FwReference.init_from_object(context.client, object_to_validate)
+    fw_ref = FwReference.init_from_file(context.client, file_to_validate)
     file_type = identify_file_type(ext, mime)
     fw_ref.file_type = file_type  # By default, the file_type is only what's populated in flywheel.
     loader_config = {"add_parents": add_parents}
