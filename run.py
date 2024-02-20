@@ -21,7 +21,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
 
     loader_type = get_loader_type(fw_ref, loader_config)
     loader = Loader.factory(loader_type, config=loader_config)
-    d = loader.load_object(fw_ref)
+    d = loader.load_object(fw_ref.loc)
     schema = loader.load_schema(schema_file_path)
 
     schema_validator = validator.validatorfactory(loader_type, schema)

@@ -71,9 +71,8 @@ class JsonLoader(Loader):
     def __init__(self):
         super().__init__()
 
-    def load_object(self, fw_ref: FwReference) -> dict:
+    def load_object(self, file_path: Path) -> dict:
         """Returns the content of the JSON file as a dict."""
-        file_path = fw_ref.file_path
         try:
             with open(file_path, "r", encoding="UTF-8") as fp:
                 content = json.load(fp)
@@ -118,9 +117,8 @@ class CsvLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         super().__init__()
 
-    def load_object(self, fw_ref: FwReference) -> dict:
+    def load_object(self, file_path: Path) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
-        file_path = fw_ref.file_path
         try:
             dataframe = pd.read_csv(file_path)
             return dataframe
