@@ -46,8 +46,8 @@
     },
     "input_file": {
       "base": "file",
-      "description": "The file to validate. If none is provided, only the destination container metadata will be validated",
-      "optional": true
+      "description": "The file to validate.",
+      "optional": false
     },
     "validation_schema": {
       "base": "file",
