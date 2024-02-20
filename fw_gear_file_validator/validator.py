@@ -35,7 +35,7 @@ class JsonValidator:
     @staticmethod
     def handle_errors(errors: list[ValidationError]) -> t.List[t.Dict]:
         """Processes errors into a standard output format.
-        A typical error looks like this in python:
+        A jsonschema error in python has the following data structure:
         {
             'message': '[1, 2, 3, 4] is too long',
              'path': deque(['list']),
@@ -52,7 +52,7 @@ class JsonValidator:
              '_type_checker': <TypeChecker types={'array', 'boolean', 'integer', 'null', 'number', 'object', 'string'}>
          }
 
-        This must be converted to the FW/NACC Error standard:
+        This must be converted to the FW Error standard:
         type: str – “error” (always error)
         code: str – Type of the error (e.g. MaxLength)
         location: str – Location of the error
@@ -65,7 +65,7 @@ class JsonValidator:
         For JSON input file: { “key_path”: string }, with string being the JSON key
 
         The flywheel relative items will be handled by a later function.
-        They are omitted here to keep jsonvalidator flywheel client independent.
+        They are omitted here to keep json validator flywheel client independent.
         These items are:
             - flywheel_path
             - container_id
