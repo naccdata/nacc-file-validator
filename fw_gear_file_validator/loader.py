@@ -90,17 +90,14 @@ class FwLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         self.add_parents = config.get("add_parents")
 
-    def load_object(self, fw_ref: FwReference) -> dict:
+    def load_object(self, fw_hierarchy: dict) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
-        if self.add_parents:
-            containers_d = fw_ref.hierarchy_objects
-        else:
-            container = fw_ref.fw_object
-            containers_d = {container.container_type: container}
+        if not self.add_parents:
+            fw_hierarchy = {"file": fw_hierarchy["file"]}
 
-        for k, container in containers_d.items():
-            containers_d[k] = self._filter_container(container)
-        return containers_d
+        for k, container in fw_hierarchy.items():
+            fw_hierarchy[k] = self._filter_container(container)
+        return fw_hierarchy
 
     @staticmethod
     def _filter_container(container: Container):

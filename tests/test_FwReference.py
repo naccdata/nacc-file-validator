@@ -18,18 +18,18 @@ def test_is_valid():
     with pytest.raises(ValueError):
         ref = FwReference(type="file", parents={})
         ref.file_path = Path("does/not/exist.txt")
-        ref.is_valid()
+        ref.path_is_valid()
 
     ref = FwReference(type="file", parents={})
     ref.file_path = Path(test_config)
-    assert ref.is_valid()
+    assert ref.path_is_valid()
 
     with pytest.raises(ValueError):
         _ = FwReference(type="none", parents={})
 
     for parent in PARENT_ORDER:
         ref = FwReference(type=parent, parents={})
-        assert ref.is_valid()
+        assert ref.path_is_valid()
 
 
 
