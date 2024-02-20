@@ -60,22 +60,20 @@ class FwReference:
     ref: dict = None
     _client: flywheel.Client = None
 
-
     @classmethod
-    def init_from_object(cls, fw_client, fw_object):
-        """Initializes a FwReference object from a flywheel object."""
-        if cls._object_is_file(fw_object):
-            return cls.init_from_file(fw_client, fw_object)
-        return cls.init_from_container(fw_client, fw_object)
+    def init_from_file(cls, fw_client: flywheel.Client, fw_object: t.Union[dict, flywheel.models.JobFileInput]):
+        """
+        Initialize a flywheel reference object from a gear input file
+        Args:
+            fw_client: a flywheel client
+            fw_object: a JobFileInput
 
-    @classmethod
-    def init_from_file(cls, fw_client, fw_object):
-        if "location" in fw_object:
-            file_object = fw_object["object"]
-        else:
-            file_object = fw_object
-        if 'parents' not in file_object:
-            file_object = fw_client.get_file(file_object["file_id"])
+        Returns:
+            FwReference
+
+        """
+
+        file_object = fw_client.get_file(fw_object.get("object", {}).get("file_id"))
         return cls(
             input_object=fw_object,
             id=file_object["file_id"],
@@ -87,16 +85,6 @@ class FwReference:
             parents=dict(file_object.parents),
         )
 
-    @classmethod
-    def init_from_container(cls, fw_client, fw_object):
-        return cls(
-            id=fw_object.id,
-            type=fw_object.container_type,
-            name=fw_object.label,
-            _client=fw_client,
-            parents=dict(fw_object.parents),
-            input_object=fw_object
-        )
 
     @staticmethod
     def _object_is_file(fw_object):
