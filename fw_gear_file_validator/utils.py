@@ -51,7 +51,13 @@ class FwReference:
     """
 
     id: str = None
-    input_object: t.Union[flywheel.ContainerReference, flywheel.FileReference, flywheel.JobFileInput, flywheel.JobFileInput, dict] = None
+    input_object: t.Union[
+        flywheel.ContainerReference,
+        flywheel.FileReference,
+        flywheel.JobFileInput,
+        flywheel.JobFileInput,
+        dict,
+    ] = None
     type: str = None
     parents: dict = None
     name: str = None
@@ -60,7 +66,11 @@ class FwReference:
     _client: flywheel.Client = None
 
     @classmethod
-    def init_from_file(cls, fw_client: flywheel.Client, fw_object: t.Union[dict, flywheel.models.JobFileInput]):
+    def init_from_file(
+        cls,
+        fw_client: flywheel.Client,
+        fw_object: t.Union[dict, flywheel.models.JobFileInput],
+    ):
         """
         Initialize a flywheel reference object from a gear input file
         Args:
@@ -99,7 +109,7 @@ class FwReference:
 
     @cached_property
     def file_path(self) -> t.Union[Path, None]:
-        """ If present returns the file path"""
+        """If present returns the file path"""
         if self.input_object and "location" in self.input_object:
             path = Path(self.input_object["location"]["path"])
         else:
@@ -177,7 +187,6 @@ class FwReference:
         return fw_object
 
 
-
 def add_tags_metadata(
     context: flywheel_gear_toolkit.GearToolkitContext,
     fw_ref: FwReference,
@@ -202,4 +211,3 @@ def add_tags_metadata(
         context.metadata.update_file(input_filename, tags=tags)
 
     context.metadata.add_file_tags(input_object, str(tag))
-

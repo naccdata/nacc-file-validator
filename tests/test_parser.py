@@ -3,8 +3,9 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
 import flywheel
+import pytest
+
 from fw_gear_file_validator import parser
 
 # from fw_gear_{{gear_package}}.parser import parse_config
@@ -14,7 +15,9 @@ test_config = BASE_DIR / "assets" / "config.json"
 
 with open(test_config) as f:
     CONFIG_JSON = json.load(f)
-CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = BASE_DIR / "assets" / CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
+CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = (
+    BASE_DIR / "assets" / CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
+)
 
 
 def context_get_input_path_side_effect(value):
@@ -37,16 +40,14 @@ def test_parse_config():
     context.config = CONFIG_JSON["config"]
     context.destination = CONFIG_JSON["destination"]
 
-
     file_name = CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
     file_id = CONFIG_JSON["inputs"]["input_file"]["object"]["file_id"]
     file_type = CONFIG_JSON["inputs"]["input_file"]["object"]["type"]
     parents = {}
 
-    file = flywheel.FileEntry(name=file_name,
-                   file_id=file_id,
-                   type=file_type,
-                   parents=parents)
+    file = flywheel.FileEntry(
+        name=file_name, file_id=file_id, type=file_type, parents=parents
+    )
 
     client = MagicMock()
     client.get_file = MagicMock(return_value=file)
@@ -97,4 +98,3 @@ def test_identify_file_type():
     with pytest.raises(TypeError) as e_info:
         ext, mime = parser.get_filetype_data(bad_str)
         parser.validate_filetype(ext, mime)
-

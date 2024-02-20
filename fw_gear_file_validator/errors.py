@@ -1,5 +1,6 @@
 import logging
 import typing as t
+
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
@@ -8,10 +9,10 @@ log = logging.getLogger(__name__)
 
 
 def validate_file_contents(fw_ref: FwReference) -> bool:
-        """Returns True if the object is a local file, False otherwise."""
-        if fw_ref.file_path:
-            return True
-        return False
+    """Returns True if the object is a local file, False otherwise."""
+    if fw_ref.file_path:
+        return True
+    return False
 
 
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
@@ -37,10 +38,10 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
     return packaged_errors
 
 
-def save_errors_metadata(errors: t.List[t.Dict], input_file: FwReference, gtk_context: GearToolkitContext):
-    """Saves the packaged errors to file metadata.
-
-    """
+def save_errors_metadata(
+    errors: t.List[t.Dict], input_file: FwReference, gtk_context: GearToolkitContext
+):
+    """Saves the packaged errors to file metadata."""
     if not errors:
         state = "PASS"
         meta_dict = {}
@@ -48,5 +49,6 @@ def save_errors_metadata(errors: t.List[t.Dict], input_file: FwReference, gtk_co
         state = "FAIL"
         meta_dict = {"data": errors}
 
-    gtk_context.metadata.add_qc_result(input_file.name, "validation", state=state, **meta_dict)
-
+    gtk_context.metadata.add_qc_result(
+        input_file.name, "validation", state=state, **meta_dict
+    )

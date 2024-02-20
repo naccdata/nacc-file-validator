@@ -12,7 +12,10 @@ test_config = BASE_DIR / "assets" / "config.json"
 with open(test_config) as f:
     CONFIG_JSON = json.load(f)
 
-CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = BASE_DIR / "assets" / CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
+CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = (
+    BASE_DIR / "assets" / CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
+)
+
 
 def context_get_input_path_side_effect(value):
     return BASE_DIR / "assets" / CONFIG_JSON["inputs"][value]["location"]["name"]
@@ -50,7 +53,9 @@ def test_loader_init():
     assert validation_dict == {"acquisition": {}, "file": {}}
 
     client2 = MagicMock()
-    fw_reference = FwReference.init_from_object(client2, context.get_input("input_file"))
+    fw_reference = FwReference.init_from_object(
+        client2, context.get_input("input_file")
+    )
     fw_reference.parents = {"acquisition": "1234"}
     fw_reference.__post_init__()
 

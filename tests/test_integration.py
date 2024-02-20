@@ -24,4 +24,3 @@ def integration_test():
     client = flywheel.Client(os.environ["FWGA_API"])
     context._client = client
     main(context)
-

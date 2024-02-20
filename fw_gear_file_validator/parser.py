@@ -13,7 +13,7 @@ SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
 
 
 def parse_config(
-        context: GearToolkitContext,
+    context: GearToolkitContext,
 ) -> Tuple[bool, str, Path, FwReference, dict]:
     """Parses necessary items out of the context object"""
 
@@ -36,7 +36,9 @@ def parse_config(
 
     fw_ref = FwReference.init_from_file(context.client, file_to_validate)
     file_type = identify_file_type(ext, mime)
-    fw_ref.file_type = file_type  # By default, the file_type is only what's populated in flywheel.
+    fw_ref.file_type = (
+        file_type  # By default, the file_type is only what's populated in flywheel.
+    )
     loader_config = {"add_parents": add_parents}
 
     return debug, tag, schema_file_path, fw_ref, loader_config
@@ -60,7 +62,10 @@ def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
 
 def validate_filetype(ext: str, mime: str) -> Union[str, None]:
     """Ensures detected filetype is supported and errors if not"""
-    if ext not in SUPPORTED_FILE_EXTENSIONS.keys() and mime not in SUPPORTED_FLYWHEEL_MIMETYPES.keys():
+    if (
+        ext not in SUPPORTED_FILE_EXTENSIONS.keys()
+        and mime not in SUPPORTED_FLYWHEEL_MIMETYPES.keys()
+    ):
         raise TypeError(f"file type {mime},{ext} is not supported")
     return
 
@@ -78,7 +83,9 @@ def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
     return ext, mime
 
 
-def identify_file_type(ext: Union[str, None] = None, mime: Union[str, None] = None) -> str:
+def identify_file_type(
+    ext: Union[str, None] = None, mime: Union[str, None] = None
+) -> str:
     """Given a flywheel config input file object, identify a valid file type if possible"""
     # see if the input file object has a value
     if ext:

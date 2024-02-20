@@ -32,8 +32,6 @@ def test_is_valid():
         assert ref.path_is_valid()
 
 
-
-
 def test_parents():
     ses_id = "63ceeda12bae5aafaf66306e"
     ses_label = "test_ses"
@@ -47,7 +45,6 @@ def test_parents():
     }
     session = Session(id=ses_id, label=ses_label, parents=parents)
 
-
     ref = FwReference.init_from_object(client, session)
     _ = ref.fw_object()
 
@@ -55,16 +52,12 @@ def test_parents():
     client.get_session().get_file.assert_not_called()
 
     client = MagicMock()
-    parents = {"session":ses_id}
+    parents = {"session": ses_id}
     file_id = "6442edd40e732989de85e54d"
     file_name = "json_classifier.yaml"
     file_type = "json"
 
-
-    file = FileEntry(name=file_name,
-                     file_id=file_id,
-                     type=file_type,
-                     parents=parents)
+    file = FileEntry(name=file_name, file_id=file_id, type=file_type, parents=parents)
 
     ref = FwReference.init_from_object(client, file)
     _ = ref.hierarchy_objects
@@ -73,7 +66,6 @@ def test_parents():
 
 
 def test_get_lookup_path():
-
     group = Group()
     group.label = "test_group"
     project = Project()
@@ -95,17 +87,16 @@ def test_get_lookup_path():
         "acquisition": acquisition,
     }
 
-    file = FileEntry(name=file_name,
-                     file_id=file_id,
-                     type=file_type,
-                     parents=parent_dict)
+    file = FileEntry(
+        name=file_name, file_id=file_id, type=file_type, parents=parent_dict
+    )
     object_hierarchy = {
         "group": group,
         "project": project,
         "subject": subject,
         "session": session,
         "acquisition": acquisition,
-        "file": file
+        "file": file,
     }
 
     fw_ref = FwReference.init_from_object(None, file)
@@ -139,10 +130,7 @@ def test_container_retrys():
     file_type = "test_file_type"
     parents = {}
 
-    file = FileEntry(name=file_name,
-                   file_id=file_id,
-                   type=file_type,
-                   parents=parents)
+    file = FileEntry(name=file_name, file_id=file_id, type=file_type, parents=parents)
 
     fw_ref = FwReference.init_from_object(my_client, file)
 
@@ -179,7 +167,7 @@ def test_parent_retrys():
         is_file=False,
         _client=my_client,
         input_object=session,
-        parents=session.parents
+        parents=session.parents,
     )
 
     with pytest.raises(ValueError) as e_info:

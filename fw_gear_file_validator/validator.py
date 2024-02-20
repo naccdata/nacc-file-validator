@@ -87,5 +87,3 @@ class JsonValidator:
                 }
             )
         return error_report
-
-
