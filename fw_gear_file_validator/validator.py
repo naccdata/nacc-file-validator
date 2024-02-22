@@ -102,7 +102,7 @@ class CsvValidator(JsonValidator):
         csv_valid = True
         csv_errors = []
         for row_num, row_contents, in table.iterrows():
-            cast_row = self.attempt_typecast(row_contents.to_dict())
+            cast_row = {key: self.attempt_typecast(value) for key, value in row_contents.to_dict()}
             valid, errors = self.process(cast_row)
             csv_valid = csv_valid & valid
             self.add_csv_location_spec(row_num, errors)
@@ -110,8 +110,26 @@ class CsvValidator(JsonValidator):
         return csv_valid, csv_errors
 
     @staticmethod
-    def attempt_typecast(raw_row):
-        return {key: utils.cast_item(item) for key, item in raw_row.items()}
+    def attempt_typecast(val):
+        """ cast a value to numeric if possible.
+
+        When loading a CSV with pandas, a column with multiple data types (likely through
+        a data entry error) will be cast entirely as strings.  Ideally, we would like
+        the rows with correct entry to be numeric if possible, and only set the "bad"
+        data to string, which will be caught by the validation schema and raise an error.
+
+        Args:
+            val: the value to cast
+
+        Returns:
+            the original value cast as a numeric, or the original value
+
+        """
+        try:
+            return pd.to_numeric(val)
+        except ValueError:
+            return val
+        #return {key: utils.cast_item(item) for key, item in raw_row.items()}
 
     @staticmethod
     def add_csv_location_spec(row_num, row_errors):
