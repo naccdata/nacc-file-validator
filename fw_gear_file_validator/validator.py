@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import json
 import typing as t
 from pathlib import Path
@@ -7,6 +8,17 @@ import jsonschema
 from jsonschema.exceptions import ValidationError
 import fw_gear_file_validator.utils as utils
 
+class Validator(ABC):
+
+    @abstractmethod
+    def validate(self, d: dict) -> t.Tuple[bool, t.List[t.Dict]]:
+        pass
+
+    @abstractmethod
+    def process(
+        self, d: dict, reformat_error: bool = True
+    ) -> t.Tuple[bool, t.List[t.Dict]]:
+        pass
 
 class JsonValidator:
     """Json Validator class."""
@@ -122,7 +134,7 @@ class CsvValidator(JsonValidator):
                                 "column_name": col_name}
 
 
-def validatorfactory(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
+def initialize_validator(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
     if file_type == "json":
         return JsonValidator(schema)
     elif file_type == "csv":
