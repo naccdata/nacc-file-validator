@@ -6,7 +6,6 @@ import pandas as pd
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
-import fw_gear_file_validator.utils as utils
 
 
 class JsonValidator:
@@ -126,10 +125,11 @@ class CsvValidator(JsonValidator):
 
         """
         try:
+            # could set the key 'errors="ignore"', but that's being removed in pandas v2.2, so
+            # we are using explicit error handling for future compatibility.
             return pd.to_numeric(val)
         except ValueError:
             return val
-        #return {key: utils.cast_item(item) for key, item in raw_row.items()}
 
     @staticmethod
     def add_csv_location_spec(row_num, row_errors):
