@@ -112,14 +112,14 @@ class CsvValidator(JsonValidator):
 
     @staticmethod
     def convert_json_types_to_python(json_type: str) -> type:
-        return JSON_TYPES.get(json_type, str)
+        return JSON_TYPES.get(json_type, str) # default to type str if not supported
 
-    def validate(self, csv_dict: csv.DictReader) -> t.Tuple[bool, t.List[t.Dict]]:
+    def validate(self, csv_dict: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
         csv_valid = True
         csv_errors = []
         column_types = self.get_column_dtypes()
-        for row_num, row_contents, in csv_dict:
-            cast_row = {key: utils.cast_csv_val((value, column_types[key])) for key, value in row_contents}
+        for row_num, row_contents, in enumerate(csv_dict):
+            cast_row = {key: utils.cast_csv_val(value, column_types[key]) for key, value in row_contents.items()}
             valid, errors = self.process(cast_row)
             csv_valid = csv_valid & valid
             self.add_csv_location_spec(row_num, errors)

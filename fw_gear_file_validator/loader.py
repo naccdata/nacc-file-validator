@@ -113,12 +113,12 @@ class CsvLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         super().__init__()
 
-    def load_object(self, file_path: Path) -> csv.DictReader:
+    def load_object(self, file_path: Path) -> t.List[t.Dict]:
         """Returns the content of the Flywheel reference as a dict."""
         try:
             with open(file_path) as csv_file:
                 csv_dict = csv.DictReader(csv_file)
-            return csv_dict
+                return list(csv_dict)
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
 
