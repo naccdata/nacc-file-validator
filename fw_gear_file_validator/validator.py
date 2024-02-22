@@ -1,12 +1,16 @@
+import csv
 from abc import ABC, abstractmethod
 import json
 import typing as t
 from pathlib import Path
-import pandas as pd
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
+from fw_gear_file_validator import utils
+
+# We are not supporting array, object, or null.
+JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool}
 
 class JsonValidator:
     """Json Validator class."""
@@ -17,7 +21,6 @@ class JsonValidator:
         if isinstance(schema, Path):
             with open(schema, "r", encoding="UTF-8") as schema_instance:
                 schema = json.load(schema_instance)
-
         self.validator = jsonschema.Draft7Validator(schema)
 
     def validate(self, d: dict) -> t.Tuple[bool, t.List[t.Dict]]:
@@ -97,39 +100,31 @@ class CsvValidator(JsonValidator):
     def __init__(self, schema: t.Union[dict, Path, str]):
         super().__init__(schema)
 
-    def validate(self, table: pd.DataFrame) -> t.Tuple[bool, t.List[t.Dict]]:
+    def get_column_dtypes(self):
+        column_types = {}
+        schema = self.validator.schema
+        for schema_property, property_val in schema["properties"].items():
+            if "$ref" in property_val:
+                _, property_value = self.validator.resolver.resolve(property_val["$ref"])
+            json_type = property_value.get("type")
+            column_types[schema_property] = self.convert_json_types_to_python(json_type)
+        return column_types
+
+    @staticmethod
+    def convert_json_types_to_python(json_type: str) -> type:
+        return JSON_TYPES.get(json_type, str)
+
+    def validate(self, csv_dict: csv.DictReader) -> t.Tuple[bool, t.List[t.Dict]]:
         csv_valid = True
         csv_errors = []
-        for row_num, row_contents, in table.iterrows():
-            cast_row = {key: self.attempt_typecast(value) for key, value in row_contents.to_dict()}
+        column_types = self.get_column_dtypes()
+        for row_num, row_contents, in csv_dict:
+            cast_row = {key: utils.cast_csv_val((value, column_types[key])) for key, value in row_contents}
             valid, errors = self.process(cast_row)
             csv_valid = csv_valid & valid
             self.add_csv_location_spec(row_num, errors)
             csv_errors.extend(errors)
         return csv_valid, csv_errors
-
-    @staticmethod
-    def attempt_typecast(val):
-        """ cast a value to numeric if possible.
-
-        When loading a CSV with pandas, a column with multiple data types (likely through
-        a data entry error) will be cast entirely as strings.  Ideally, we would like
-        the rows with correct entry to be numeric if possible, and only set the "bad"
-        data to string, which will be caught by the validation schema and raise an error.
-
-        Args:
-            val: the value to cast
-
-        Returns:
-            the original value cast as a numeric, or the original value
-
-        """
-        try:
-            # could set the key 'errors="ignore"', but that's being removed in pandas v2.2, so
-            # we are using explicit error handling for future compatibility.
-            return pd.to_numeric(val)
-        except ValueError:
-            return val
 
     @staticmethod
     def add_csv_location_spec(row_num, row_errors):

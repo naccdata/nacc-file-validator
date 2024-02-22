@@ -220,3 +220,19 @@ def add_tags_metadata(
 
     context.metadata.add_file_tags(input_object, str(tag))
 
+
+def cast_csv_val(val: t.Any, cast_type: type):
+    """ Attempt to cast a type.  Return original value if unsuccessful
+
+    Args:
+        val: the value to cast
+        cast_type: the type to cast it to
+
+    Returns:
+        cast_type(val) | val
+
+    """
+    try:
+        return cast_type(val)
+    except ValueError:
+        return val

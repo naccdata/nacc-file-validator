@@ -2,8 +2,7 @@ import json
 import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
-import pandas as pd
-
+import csv
 from flywheel_gear_toolkit.utils.datatypes import Container
 
 PARENT_INCLUDE = [
@@ -114,14 +113,12 @@ class CsvLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         super().__init__()
 
-    def load_object(self, file_path: Path) -> dict:
+    def load_object(self, file_path: Path) -> csv.DictReader:
         """Returns the content of the Flywheel reference as a dict."""
         try:
-            # quoting=3 sets quoting to 'csv.QUOTE_NONE', or perform no special
-            # processing of quotes.  This means that quotes in the keys will remain present.
-            # Use quotes to surround numeric labels like "0023"
-            dataframe = pd.read_csv(file_path, quoting=3)
-            return dataframe
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            raise ValueError(f"Error loading JSON object: {e}")
+            with open(file_path) as csv_file:
+                csv_dict = csv.DictReader(csv_file)
+            return csv_dict
+        except (FileNotFoundError, TypeError) as e:
+            raise ValueError(f"Error loading CSV object: {e}")
 
