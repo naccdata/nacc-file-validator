@@ -114,7 +114,7 @@ class CsvLoader(Loader):
         super().__init__()
 
     def load_object(self, file_path: Path) -> t.List[t.Dict]:
-        """Returns the content of the Flywheel reference as a dict."""
+        """Returns the content of the csv file as a list of dicts."""
         try:
             with open(file_path) as csv_file:
                 csv_dict = csv.DictReader(csv_file)

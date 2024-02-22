@@ -105,13 +105,15 @@ class CsvValidator(JsonValidator):
         schema = self.validator.schema
         for schema_property, property_val in schema["properties"].items():
             if "$ref" in property_val:
-                _, property_value = self.validator.resolver.resolve(property_val["$ref"])
-            json_type = property_value.get("type")
+                _, property_val = self.validator.resolver.resolve(property_val["$ref"])
+            json_type = property_val.get("type")
             column_types[schema_property] = self.convert_json_types_to_python(json_type)
         return column_types
 
     @staticmethod
     def convert_json_types_to_python(json_type: str) -> type:
+        if isinstance(json_type, list):
+            raise ValueError("Multiple possible datatypes not allowed for csv validation.  Check your schema.")
         return JSON_TYPES.get(json_type, str) # default to type str if not supported
 
     def validate(self, csv_dict: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
@@ -133,7 +135,7 @@ class CsvValidator(JsonValidator):
             # We just want the column name (Col2), so we extract it like this:
             col_name = error["location"]["key_path"].split('.')[-1]
             error["location"] = {"line": row_num + 1,
-                                "column_name": col_name}
+                                 "column_name": col_name}
 
 
 def initialize_validator(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
