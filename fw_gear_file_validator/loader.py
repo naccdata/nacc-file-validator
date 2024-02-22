@@ -117,7 +117,10 @@ class CsvLoader(Loader):
     def load_object(self, file_path: Path) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
         try:
-            dataframe = pd.read_csv(file_path)
+            # quoting=3 sets quoting to 'csv.QUOTE_NONE', or perform no special
+            # processing of quotes.  This means that quotes in the keys will remain present.
+            # Use quotes to surround numeric labels like "0023"
+            dataframe = pd.read_csv(file_path, quoting=3)
             return dataframe
         except (FileNotFoundError, json.JSONDecodeError) as e:
             raise ValueError(f"Error loading JSON object: {e}")
