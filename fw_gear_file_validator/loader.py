@@ -122,34 +122,3 @@ class CsvLoader(Loader):
         except (FileNotFoundError, json.JSONDecodeError) as e:
             raise ValueError(f"Error loading JSON object: {e}")
 
-
-
-def test_new_loader(file_path: Path, delimiter=","):
-    import csv
-
-    with open(file_path) as file:
-        lines = [line.rstrip() for line in file]
-
-    headers = lines.pop(0).split(delimiter)
-    new_lines = []
-    for line in lines:
-        new_line = line.split(delimiter)
-        new_line = ['"' + h + '"' + ": " + v for h, v in zip(headers, new_line)]
-        new_line = "{" + delimiter.join(new_line) + "},"
-        new_lines.append(new_line)
-
-    new_file_path = file_path + ".json"
-    with open(new_file_path, 'w') as new_file:
-        new_file.write("[")
-        new_file.writelines(new_lines)
-        new_file.write("]")
-
-
-
-    with open(file_path) as csvfile:
-        csv_reader = csv.reader(csvfile, delimiter=',')
-        header = csv_reader.__next__()
-        json_csv = []
-        for row in csv_reader:
-            json_csv.append({k : v for k, v in zip(header, row)})
-
