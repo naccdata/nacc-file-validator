@@ -135,6 +135,19 @@ class CsvValidator(JsonValidator):
 
 
 def initialize_validator(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
+    """ Initialize the validator.
+
+    In the future we may implement a recursive subclass factory (or something),
+    but for two validators the code does not require that complexity.
+
+    Args:
+        file_type: the type of file we're validating
+        schema: the validation JSON schema file.
+
+    Returns:
+        JsonValidator | CsvValidator
+
+    """
     if file_type == "json":
         return JsonValidator(schema)
     elif file_type == "csv":
