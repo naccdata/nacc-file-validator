@@ -3,8 +3,6 @@ import typing as t
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-import json
-from json import JSONDecodeError
 
 import flywheel
 import flywheel_gear_toolkit

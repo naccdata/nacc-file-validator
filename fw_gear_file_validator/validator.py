@@ -1,6 +1,6 @@
+import json
 import csv
 from abc import ABC, abstractmethod
-import json
 import typing as t
 from pathlib import Path
 
