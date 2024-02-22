@@ -8,17 +8,6 @@ import jsonschema
 from jsonschema.exceptions import ValidationError
 import fw_gear_file_validator.utils as utils
 
-class Validator(ABC):
-
-    @abstractmethod
-    def validate(self, d: dict) -> t.Tuple[bool, t.List[t.Dict]]:
-        pass
-
-    @abstractmethod
-    def process(
-        self, d: dict, reformat_error: bool = True
-    ) -> t.Tuple[bool, t.List[t.Dict]]:
-        pass
 
 class JsonValidator:
     """Json Validator class."""
