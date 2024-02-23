@@ -26,11 +26,10 @@ def parse_config(
     file_to_validate = context.get_input("input_file")
     ext, mime = get_filetype_data(file_to_validate)
 
-    fw_ref = FwReference.init_from_file(context.client, file_to_validate, validation_level)
+    fw_ref = FwReference.init_from_file(context.client, file_to_validate, content=validation_level)
     file_type = identify_file_type(ext, mime)
-    fw_ref.file_type = (
-        file_type  # By default, the file_type is only what's populated in flywheel.
-    )
+    fw_ref.file_type = file_type  # By default the file_type is only what's populated in flywheel.
+
 
     # Condition 1, we validate file contents. NO PARENTS.
     if validation_level == "file":

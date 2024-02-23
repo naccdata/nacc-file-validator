@@ -3,7 +3,7 @@ import typing as t
 
 from flywheel_gear_toolkit import GearToolkitContext
 
-from fw_gear_file_validator.utils import PARENT_ORDER, FwReference, validate_file_contents
+from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
 log = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
     """Takes a set of packaged errors and adds flywheel hierarchy info to them."""
     hierarchy = fw_ref.hierarchy_objects
     fw_url = fw_ref.get_lookup_path()
-    if validate_file_contents(fw_ref):
+    if fw_ref.contents == "file":
         for e in packaged_errors:
             e["flywheel_path"] = fw_url
             e["container_id"] = hierarchy["file"]["file_id"]

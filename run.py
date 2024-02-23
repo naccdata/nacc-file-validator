@@ -19,7 +19,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
 
     (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
 
-    loader_type = get_loader_type(fw_ref, loader_config)
+    loader_type = get_loader_type(fw_ref)
     loader = Loader.factory(loader_type, config=loader_config)
     d = loader.load_object(fw_ref.loc)
     schema = loader.load_schema(schema_file_path)

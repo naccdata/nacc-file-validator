@@ -234,3 +234,9 @@ def cast_csv_val(val: t.Any, cast_type: type):
         return cast_type(val)
     except ValueError:
         return val
+
+
+def get_loader_type(fw_ref):
+    if fw_ref.contents == "flywheel":
+        return fw_ref.contents
+    return fw_ref.file_type

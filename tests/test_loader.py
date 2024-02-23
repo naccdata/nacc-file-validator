@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from fw_gear_file_validator.loader import FwLoader
 from fw_gear_file_validator.utils import FwReference
 
-BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
