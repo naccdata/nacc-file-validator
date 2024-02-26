@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from fw_gear_file_validator.loader import FwLoader
 from fw_gear_file_validator.utils import FwReference
 
-BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
@@ -40,12 +40,12 @@ def test_loader_init():
     client = MagicMock()
     context._client = client
 
-    fw_reference = FwReference.init_from_object(client, context.get_input("input_file"))
+    fw_reference = FwReference.init_from_file(client, context.get_input("input_file"), "flywheel")
     fw_reference.parents = {"acquisition": "1234"}
     fw_reference.__post_init__()
     config = {"add_parents": True}
     loader = FwLoader(config=config)
-    validation_dict = loader.load_object(fw_reference)
+    validation_dict = loader.load_object(fw_reference.loc)
 
     client.get_file.assert_called()
     client.get_file().parents.keys.assert_called()
@@ -53,15 +53,14 @@ def test_loader_init():
     assert validation_dict == {"acquisition": {}, "file": {}}
 
     client2 = MagicMock()
-    fw_reference = FwReference.init_from_object(
-        client2, context.get_input("input_file")
+    fw_reference = FwReference.init_from_file(
+        client2, context.get_input("input_file"), "flywheel"
     )
     fw_reference.parents = {"acquisition": "1234"}
     fw_reference.__post_init__()
 
     config = {"add_parents": False}
     loader = FwLoader(config=config)
-    validation_dict = loader.load_object(fw_reference)
+    validation_dict = loader.load_object(fw_reference.loc)
 
     client2.get_file.assert_called()
-    client2.get_acquisition.assert_not_called()

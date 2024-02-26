@@ -63,18 +63,22 @@ class FwReference:
     file_type: str = None
     ref: dict = None
     _client: flywheel.Client = None
+    contents: str = None
 
     @classmethod
     def init_from_file(
         cls,
         fw_client: flywheel.Client,
         fw_object: t.Union[dict, flywheel.models.JobFileInput],
+        content: str = None
     ):
         """
         Initialize a flywheel reference object from a gear input file
         Args:
             fw_client: a flywheel client
             fw_object: a JobFileInput
+            content: "file" or "flywheel", indicating if the desire is to load a file's content,
+                or the flywheel object.
 
         Returns:
             FwReference
@@ -93,6 +97,7 @@ class FwReference:
             file_type=file_object.type,
             _client=fw_client,
             parents=dict(file_object.parents),
+            contents=content,
         )
 
     def __post_init__(self) -> None:
@@ -132,9 +137,11 @@ class FwReference:
     @property
     def loc(self) -> t.Union[Path, dict]:
         """Returns location of the object."""
-        if self.file_path:
-            return self.file_path
-        else:
+        if self.contents == "file":
+            if self.file_path:
+                return self.file_path
+            return Path("")
+        elif self.contents == "flywheel":
             return self.hierarchy_objects
 
     @property
@@ -210,3 +217,26 @@ def add_tags_metadata(
         context.metadata.update_file(input_filename, tags=tags)
 
     context.metadata.add_file_tags(input_object, str(tag))
+
+
+def cast_csv_val(val: t.Any, cast_type: type):
+    """ Attempt to cast a type.  Return original value if unsuccessful
+
+    Args:
+        val: the value to cast
+        cast_type: the type to cast it to
+
+    Returns:
+        cast_type(val) | val
+
+    """
+    try:
+        return cast_type(val)
+    except ValueError:
+        return val
+
+
+def get_loader_type(fw_ref):
+    if fw_ref.contents == "flywheel":
+        return fw_ref.contents
+    return fw_ref.file_type

@@ -2,9 +2,8 @@ import json
 import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
-
+import csv
 from flywheel_gear_toolkit.utils.datatypes import Container
-
 
 PARENT_INCLUDE = [
     # General values
@@ -103,3 +102,23 @@ class FwLoader(Loader):
         """Filters the container to remove unwanted fields."""
         cont_f = {k: v for k, v in container.to_dict().items() if k in PARENT_INCLUDE}
         return cont_f
+
+
+class CsvLoader(Loader):
+    """Loads a csv object."""
+
+    name = "csv"
+    has_config = False
+
+    def __init__(self, config: t.Dict[str, t.Any]):
+        super().__init__()
+
+    def load_object(self, file_path: Path) -> t.List[t.Dict]:
+        """Returns the content of the csv file as a list of dicts."""
+        try:
+            with open(file_path) as csv_file:
+                csv_dict = csv.DictReader(csv_file)
+                return list(csv_dict)
+        except (FileNotFoundError, TypeError) as e:
+            raise ValueError(f"Error loading CSV object: {e}")
+
