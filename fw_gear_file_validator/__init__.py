@@ -3,5 +3,5 @@ from importlib.metadata import version
 
 try:
     __version__ = version(__package__)
-except Exception as e:  # pragma: no cover
+except Exception:  # pragma: no cover
     pass
