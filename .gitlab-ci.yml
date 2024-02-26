@@ -1,11 +1,12 @@
 include:
   - project: flywheel-io/scientific-solutions/etc/sse-qa-ci
-    ref: aed10c031695bba0f1447ab2b80f5af2496cc85a
+    ref: 5bc25df9ba6c0610263f0fcfcc3e01ef2d25fd98
     file: ci/default.yml
 
 variables:
+  PYVER: "3.8"
   PYTEST_COV_FAIL_UNDER: 0  # Set pytest coverage to 0
-  DEBUG: "2"                  # Set debug mode to print out executed command on qa-ci
-  PYVER: "3.9"
-  APT_INSTALL: "build-essential"
-  PUBLISH_POETRY: "true"  # Set to true to allow CI to publish package to PYPI
+  DEBUG: ""  # Set debug mode to print out executed command on qa-ci
+  PUBLISH_POETRY: "false"  # Set to true to allow CI to publish package to PYPI
+  CACHE_CLEAR: "1"  # Set to true to clear runner cache on gitlab CI
+
