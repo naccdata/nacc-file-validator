@@ -24,7 +24,9 @@ def test_save_errors_metadata():
         name=file_name, file_id=file_id, type=file_type, parents=parent_dict
     )
     mock_client.get_file.return_value = file
-    fw_ref = utils.FwReference.init_from_file(mock_client, file, "file")
+    fw_ref = utils.FwReference.init_from_gear_input(mock_client, file, "file")
 
     errors.save_errors_metadata(error_dict, fw_ref, context)
-    context.metadata.add_qc_result.assert_called_with(file_name, "validation", state="FAIL", data=error_dict)
+    context.metadata.add_qc_result.assert_called_with(
+        file_name, "validation", state="FAIL", data=error_dict
+    )

@@ -25,7 +25,7 @@ def test_is_valid():
     assert ref.path_is_valid()
 
     with pytest.raises(ValueError):
-        _ = FwReference.init_from_file(None, {"label": "123"})
+        _ = FwReference.init_from_gear_input(None, {"label": "123"})
 
 
 def test_parents():
@@ -39,7 +39,7 @@ def test_parents():
 
     file = FileEntry(name=file_name, file_id=file_id, type=file_type, parents=parents)
     client.get_file.return_value = file
-    ref = FwReference.init_from_file(client, file)
+    ref = FwReference.init_from_gear_input(client, file)
     _ = ref.hierarchy_objects
     assert client.get_file.call_count == 2
     client.get_session.assert_called_once()
@@ -81,7 +81,7 @@ def test_get_lookup_path():
     mock_client = MagicMock()
     mock_client.get_file.return_value = file
 
-    fw_ref = FwReference.init_from_file(mock_client, file)
+    fw_ref = FwReference.init_from_gear_input(mock_client, file)
     fw_ref.hierarchy_objects = object_hierarchy
     url = f"fw://{group.label}/{project.label}/{subject.label}/{session.label}/{acquisition.label}/{file.name}"
     assert fw_ref.get_lookup_path() == url
@@ -100,6 +100,3 @@ def test_get_lookup_path():
 
     url = f"fw://{group.label}"
     assert fw_ref.get_lookup_path(level="group") == url
-
-
-

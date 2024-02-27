@@ -18,7 +18,6 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
             e["container_id"] = hierarchy["file"]["file_id"]
     else:
         for e in packaged_errors:
-            # This may be broken with our new implementation
             location = e["location"].split(".")[0]
             if location not in PARENT_ORDER:
                 raise ValueError(

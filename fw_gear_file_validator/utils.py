@@ -54,7 +54,6 @@ class FwReference:
         flywheel.ContainerReference,
         flywheel.FileReference,
         flywheel.JobFileInput,
-        flywheel.JobFileInput,
         dict,
     ] = None
     type: str = None
@@ -66,17 +65,17 @@ class FwReference:
     contents: str = None
 
     @classmethod
-    def init_from_file(
+    def init_from_gear_input(
         cls,
         fw_client: flywheel.Client,
-        fw_object: t.Union[dict, flywheel.models.JobFileInput],
-        content: str = None
+        gear_input: t.Union[dict, flywheel.models.JobFileInput],
+        content: str = None,
     ):
         """
         Initialize a flywheel reference object from a gear input file
         Args:
             fw_client: a flywheel client
-            fw_object: a JobFileInput
+            gear_input: a JobFileInput
             content: "file" or "flywheel", indicating if the desire is to load a file's content,
                 or the flywheel object.
 
@@ -85,12 +84,12 @@ class FwReference:
 
         """
 
-        if "label" in fw_object:
+        if "label" in gear_input:
             raise ValueError("Only files are valid FwReference Inputs")
 
-        file_object = fw_client.get_file(fw_object.get("object", {}).get("file_id"))
+        file_object = fw_client.get_file(gear_input.get("object", {}).get("file_id"))
         return cls(
-            input_object=fw_object,
+            input_object=gear_input,
             id=file_object["file_id"],
             type="file",
             name=file_object.name,
@@ -220,7 +219,7 @@ def add_tags_metadata(
 
 
 def cast_csv_val(val: t.Any, cast_type: type):
-    """ Attempt to cast a type.  Return original value if unsuccessful
+    """Attempt to cast a type.  Return original value if unsuccessful
 
     Args:
         val: the value to cast
