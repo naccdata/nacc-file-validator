@@ -1,8 +1,9 @@
+import csv
 import json
 import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
-import csv
+
 from flywheel_gear_toolkit.utils.datatypes import Container
 
 PARENT_INCLUDE = [
@@ -121,4 +122,3 @@ class CsvLoader(Loader):
                 return list(csv_dict)
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
-

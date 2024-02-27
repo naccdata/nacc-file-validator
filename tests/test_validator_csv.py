@@ -1,7 +1,8 @@
-from fw_gear_file_validator import validator
-from pathlib import Path
-import json
 import csv
+import json
+from pathlib import Path
+
+from fw_gear_file_validator import validator
 
 # from fw_gear_{{gear_package}}.parser import parse_config
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -11,14 +12,18 @@ test_config = BASE_DIR / "assets" / "config_csv.json"
 with open(test_config) as f:
     CONFIG_JSON = json.load(f)
 
-CONFIG_JSON["inputs"]["validation_schema"]["location"]["path"] = BASE_DIR / "assets" / CONFIG_JSON["inputs"]["validation_schema"]["location"]["name"]
+CONFIG_JSON["inputs"]["validation_schema"]["location"]["path"] = (
+    BASE_DIR / "assets" / CONFIG_JSON["inputs"]["validation_schema"]["location"]["name"]
+)
+
 
 def set_csv_path(csv_name):
-    CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = BASE_DIR / "assets" / csv_name
+    CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = (
+        BASE_DIR / "assets" / csv_name
+    )
 
 
 def test_validate_csv():
-
     set_csv_path("test_input_valid.csv")
     csv_path = CONFIG_JSON["inputs"]["input_file"]["location"]["path"]
     schema_path = CONFIG_JSON["inputs"]["validation_schema"]["location"]["path"]
@@ -37,6 +42,3 @@ def test_validate_csv():
         valid, errors = csv_validator.validate(csv_table)
     assert not valid
     assert len(errors) == 1
-
-
-

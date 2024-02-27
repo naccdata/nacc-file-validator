@@ -93,7 +93,6 @@ def test_identify_json_type():
     assert mime == "application/json"
 
 
-
 def test_identify_csv_type():
     ext = ".csv"
     str_ext = parser.identify_file_type(ext=ext)

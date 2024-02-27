@@ -10,6 +10,7 @@ from fw_gear_file_validator import utils
 # We are not supporting array, object, or null.
 JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool}
 
+
 class JsonValidator:
     """Json Validator class."""
 
@@ -111,15 +112,23 @@ class CsvValidator(JsonValidator):
     @staticmethod
     def convert_json_types_to_python(json_type: str) -> type:
         if isinstance(json_type, list):
-            raise ValueError("Multiple possible datatypes not allowed for csv validation.  Check your schema.")
-        return JSON_TYPES.get(json_type, str) # default to type str if not supported
+            raise ValueError(
+                "Multiple possible datatypes not allowed for csv validation.  Check your schema."
+            )
+        return JSON_TYPES.get(json_type, str)  # default to type str if not supported
 
     def validate(self, csv_dict: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
         csv_valid = True
         csv_errors = []
         column_types = self.get_column_dtypes()
-        for row_num, row_contents, in enumerate(csv_dict):
-            cast_row = {key: utils.cast_csv_val(value, column_types[key]) for key, value in row_contents.items()}
+        for (
+            row_num,
+            row_contents,
+        ) in enumerate(csv_dict):
+            cast_row = {
+                key: utils.cast_csv_val(value, column_types[key])
+                for key, value in row_contents.items()
+            }
             valid, errors = self.process(cast_row)
             csv_valid = csv_valid & valid
             self.add_csv_location_spec(row_num, errors)
@@ -131,13 +140,14 @@ class CsvValidator(JsonValidator):
         for error in row_errors:
             # The old location will be something like "{'key_path': 'properties.Col2'}"
             # We just want the column name (Col2), so we extract it like this:
-            col_name = error["location"]["key_path"].split('.')[-1]
-            error["location"] = {"line": row_num + 1,
-                                 "column_name": col_name}
+            col_name = error["location"]["key_path"].split(".")[-1]
+            error["location"] = {"line": row_num + 1, "column_name": col_name}
 
 
-def initialize_validator(file_type: str, schema: t.Union[dict, Path, str]) -> t.Union[JsonValidator, CsvValidator]:
-    """ Initialize the validator.
+def initialize_validator(
+    file_type: str, schema: t.Union[dict, Path, str]
+) -> t.Union[JsonValidator, CsvValidator]:
+    """Initialize the validator.
 
     In the future we may implement a recursive subclass factory (or something),
     but for two validators the code does not require that complexity.
@@ -156,7 +166,3 @@ def initialize_validator(file_type: str, schema: t.Union[dict, Path, str]) -> t.
         return CsvValidator(schema)
     else:
         raise ValueError("file type " + file_type + " Not supported")
-
-
-
-
