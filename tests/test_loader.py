@@ -5,12 +5,16 @@ from unittest.mock import MagicMock
 from fw_gear_file_validator.loader import FwLoader
 from fw_gear_file_validator.utils import FwReference
 
-BASE_DIR = d = Path(__file__).resolve().parents[1]
+BASE_DIR = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
 test_config = BASE_DIR / "assets" / "config.json"
 
 with open(test_config) as f:
     CONFIG_JSON = json.load(f)
+
+CONFIG_JSON["inputs"]["input_file"]["location"]["path"] = (
+    BASE_DIR / "assets" / CONFIG_JSON["inputs"]["input_file"]["location"]["name"]
+)
 
 
 def context_get_input_path_side_effect(value):
@@ -36,34 +40,29 @@ def test_loader_init():
     client = MagicMock()
     context._client = client
 
-    fw_reference = FwReference(
-        cont_id=context.destination["id"],
-        cont_type=context.destination["type"],
-        file_name=context.get_input_filename("input_file"),
-        file_path=None,
-        file_type="json",
-        _client=client,
+    fw_reference = FwReference.init_from_gear_input(
+        client, context.get_input("input_file"), "flywheel"
     )
+    fw_reference.parents = {"acquisition": "1234"}
+    fw_reference.__post_init__()
     config = {"add_parents": True}
     loader = FwLoader(config=config)
-    validation_dict = loader.load_object(fw_reference)
-    print(client.mock_calls)
-    client.get_acquisition().get_file.assert_called()
-    client.get_acquisition().get_file().parents.items.assert_called()
+    validation_dict = loader.load_object(fw_reference.loc)
 
-    client = MagicMock()
-    fw_reference = FwReference(
-        cont_id=context.destination["id"],
-        cont_type=context.destination["type"],
-        file_name=context.get_input_filename("input_file"),
-        file_path=None,
-        file_type="json",
-        _client=client,
+    client.get_file.assert_called()
+    client.get_file().parents.keys.assert_called()
+    client.get_acquisition.assert_called()
+    assert validation_dict == {"acquisition": {}, "file": {}}
+
+    client2 = MagicMock()
+    fw_reference = FwReference.init_from_gear_input(
+        client2, context.get_input("input_file"), "flywheel"
     )
+    fw_reference.parents = {"acquisition": "1234"}
+    fw_reference.__post_init__()
 
     config = {"add_parents": False}
     loader = FwLoader(config=config)
-    validation_dict = loader.load_object(fw_reference)
+    validation_dict = loader.load_object(fw_reference.loc)
 
-    client.get_acquisition().get_file.assert_called_once()
-    client.get_acquisition().get_file().parents.items.assert_not_called()
+    client2.get_file.assert_called()

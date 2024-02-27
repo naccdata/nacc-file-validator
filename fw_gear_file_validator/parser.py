@@ -8,8 +8,8 @@ from flywheel_gear_toolkit import GearToolkitContext
 from fw_gear_file_validator.utils import FwReference
 
 level_dict = {"Validate File Contents": "file", "Validate Flywheel Objects": "flywheel"}
-SUPPORTED_FILE_EXTENSIONS = {".json": "json"}
-SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json"}
+SUPPORTED_FILE_EXTENSIONS = {".json": "json", ".csv": "csv"}
+SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json", "text/csv": "csv"}
 
 
 def parse_config(
@@ -21,9 +21,20 @@ def parse_config(
     tag = context.config.get("tag")
     add_parents = context.config.get("add_parents")
     schema_file_path = Path(context.get_input_path("validation_schema"))
-
     validation_level = level_dict[context.config.get("validation_level")]
 
+    file_to_validate = context.get_input("input_file")
+    ext, mime = get_filetype_data(file_to_validate)
+
+    fw_ref = FwReference.init_from_gear_input(
+        context.client, file_to_validate, content=validation_level
+    )
+    file_type = identify_file_type(ext, mime)
+    fw_ref.file_type = (
+        file_type  # By default the file_type is only what's populated in flywheel.
+    )
+
+    # Condition 1, we validate file contents. NO PARENTS.
     if validation_level == "file":
         if not context.get_input_filename("input_file"):
             raise ValueError("No input file provided for validation_level 'file'")
@@ -31,27 +42,8 @@ def parse_config(
             raise ValueError(
                 "Cannot attach flywheel parents to file-content validation"
             )
-
-    file_name = None
-    file_type = None
-    file_path = None
-    if context.get_input("input_file"):
-        file_name = context.get_input_filename("input_file")
-        file_type = identify_file_type(context.get_input("input_file"))
-        if validation_level == "file":
-            file_path = Path(context.get_input_path("input_file"))
-
-    if validation_level == "flywheel":
-        file_path = None
-
-    fw_ref = FwReference(
-        cont_id=context.destination["id"],
-        cont_type=context.destination["type"],
-        file_name=file_name,
-        file_path=file_path,
-        file_type=file_type,
-        _client=context.client,
-    )
+        # No need to validate file type if we're not validating the file contents.
+        validate_filetype(ext, mime)
 
     loader_config = {"add_parents": add_parents}
 
@@ -61,7 +53,7 @@ def parse_config(
 def get_fw_type_info(input_file: dict) -> (str, str):
     """Gets a mimetype from a flywheel config input file object, and extracts the local path of that file."""
     mime = input_file.get("object", {}).get("mimetype")
-    path = input_file.get("location", {}).get("name")
+    path = Path(input_file.get("location", {}).get("name"))
     return mime, path
 
 
@@ -76,23 +68,17 @@ def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
 
 def validate_filetype(ext: str, mime: str) -> Union[str, None]:
     """Ensures detected filetype is supported and errors if not"""
-    input_file_type = None
-    if ext:
-        input_file_type = SUPPORTED_FILE_EXTENSIONS.get(ext)
-    elif mime:
-        input_file_type = SUPPORTED_FLYWHEEL_MIMETYPES.get(mime)
-    if input_file_type is None:
+    if (
+        ext not in SUPPORTED_FILE_EXTENSIONS.keys()
+        and mime not in SUPPORTED_FLYWHEEL_MIMETYPES.keys()
+    ):
         raise TypeError(f"file type {mime},{ext} is not supported")
+    return
 
-    return input_file_type
 
-
-def identify_file_type(input_file: Union[dict, str, Path]) -> str:
-    """Given a flywheel config input file object, identify a valid file type if possible"""
-    # see if the input file object has a value
+def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
     if not input_file:
-        return ""
-
+        return None, None
     # Order is done this way, because IF it's a flywheel file, it's possible that the
     # MIMEtype may not be populated correctly or recognized, however the file may still
     # have a valid extension, which we want to extract from the flywheel object
@@ -100,6 +86,16 @@ def identify_file_type(input_file: Union[dict, str, Path]) -> str:
     if isinstance(input_file, dict):
         mime, input_file = get_fw_type_info(input_file)
     ext = get_ext(input_file)
-    input_file_type = validate_filetype(ext, mime)
+    return ext, mime
 
+
+def identify_file_type(
+    ext: Union[str, None] = None, mime: Union[str, None] = None
+) -> str:
+    """Given a flywheel config input file object, identify a valid file type if possible"""
+    # see if the input file object has a value
+    if ext:
+        input_file_type = SUPPORTED_FILE_EXTENSIONS.get(ext)
+    elif mime:
+        input_file_type = SUPPORTED_FLYWHEEL_MIMETYPES.get(mime)
     return input_file_type

@@ -139,7 +139,7 @@
                 }
             },
             "location": {
-                "path": "./test_input_valid.json",
+                "path": "assets/test_input_valid.json",
                 "name": "test_input_valid.json"
             },
             "base": "file"

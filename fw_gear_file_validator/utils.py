@@ -1,5 +1,4 @@
 import logging
-import time
 import typing as t
 from dataclasses import dataclass
 from functools import cached_property
@@ -32,44 +31,117 @@ class FwReference:
     Host a set of methods to facilitate the loading of the object in its specific
     context (gear input file, flywheel container or flywheel file).
 
+    Attributes:
+        id: str, the id of the container
+        object: flywheel object, the flywheel object
+        type: str, the type of the container
+        parents: dict, the parents of the container
+        name: str, the name of the container
+        is_file: bool, True if the object is a file, False otherwise
+        ref: dict, the reference to the object, basically the parent dictionary plus the object itself.
+        _client: flywheel.Client, the flywheel client
+
+    Properties (cached):
+        parent_type: str, container type of the object's parent
+        parent_id: str: The container ID of the object's parent
+        my_object: the full flywheel object.
+
+
     """
 
-    cont_id: str = None
-    cont_type: str = None
-    file_name: str = None
-    file_path: Path = None
+    id: str = None
+    input_object: t.Union[
+        flywheel.ContainerReference,
+        flywheel.FileReference,
+        flywheel.JobFileInput,
+        dict,
+    ] = None
+    type: str = None
+    parents: dict = None
+    name: str = None
     file_type: str = None
+    ref: dict = None
     _client: flywheel.Client = None
+    contents: str = None
 
-    def __post_init__(self):
-        self.is_valid()
+    @classmethod
+    def init_from_gear_input(
+        cls,
+        fw_client: flywheel.Client,
+        gear_input: t.Union[dict, flywheel.models.JobFileInput],
+        content: str = None,
+    ):
+        """
+        Initialize a flywheel reference object from a gear input file
+        Args:
+            fw_client: a flywheel client
+            gear_input: a JobFileInput
+            content: "file" or "flywheel", indicating if the desire is to load a file's content,
+                or the flywheel object.
 
-    def loc(self) -> t.Union[Path, "FwReference"]:
-        """Returns location of the object."""
-        if self.file_path:
-            return self.file_path
-        else:
-            return self
+        Returns:
+            FwReference
 
-    def is_valid(self) -> bool:
-        """Returns True if the reference is valid, raise exception otherwise."""
+        """
+
+        if "label" in gear_input:
+            raise ValueError("Only files are valid FwReference Inputs")
+
+        file_object = fw_client.get_file(gear_input.get("object", {}).get("file_id"))
+        return cls(
+            input_object=gear_input,
+            id=file_object["file_id"],
+            type="file",
+            name=file_object.name,
+            file_type=file_object.type,
+            _client=fw_client,
+            parents=dict(file_object.parents),
+            contents=content,
+        )
+
+    def __post_init__(self) -> None:
+        self.path_is_valid()
+        self.parents = {k: v for k, v in self.parents.items() if v}  # remove None's
+        self.ref = {**self.parents, self.type: self.id}
+
+    def path_is_valid(self) -> bool:
+        """Returns True if the file path is valid, raise exception otherwise."""
         if self.file_path and not self.file_path.exists():
             raise ValueError(f"File {self.file_path} does not exist")
-        if self.cont_type and self.cont_type not in PARENT_ORDER:
-            raise ValueError(f"Invalid type {self.cont_type}")
         return True
 
-    def validate_file_contents(self) -> bool:
-        """Returns True if the object is a local file, False otherwise."""
-        if self.file_path:
-            return True
-        return False
+    @cached_property
+    def file_path(self) -> t.Union[Path, None]:
+        """If present returns the file path"""
+        if self.input_object and "location" in self.input_object:
+            path = Path(self.input_object["location"]["path"])
+        else:
+            path = None
+        return path
 
-    def is_file(self) -> bool:
-        """Returns True if the object is a file, False otherwise."""
-        if self.file_name:
-            return True
-        return False
+    @cached_property
+    def parent_type(self) -> str:
+        """Returns the type of the parent."""
+        for p in PARENT_ORDER[::-1]:
+            if p in self.parents and self.parents[p] is not None:
+                return p
+
+    @cached_property
+    def parent_id(self) -> str:
+        """Returns the id of the parent."""
+        for p in PARENT_ORDER[::-1]:
+            if p in self.parents and self.parents[p] is not None:
+                return self.parents[p]
+
+    @property
+    def loc(self) -> t.Union[Path, dict]:
+        """Returns location of the object."""
+        if self.contents == "file":
+            if self.file_path:
+                return self.file_path
+            return Path("")
+        elif self.contents == "flywheel":
+            return self.hierarchy_objects
 
     @property
     def client(self) -> flywheel.Client:
@@ -84,83 +156,43 @@ class FwReference:
 
     def get_lookup_path(self, level: str = None) -> str:
         """Returns the Flywheel path of the Flywheel object."""
-        container = self.container
-        parents = self.parents
-        parents[container.container_type] = container.to_dict()
         hierarchy_parts = []
         for k in PARENT_ORDER:
-            if k in parents:
+            if k in self.hierarchy_objects:
                 if k == "file":
-                    hierarchy_parts.append(parents[k].get("name"))
+                    hierarchy_parts.append(self.hierarchy_objects[k].get("name"))
                 else:
-                    hierarchy_parts.append(parents[k].get("label"))
+                    hierarchy_parts.append(self.hierarchy_objects[k].get("label"))
             if k == level:
                 break
         return "fw://" + "/".join(hierarchy_parts)
 
     @cached_property
-    def container(self) -> Container:
+    def fw_object(self) -> Container:
         """Returns the container for the provided Flywheel reference."""
-        getter = getattr(self.client, f"get_{self.cont_type}")
-
-        tries = 0
-        while tries < N_TRIES:
-            container = getter(self.cont_id)
-            if container:
-                break
-            tries += 1
-            log.debug("Empty parent object, retrying")
-            time.sleep(SLEEP_TIME)
-
-        if not container:
-            # Better to exit here with a good error than crash later
-            raise ValueError(
-                f"Unable to retrieve container {self.cont_type}: {self.cont_id}"
-            )
-
-        if self.file_name:
-            container = container.get_file(self.file_name)
-        return container
+        return self.get_level_object(self.type)
 
     @cached_property
-    def parents(self) -> dict:
+    def hierarchy_objects(self):
+        hierarchy = {}
+        for level in self.ref.keys():
+            fw_object = self.get_level_object(level)
+            if fw_object is None:
+                continue
+            hierarchy[level] = fw_object
+        return hierarchy
+
+    def get_level_object(self, level) -> t.Union[dict, Container, None]:
         """Returns all the parent containers."""
-        parents_hierarchy = {}
-        container = self.container
-        parents = container.parents
-        for p_type, p_id in parents.items():
-            if p_id:  # some parents are None
-                getter = getattr(self.client, f"get_{p_type}")
-                tries = 0
-                while tries < N_TRIES:
-                    parent_object = getter(p_id)
-                    if parent_object:
-                        break
-                    tries += 1
-                    log.debug("Empty parent object, retrying")
-                    time.sleep(SLEEP_TIME)
-
-                if not parent_object:
-                    # Better to exit here with a good error than crash later
-                    raise ValueError(f"Unable to retrieve parent {p_type}: {p_id}")
-
-                parents_hierarchy[p_type] = parent_object
-        return parents_hierarchy
-
-    @cached_property
-    def children(self):
-        """Returns all the child containers."""
-        # TODO: Add support for child containers
-        raise NotImplementedError
-
-    @cached_property
-    def all(self) -> dict:
-        """Returns the container and its parents."""
-
-        return {**self.parents, self.container.container_type: self.container}
+        if level not in self.ref.keys():
+            return None
+        p_id = self.ref[level]
+        getter = getattr(self.client, f"get_{level}")
+        fw_object = getter(p_id)
+        return fw_object
 
 
-def handle_metadata(
+def add_tags_metadata(
     context: flywheel_gear_toolkit.GearToolkitContext,
     fw_ref: FwReference,
     valid,
@@ -168,35 +200,42 @@ def handle_metadata(
 ):
     state = "PASS" if valid else "FAIL"
 
-    if fw_ref.is_file():
-        input_filename = context.get_input_filename("input_file")
-        file_ = flywheel_gear_toolkit.utils.metadata.get_file(
-            input_filename, context, None
-        )
-        fail_tag = f"{tag}-FAIL"
-        pass_tag = f"{tag}-PASS"
-        tag = f"{tag}-{state}"
-        input_object = context.get_input("input_file")
-        tags = file_.tags
-        if state == "PASS" and fail_tag in tags:
-            tags.remove(fail_tag)
-            context.metadata.update_file(input_filename, tags=tags)
-        elif state == "FAIL" and pass_tag in tags:
-            tags.remove(pass_tag)
-            context.metadata.update_file(input_filename, tags=tags)
+    log.debug("tagging file")
+    input_filename = context.get_input_filename("input_file")
+    file_ = fw_ref.fw_object
+    fail_tag = f"{tag}-FAIL"
+    pass_tag = f"{tag}-PASS"
+    tag = f"{tag}-{state}"
+    input_object = context.get_input("input_file")
+    tags = file_.tags
+    if state == "PASS" and fail_tag in tags:
+        tags.remove(fail_tag)
+        context.metadata.update_file(input_filename, tags=tags)
+    elif state == "FAIL" and pass_tag in tags:
+        tags.remove(pass_tag)
+        context.metadata.update_file(input_filename, tags=tags)
 
-        context.metadata.add_qc_result(
-            input_object, name=context.manifest["name"], state=state
-        )
-        context.metadata.add_file_tags(input_object, str(tag))
-    else:
-        # we do not have an add_qc_result for container other than file so we
-        # need to build it the info manually
-        # TODO: replace when context.add_qc_result supports all container
-        context.metadata.pull_job_info()
-        job_info = context.metadata.job_info
-        job_info[context.manifest["name"]]["state"] = state
-        container = fw_ref.container
-        qc = container.info.get("qc", {})
-        qc.update(job_info)
-        context.metadata.update_container(fw_ref.cont_type, info=qc)
+    context.metadata.add_file_tags(input_object, str(tag))
+
+
+def cast_csv_val(val: t.Any, cast_type: type):
+    """Attempt to cast a type.  Return original value if unsuccessful
+
+    Args:
+        val: the value to cast
+        cast_type: the type to cast it to
+
+    Returns:
+        cast_type(val) | val
+
+    """
+    try:
+        return cast_type(val)
+    except ValueError:
+        return val
+
+
+def get_loader_type(fw_ref):
+    if fw_ref.contents == "flywheel":
+        return fw_ref.contents
+    return fw_ref.file_type

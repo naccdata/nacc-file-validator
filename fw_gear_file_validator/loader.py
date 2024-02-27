@@ -1,11 +1,10 @@
+import csv
 import json
 import typing as t
 from abc import ABC, abstractmethod
 from pathlib import Path
 
 from flywheel_gear_toolkit.utils.datatypes import Container
-
-from fw_gear_file_validator.utils import FwReference
 
 PARENT_INCLUDE = [
     # General values
@@ -90,20 +89,36 @@ class FwLoader(Loader):
     def __init__(self, config: t.Dict[str, t.Any]):
         self.add_parents = config.get("add_parents")
 
-    def load_object(self, fw_ref: FwReference) -> dict:
+    def load_object(self, fw_hierarchy: dict) -> dict:
         """Returns the content of the Flywheel reference as a dict."""
-        if self.add_parents:
-            containers_d = fw_ref.all
-        else:
-            container = fw_ref.container
-            containers_d = {container.container_type: container}
+        if not self.add_parents:
+            fw_hierarchy = {"file": fw_hierarchy["file"]}
 
-        for k, container in containers_d.items():
-            containers_d[k] = self._filter_container(container)
-        return containers_d
+        for k, container in fw_hierarchy.items():
+            fw_hierarchy[k] = self._filter_container(container)
+        return fw_hierarchy
 
     @staticmethod
     def _filter_container(container: Container):
         """Filters the container to remove unwanted fields."""
         cont_f = {k: v for k, v in container.to_dict().items() if k in PARENT_INCLUDE}
         return cont_f
+
+
+class CsvLoader(Loader):
+    """Loads a csv object."""
+
+    name = "csv"
+    has_config = False
+
+    def __init__(self, config: t.Dict[str, t.Any]):
+        super().__init__()
+
+    def load_object(self, file_path: Path) -> t.List[t.Dict]:
+        """Returns the content of the csv file as a list of dicts."""
+        try:
+            with open(file_path) as csv_file:
+                csv_dict = csv.DictReader(csv_file)
+                return list(csv_dict)
+        except (FileNotFoundError, TypeError) as e:
+            raise ValueError(f"Error loading CSV object: {e}")
