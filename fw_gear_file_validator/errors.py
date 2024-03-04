@@ -1,11 +1,56 @@
 import logging
 import typing as t
+from jsonschema.exceptions import ValidationError
 
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
 log = logging.getLogger(__name__)
+
+
+def validator_error_to_standard(schema_error):
+    return {
+        "type": "error",  # For now, jsonValidaor can only produce errors.
+        "code": str(schema_error.validator),
+        "location": "" if not schema_error.schema_path == [""] else {"key_path": ".".join(list(schema_error.schema_path)[:-1])},
+        "value": str(schema_error.instance),
+        "expected": str(schema_error.schema),
+        "message": schema_error.message,
+    }
+
+
+def make_empty_file_error():
+    return ValidationError(**{
+        "validator": "EmptyFile",
+        "schema_path": [""],
+        "instance": "",
+        "schema": "",
+        "message": "The File Is Empty",
+        "path": ""
+    })
+
+
+def make_missing_header_error():
+    return ValidationError(**{
+        "validator": "MissingHeader",
+        "schema_path": [""],
+        "instance": "",
+        "schema": "",
+        "message": "The file is missing a header, or the header is not recognized.",
+        "path": ""
+    })
+
+
+def make_incorrect_header_error(column_name):
+    return ValidationError(**{
+        "validator": "IncorrectColumnName",
+        "schema_path": [""],
+        "instance": "",
+        "schema": "",
+        "message": f"The file has an unspecified column: {column_name}",
+        "path": ""
+    })
 
 
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):

@@ -29,7 +29,7 @@ def test_validate_csv():
     schema_path = CONFIG_JSON["inputs"]["validation_schema"]["location"]["path"]
     csv_validator = validator.CsvValidator(schema_path)
     with open(csv_path) as csv_file:
-        csv_table = csv.DictReader(csv_file)
+        csv_table = list(csv.DictReader(csv_file))
         valid, errors = csv_validator.validate(csv_table)
 
     assert valid
@@ -38,7 +38,35 @@ def test_validate_csv():
     set_csv_path("test_input_invalid.csv")
     csv_path = CONFIG_JSON["inputs"]["input_file"]["location"]["path"]
     with open(csv_path) as csv_file:
-        csv_table = csv.DictReader(csv_file)
+        csv_table = list(csv.DictReader(csv_file))
         valid, errors = csv_validator.validate(csv_table)
     assert not valid
     assert len(errors) == 1
+
+
+def test_empty_csv():
+    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([])
+    assert valid is False
+    assert len(errors) == 1
+    assert errors[0]["code"] == "EmptyFile"
+
+
+def test_no_header_csv():
+    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([{"a": "as", "b": "bs"}])
+    assert valid is False
+    assert len(errors) == 1
+    assert errors[0]["code"] == "MissingHeader"
+
+
+def test_incorrect_header_csv():
+    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([{"list": "as", "b": "bs"}])
+    assert valid is False
+    assert len(errors) == 1
+    assert errors[0]["code"] == "IncorrectColumnName"
+

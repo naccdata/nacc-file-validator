@@ -73,6 +73,9 @@ class JsonLoader(Loader):
     def load_object(self, file_path: Path) -> dict:
         """Returns the content of the JSON file as a dict."""
         try:
+            # Check for empty file
+            if file_path.stat().st_size == 0:
+                return {}
             with open(file_path, "r", encoding="UTF-8") as fp:
                 content = json.load(fp)
             return content
