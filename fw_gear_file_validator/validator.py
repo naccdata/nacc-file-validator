@@ -6,7 +6,7 @@ import jsonschema
 from jsonschema.exceptions import ValidationError
 
 from fw_gear_file_validator import utils
-from fw_gear_file_validator import errors as errorlib
+from fw_gear_file_validator import errors as err
 
 
 # We are not supporting array, object, or null.
@@ -24,28 +24,44 @@ class JsonValidator:
                 schema = json.load(schema_instance)
         self.validator = jsonschema.Draft7Validator(schema)
 
-    def file_is_empty(self, file_contents):
+    def validate_file_not_empty(self, file_contents: t.Union[dict, list, None]) -> t.Tuple[bool, t.List[dict]]:
+        """ Validates if a file is empty.  Empty means no bytes were read in the content.
+
+        Args:
+            file_contents: the data read from the file in dict or list format.
+
+        Returns:
+            bool: True if valid, false if not
+            list[dict] or None:  An "empty file" error if the file is empty, else None.
+
+        """
         # An empty json will load as {}, an empty csv will load as [].  Both can be caught with a not statement.
         if not file_contents:
-            return self.handle_errors([errorlib.make_empty_file_error()])
-        return None
+            return False, self.handle_errors([err.make_empty_file_error()])
+        return True, []
 
     def validate(self, d: dict) -> t.Tuple[bool, t.List[t.Dict]]:
-        empty_error = self.file_is_empty(d)
-        if empty_error:
-            return False, empty_error
+        valid, empty_error = self.validate_file_not_empty(d)
+        if not valid:
+            return valid, empty_error
 
-        valid, errors = self.process_file(d)
+        valid, errors = self.process_item(d)
 
         return valid, errors
-
-    def process_file(self, d: dict):
-        return self.process_item(d)
 
     def process_item(
         self, d: dict
     ) -> t.Tuple[bool, t.List[t.Dict]]:
-        """Validates a dict and returns a tuple of valid and formatted errors."""
+        """ Validates a dict and returns a tuple of valid and formatted errors.
+
+        Args:
+            d (dict): python dictionary created from a json object
+
+        Returns:
+            (bool): True if valid, false if errors are present
+            (list[dict] or None): a list of errors or and empty list
+
+        """
         errors = list(self.validator.iter_errors(d))
         if errors:
             errors = self.handle_errors(errors)
@@ -97,7 +113,7 @@ class JsonValidator:
         error_report = []
         for error in file_errors:
             error_report.append(
-                errorlib.validator_error_to_standard(error)
+                err.validator_error_to_standard(error)
             )
         return error_report
 
@@ -126,21 +142,21 @@ class CsvValidator(JsonValidator):
             )
         return JSON_TYPES.get(json_type, str)  # default to type str if not supported
 
-    def validate(self, csv_dict: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
-        empty_error = self.file_is_empty(csv_dict)
-        if empty_error:
-            return False, empty_error
+    def validate(self, csv_dicts: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
+        valid, empty_error = self.validate_file_not_empty(csv_dicts)
+        if not valid:
+            return valid, empty_error
 
-        header_errors = self.validate_header(csv_dict)
-        if header_errors:
-            return False, header_errors
+        valid, header_errors = self.validate_header(csv_dicts)
+        if not valid:
+            return valid, header_errors
 
-        valid, errors = self.process_file(csv_dict)
+        valid, errors = self.process_file(csv_dicts)
 
         return valid, errors
 
-    def validate_header(self, csv_dict: t.List[t.Dict]) -> list:
-        """ Checks that the header is valid
+    def validate_header(self, csv_dicts: t.List[t.Dict]) -> t.Tuple[bool, list]:
+        """ Checks that the header is valid.
 
         Valid is a combination of two checks:
         1. is the header present?
@@ -151,29 +167,45 @@ class CsvValidator(JsonValidator):
         required in the schema...I think.
 
         Args:
-            csv_dict:
+            csv_dicts (list[dict]): the csv data as read by csv.DictReader, where each row is a dictionary in a list of dictionaries,
+            and the dictionary's keys are the csvs headers.  
 
         Returns:
+            (bool): True if the header passes validation, False otherwise
+            (list[dict] or None): A Header error if present or None if the file passes validation
 
         """
-        actual_columns = csv_dict[0].keys()
+        actual_columns = csv_dicts[0].keys()
         expected_columns = self.validator.schema["properties"].keys()
         column_is_in_schema = [ac in expected_columns for ac in actual_columns]
 
         # If all the present columns are in the schema, no need to continue checking.
         if all(column_is_in_schema):
-            return []
+            return True, []
 
         # if none of the columns are in the schema, we assume this is missing its header:
         if not any(column_is_in_schema):
-            return self.handle_errors([errorlib.make_missing_header_error()])
+            return False, self.handle_errors([err.make_missing_header_error()])
 
         # If we've made it here, some but not all values are false:
-        column_errors = [errorlib.make_incorrect_header_error(cname) for cname, present in zip(actual_columns, column_is_in_schema) if not present]
+        column_errors = [err.make_incorrect_header_error(cname) for cname, present in zip(actual_columns, column_is_in_schema) if not present]
 
-        return self.handle_errors(column_errors)
+        return False, self.handle_errors(column_errors)
 
-    def process_file(self, csv_dict: t.List[t.Dict]):
+    def process_file(self, csv_dicts: t.List[t.Dict]):
+        """ Processes the csv file one row at a time.
+        
+        Since each row can be considered its own little json file, we need to call the Parent JsonValidator's 
+        "process_item" once for each row and concatenate all errors.  
+        
+        Args:
+            csv_dicts: the list of csv row dictionaries to process
+
+        Returns:
+            (bool): True if valid (no errors), false otherwise
+            (list(dict) or None): a list of errors detected, or None
+
+        """
 
         csv_valid = True
         csv_errors = []
@@ -181,7 +213,7 @@ class CsvValidator(JsonValidator):
         for (
             row_num,
             row_contents,
-        ) in enumerate(csv_dict):
+        ) in enumerate(csv_dicts):
             cast_row = {
                 key: utils.cast_csv_val(value, column_types[key])
                 for key, value in row_contents.items()
@@ -194,7 +226,16 @@ class CsvValidator(JsonValidator):
 
 
     @staticmethod
-    def add_csv_location_spec(row_num, row_errors):
+    def add_csv_location_spec(row_num: int, row_errors: t.Union[t.List[t.Dict], None]):
+        """ Include the row number in the 'location' element of the error.
+
+        Args:
+            row_num (int): the row number that the error came from
+            row_errors (list(dict)):  any errors associated with this row
+
+        Returns:
+
+        """
         for error in row_errors:
             # The old location will be something like "{'key_path': 'properties.Col2'}"
             # We just want the column name (Col2), so we extract it like this:

@@ -1,6 +1,5 @@
 from fw_gear_file_validator import validator
 
-from fw_gear_file_validator import errors as errorlib
 
 
 def test_process_json():

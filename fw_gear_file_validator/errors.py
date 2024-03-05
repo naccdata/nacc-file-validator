@@ -13,7 +13,7 @@ def validator_error_to_standard(schema_error):
     return {
         "type": "error",  # For now, jsonValidaor can only produce errors.
         "code": str(schema_error.validator),
-        "location": "" if not schema_error.schema_path == [""] else {"key_path": ".".join(list(schema_error.schema_path)[:-1])},
+        "location": "" if schema_error.schema_path == [""] else {"key_path": ".".join(list(schema_error.schema_path)[:-1])},
         "value": str(schema_error.instance),
         "expected": str(schema_error.schema),
         "message": schema_error.message,

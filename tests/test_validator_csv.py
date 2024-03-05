@@ -70,3 +70,10 @@ def test_incorrect_header_csv():
     assert len(errors) == 1
     assert errors[0]["code"] == "IncorrectColumnName"
 
+
+def test_correct_header_csv():
+    schema = {"properties": {"list": {"type": "string", "maxLength": 3}, "num": {"type": "number"}}}
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([{"list": "ab", "num": 6}])
+    assert valid is True
+    assert len(errors) == 0
