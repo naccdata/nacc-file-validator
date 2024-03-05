@@ -45,7 +45,12 @@ def test_validate_csv():
 
 
 def test_empty_csv():
-    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    schema = {
+        "properties": {
+            "list": {"type": "array", "maxItems": 3},
+            "num": {"type": "number"},
+        }
+    }
     cvalidator = validator.CsvValidator(schema)
     valid, errors = cvalidator.validate([])
     assert valid is False
@@ -54,7 +59,12 @@ def test_empty_csv():
 
 
 def test_no_header_csv():
-    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    schema = {
+        "properties": {
+            "list": {"type": "array", "maxItems": 3},
+            "num": {"type": "number"},
+        }
+    }
     cvalidator = validator.CsvValidator(schema)
     valid, errors = cvalidator.validate([{"a": "as", "b": "bs"}])
     assert valid is False
@@ -63,7 +73,12 @@ def test_no_header_csv():
 
 
 def test_incorrect_header_csv():
-    schema = {"properties": {"list": {"type": "array", "maxItems": 3}, "num": {"type": "number"}}}
+    schema = {
+        "properties": {
+            "list": {"type": "array", "maxItems": 3},
+            "num": {"type": "number"},
+        }
+    }
     cvalidator = validator.CsvValidator(schema)
     valid, errors = cvalidator.validate([{"list": "as", "b": "bs"}])
     assert valid is False
@@ -72,7 +87,12 @@ def test_incorrect_header_csv():
 
 
 def test_correct_header_csv():
-    schema = {"properties": {"list": {"type": "string", "maxLength": 3}, "num": {"type": "number"}}}
+    schema = {
+        "properties": {
+            "list": {"type": "string", "maxLength": 3},
+            "num": {"type": "number"},
+        }
+    }
     cvalidator = validator.CsvValidator(schema)
     valid, errors = cvalidator.validate([{"list": "ab", "num": 6}])
     assert valid is True

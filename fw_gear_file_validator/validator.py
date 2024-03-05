@@ -5,9 +5,8 @@ from pathlib import Path
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
-from fw_gear_file_validator import utils
 from fw_gear_file_validator import errors as err
-
+from fw_gear_file_validator import utils
 
 # We are not supporting array, object, or null.
 JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool}
@@ -24,8 +23,10 @@ class JsonValidator:
                 schema = json.load(schema_instance)
         self.validator = jsonschema.Draft7Validator(schema)
 
-    def validate_file_not_empty(self, file_contents: t.Union[dict, list, None]) -> t.Tuple[bool, t.List[dict]]:
-        """ Validates if a file is empty.  Empty means no bytes were read in the content.
+    def validate_file_not_empty(
+        self, file_contents: t.Union[dict, list, None]
+    ) -> t.Tuple[bool, t.List[dict]]:
+        """Validates if a file is empty.  Empty means no bytes were read in the content.
 
         Args:
             file_contents: the data read from the file in dict or list format.
@@ -49,10 +50,8 @@ class JsonValidator:
 
         return valid, errors
 
-    def process_item(
-        self, d: dict
-    ) -> t.Tuple[bool, t.List[t.Dict]]:
-        """ Validates a dict and returns a tuple of valid and formatted errors.
+    def process_item(self, d: dict) -> t.Tuple[bool, t.List[t.Dict]]:
+        """Validates a dict and returns a tuple of valid and formatted errors.
 
         Args:
             d (dict): python dictionary created from a json object
@@ -112,9 +111,7 @@ class JsonValidator:
 
         error_report = []
         for error in file_errors:
-            error_report.append(
-                err.validator_error_to_standard(error)
-            )
+            error_report.append(err.validator_error_to_standard(error))
         return error_report
 
 
@@ -156,7 +153,7 @@ class CsvValidator(JsonValidator):
         return valid, errors
 
     def validate_header(self, csv_dicts: t.List[t.Dict]) -> t.Tuple[bool, list]:
-        """ Checks that the header is valid.
+        """Checks that the header is valid.
 
         Valid is a combination of two checks:
         1. is the header present?
@@ -168,7 +165,7 @@ class CsvValidator(JsonValidator):
 
         Args:
             csv_dicts (list[dict]): the csv data as read by csv.DictReader, where each row is a dictionary in a list of dictionaries,
-            and the dictionary's keys are the csvs headers.  
+            and the dictionary's keys are the csvs headers.
 
         Returns:
             (bool): True if the header passes validation, False otherwise
@@ -188,16 +185,20 @@ class CsvValidator(JsonValidator):
             return False, self.handle_errors([err.make_missing_header_error()])
 
         # If we've made it here, some but not all values are false:
-        column_errors = [err.make_incorrect_header_error(cname) for cname, present in zip(actual_columns, column_is_in_schema) if not present]
+        column_errors = [
+            err.make_incorrect_header_error(cname)
+            for cname, present in zip(actual_columns, column_is_in_schema)
+            if not present
+        ]
 
         return False, self.handle_errors(column_errors)
 
     def process_file(self, csv_dicts: t.List[t.Dict]):
-        """ Processes the csv file one row at a time.
-        
-        Since each row can be considered its own little json file, we need to call the Parent JsonValidator's 
-        "process_item" once for each row and concatenate all errors.  
-        
+        """Processes the csv file one row at a time.
+
+        Since each row can be considered its own little json file, we need to call the Parent JsonValidator's
+        "process_item" once for each row and concatenate all errors.
+
         Args:
             csv_dicts: the list of csv row dictionaries to process
 
@@ -224,10 +225,9 @@ class CsvValidator(JsonValidator):
             csv_errors.extend(errors)
         return csv_valid, csv_errors
 
-
     @staticmethod
     def add_csv_location_spec(row_num: int, row_errors: t.Union[t.List[t.Dict], None]):
-        """ Include the row number in the 'location' element of the error.
+        """Include the row number in the 'location' element of the error.
 
         Args:
             row_num (int): the row number that the error came from
@@ -244,7 +244,6 @@ class CsvValidator(JsonValidator):
             else:
                 col_name = error["location"]["key_path"].split(".")[-1]
                 error["location"] = {"line": row_num + 1, "column_name": col_name}
-
 
 
 def initialize_validator(

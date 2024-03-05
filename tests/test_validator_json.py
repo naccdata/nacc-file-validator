@@ -1,7 +1,6 @@
 from fw_gear_file_validator import validator
 
 
-
 def test_process_json():
     schema = {"properties": {"list": {"type": "array", "maxItems": 3}}}
     json_object = {"list": [1, 2, 3]}
@@ -59,5 +58,3 @@ def test_empty_json():
     assert valid is False
     assert len(errors) == 1
     assert errors[0]["code"] == "EmptyFile"
-
-
