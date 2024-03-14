@@ -1,8 +1,9 @@
 import json
+import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from fw_gear_file_validator.loader import FwLoader
+from fw_gear_file_validator.loader import CsvLoader, FwLoader, JsonLoader
 from fw_gear_file_validator.utils import FwReference
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -66,3 +67,23 @@ def test_loader_init():
     validation_dict = loader.load_object(fw_reference.loc)
 
     client2.get_file.assert_called()
+
+
+def test_load_empty_json():
+    loader = JsonLoader()
+    with tempfile.NamedTemporaryFile() as fp:
+        # create an empty file
+        fp.write(b"")
+        fp.seek(0)
+        file_object = loader.load_object(Path(fp.name))
+    assert file_object == {}
+
+
+def test_load_empty_csv():
+    loader = CsvLoader({})
+    with tempfile.NamedTemporaryFile() as fp:
+        # create an empty file
+        fp.write(b"")
+        fp.seek(0)
+        file_object = loader.load_object(Path(fp.name))
+    assert file_object == []
