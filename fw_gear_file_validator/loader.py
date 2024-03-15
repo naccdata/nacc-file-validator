@@ -114,7 +114,7 @@ class CsvLoader(Loader):
     name = "csv"
     has_config = False
 
-    def __init__(self, config: t.Dict[str, t.Any]):
+    def __init__(self):
         super().__init__()
 
     def load_object(self, file_path: Path) -> t.List[t.Dict]:
