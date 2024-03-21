@@ -8,7 +8,7 @@ JSONSchema file. It can be run at the project, subject, session or acquisition l
 
 ### Summary
 
-Validates a file based on a provided validation schema
+Validates a json or csv file based on a provided validation schema
 
 ### License
 
@@ -81,35 +81,55 @@ Validates a file based on a provided validation schema
 
 #### Files
 
-- *{Output-File}*
-    - __Name__: *{input file name}-validation-errors.csv*
-    - __Type__: *file*
-    - __Optional__: *True*
-    - __Description__: *A CSV file containing the JSONSchema error found*
-
-The CSV file will contain the JSONSchema validation errors found, each row 
-corresponding to a unique error found. The columns are:
-
-* `Error_type`: The JSONSchema error type
-* `Error_location`: The key in the input_file where the error was found
-* `Value`: The value of the key in the input_file where the error was found
-* `Expected`: The expected value of the key in the input_file where the error was found
-* `Message`: The error message
-* `Flywheel_Path`: The Flywheel path to the file
-* `Container_ID`: The Flywheel ID of the container containing the file
-
+none
 
 #### Metadata
 
-The gear will add the following metadata to the file or container under the file
-custom information:
+Any schema errors identified by the gear will be stored on the file's metadata.
+The over-all pass/fail state of the validation will also be stored.
+
+The metadata will be added to the file or container under the file
+custom information in the following format:
 
 ```yaml
 qc:
   file-validator:
     validation:
-      state": "PASS"   # or "FAIL" depending on the file validation
+      state: "PASS"   # or "FAIL" depending on the file validation
+      data: [ "<list of error objects>" ]
 ```
+
+where each error object has the following keys:
+
+```json
+{
+  "type": "str - will always be 'error' in this gear",
+  "code": "str - Type of the error (e.g. MaxLength)",
+  "location": "<location object>",
+  "flywheel_path": "str – Flywheel path to the container/file",
+  "container_id": "str – ID of the source container/file ",
+  "value": "str – current value",
+  "expected": "str – expected value",
+  "message": "str – error message description" 
+ }
+```
+
+
+Where value for location will be formatted as such:
+
+For JSON input file:
+
+```
+{ “key_path”: "str = the json key that raised the error" }
+```
+
+For CSV input file:
+
+```
+{ “line”: "int - the row number that raised the error", 
+“column_name”: "str - the column name that raised the error" }
+```
+
 
 ### Pre-requisites
 
@@ -126,6 +146,27 @@ against a JSONSchema. The JSONSchema file can be provided as a gear input and mu
 easier describe the content of the file or the metadata of the file and optionally
 its parent container. The gear can be triggered automatically through gear rule
 when configured as such or be used as part of a validation pipeline.
+
+**Supported Filetypes**: Json, Csv.
+
+#### Validation steps:
+
+##### JSON:
+For a json file there are two validation checks that are done:
+1. Empty File Validation - checks to see if the file is empty
+2. Schema validation - applies the schema directly to the file
+
+##### CSV:
+For a csv file, two validation checks are performed:
+1. Empty File Validation - checks to see if the file is empty.
+2. Header Validation - Checks to see that a header is present, AND if the header 
+has any extra columns NOT specified in the schema.
+3. Schema Validation - Each row is turned into a json object with
+`key:value` pairs, where the key comes from the column headers, and the values
+come from the cells in the given row.  Each row is then validated against the
+schema.
+
+
 
 #### File Specifications
 
@@ -173,31 +214,33 @@ and the following JSONSchema is used:
 }
 ```
 
-The gear will validate the content of the `input_file` and reports any valiation error
-found in the `{input file name}-validation-errors.csv` file. In this case, 
-the CSV file will contain a single validation error:
-
-
-| Error_Type | Error_Location | Value | Expected                           | Message                 | Flywheel_Path                                                                          | Container_ID                 |
-|------------|----------------|-------|------------------------------------|-------------------------|---------------------------------------------------------------------------------------|-----------------------------|
-| maxLength  | MyKey          | val   | "{'type': 'string', 'maxLength': 4}" | 'Some-Value' is too long | fw://path/to/file/in/flywheel.json | 656ec1611b428ce88b11d303   |
+The gear will validate the content of the `input_file` and generates a report 
+of any validation errors it finds.  The report is saved on the metadata.
 
 
 ### Workflow
 
 ```mermaid
 graph LR;
-    A[input_file]:::input --> E((Gear));
+    A[input_file]:::input --> E(Empty \nValidation);
     B[validation_schema]:::input --> E;
-    E:::gear --> F[validation-errors.csv]:::container;
-    E:::gear --> G[file qc metadata]:::output;
+    subgraph Gear;
+    E:::container -->|Not Empty| AA{Is Csv?}
+    AA -->|no| CC
+    AA --> |yes| BB(Header \nValidation)
+    BB:::container -->|Valid| CC[Validate Content\nWith Schema]
+    CC -->G
+    BB -->|Invalid| G
+    E -->|Empty| G[Error Metadata];
+    end
+    G-->F
+ F[Output QC\nMetadata]:::container;
     
     classDef container fill:#57d,color:#fff
     classDef input fill:#7a9,color:#fff
     classDef gear fill:#659,color:#fff
 ```
 
-An overview/orientation of the logging and how to interpret it.
 
 ## Contributing
 

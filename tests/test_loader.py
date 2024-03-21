@@ -80,7 +80,7 @@ def test_load_empty_json():
 
 
 def test_load_empty_csv():
-    loader = CsvLoader({})
+    loader = CsvLoader()
     with tempfile.NamedTemporaryFile() as fp:
         # create an empty file
         fp.write(b"")
