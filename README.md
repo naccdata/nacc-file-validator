@@ -158,9 +158,9 @@ For a json file there are two validation checks that are done:
 
 ##### CSV:
 For a csv file, two validation checks are performed:
-1. Empty File Validation - checks to see if the file is empty
+1. Empty File Validation - checks to see if the file is empty.
 2. Header Validation - Checks to see that a header is present, AND if the header 
-has any extra columns NOT specified in the schema
+has any extra columns NOT specified in the schema.
 3. Schema Validation - Each row is turned into a json object with
 `key:value` pairs, where the key comes from the column headers, and the values
 come from the cells in the given row.  Each row is then validated against the
