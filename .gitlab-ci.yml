@@ -1,6 +1,6 @@
 include:
   - project: flywheel-io/scientific-solutions/etc/sse-qa-ci
-    ref: 5bc25df9ba6c0610263f0fcfcc3e01ef2d25fd98
+    ref: 10266eda7b5ded8285acbad4ed712fee83209d3c
     file: ci/default.yml
 
 variables:
@@ -9,3 +9,34 @@ variables:
   DEBUG: ""  # Set debug mode to print out executed command on qa-ci
   PUBLISH_POETRY: "false"  # Set to true to allow CI to publish package to PYPI
   CACHE_CLEAR: "1"  # Set to true to clear runner cache on gitlab CI
+
+publish:docker:
+  rules:
+    - if: $CI_COMMIT_SHA
+      when: never
+
+publish:template:
+  stage: publish
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
+  rules:
+    - if: $UPDATE
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    PROJ_PATH: "flywheel-io/scientific-solutions/gears/file-validator.git"
+  script:
+    - cd $CI_PROJECT_DIR
+    - rm -rf .git
+    - git init
+    - git config user.email "$CI_PUSH_USER_EMAIL"
+    - git config user.name "$CI_PUSH_USER_NAME"
+    # yamllint disable-line rule:line-length
+    - git remote add template https://$CI_PUSH_USER_NAME:$CI_PUSH_TOKEN@gitlab.com/$PROJ_PATH
+    - git checkout -b main
+    - rm -rf helm
+    - sed -i -e '12,$d' .gitlab-ci.yml
+    - git add -A
+    - git commit -m "Initial Commit"
+    - git push -f template main

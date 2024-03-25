@@ -132,6 +132,6 @@ def test_identify_unsupported_type():
     context.destination = CONFIG_JSON["destination"]
 
     bad_str = "unsupported.ext"
-    with pytest.raises(TypeError) as e_info:
+    with pytest.raises(TypeError) as _:
         ext, mime = parser.get_filetype_data(bad_str)
         parser.validate_filetype(ext, mime)
