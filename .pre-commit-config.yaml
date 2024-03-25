@@ -1,6 +1,6 @@
 repos:
   - repo: https://gitlab.com/flywheel-io/tools/etc/qa-ci
-    rev: a3604f1fe90f76f29dd46436458b10eca740e3e5
+    rev: f47f107929809c56e423685a85194fce5124c385
     hooks:
       - id: gearcheck
         always_run: true
@@ -13,4 +13,5 @@ repos:
           --ignore, "E501",
           --fix,
         ]
+      - id: ruff_tests
       - id: pytest
