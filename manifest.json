@@ -3,6 +3,11 @@
   "cite": "",
   "command": "python run.py",
   "config": {
+    "add_parents": {
+      "default": false,
+      "description": "If validating Flywheel Objects, add the parent containers of the object to the schema for validation",
+      "type": "boolean"
+    },
     "debug": {
       "default": false,
       "description": "Log debug messages",
@@ -14,28 +19,19 @@
       "type": "string"
     },
     "validation_level": {
-      "description": "Select if validation should run on the file or the flywheel representation of the file.  'Validate File Contents' will read the input file and run validation on it, 'Validate Flywheel Objects' will load the json representation of the file in flywheel, including the parent container objects of the file",
-      "type": "string",
       "default": "Validate File Contents",
+      "description": "Select if validation should run on the file or the flywheel representation of the file.  'Validate File Contents' will read the input file and run validation on it, 'Validate Flywheel Objects' will load the json representation of the file in flywheel, including the parent container objects of the file",
       "enum": [
         "Validate File Contents",
         "Validate Flywheel Objects"
-      ]
-    },
-    "add_parents": {
-      "description": "If validating Flywheel Objects, add the parent containers of the object to the schema for validation",
-      "type": "boolean",
-      "default": false
+      ],
+      "type": "string"
     }
   },
   "custom": {
-    "flywheel": {
-      "suite": "Curation",
-      "show-job": true
-    },
     "gear-builder": {
       "category": "qa",
-      "image": "flywheel/file-validator:0.1.4"
+      "image": "flywheel/file-validator:0.2.1"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -60,11 +56,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.2.0",
-  "custom": {
-    "gear-builder": {
-      "category": "qa",
-      "image": "flywheel/file-validator:0.2.0"
-    }
-  }
+  "version": "0.2.1"
 }
