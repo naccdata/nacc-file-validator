@@ -1,6 +1,6 @@
 include:
   - project: flywheel-io/scientific-solutions/etc/sse-qa-ci
-    ref: 6794f8baf3e05b6c781af6264c1b22576041f228
+    ref: 24a80e7febe31c3ec22ab80cc7e51578008a28a6
     file: ci/default.yml
 
 variables:
