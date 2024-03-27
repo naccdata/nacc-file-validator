@@ -32,6 +32,30 @@
     "gear-builder": {
       "category": "qa",
       "image": "flywheel/file-validator:0.2.2"
+    },
+    "flywheel": {
+      "show-job": true,
+      "suite": "Utility",
+      "classification": {
+        "species": [
+          "Phantom",
+          "Human",
+          "Animal",
+          "Other"
+        ],
+        "organ": [
+          "Other"
+        ],
+        "therapeutic_area": [
+          "Any"
+        ],
+        "modality": [
+          "Any"
+        ],
+        "function": [
+          "Utility"
+        ]
+      }
     }
   },
   "description": "Validates a file based on a provided validation schema",
