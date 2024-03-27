@@ -182,10 +182,13 @@ class FwReference:
             hierarchy[level] = fw_object
         return hierarchy
 
-    def get_level_object(self, level) -> t.Union[dict, Container, None]:
+    def get_level_object(self, level) -> t.Union[dict, Container, flywheel.Group, None]:
         """Returns all the parent containers."""
         if level not in self.ref.keys():
             return None
+        if level == "group":
+            return flywheel.Group(label=self.parents['group'])
+
         p_id = self.ref[level]
         getter = getattr(self.client, f"get_{level}")
         fw_object = getter(p_id)
