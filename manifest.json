@@ -29,33 +29,33 @@
     }
   },
   "custom": {
-    "gear-builder": {
-      "category": "qa",
-      "image": "flywheel/file-validator:0.2.2"
-    },
     "flywheel": {
-      "show-job": true,
-      "suite": "Utility",
       "classification": {
+        "function": [
+          "Utility"
+        ],
+        "modality": [
+          "Any"
+        ],
+        "organ": [
+          "Other"
+        ],
         "species": [
           "Phantom",
           "Human",
           "Animal",
           "Other"
         ],
-        "organ": [
-          "Other"
-        ],
         "therapeutic_area": [
           "Any"
-        ],
-        "modality": [
-          "Any"
-        ],
-        "function": [
-          "Utility"
         ]
-      }
+      },
+      "show-job": true,
+      "suite": "Utility"
+    },
+    "gear-builder": {
+      "category": "qa",
+      "image": "flywheel/file-validator:0.2.3"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -80,5 +80,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.2.2"
+  "version": "0.2.3"
 }
