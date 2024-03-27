@@ -1,6 +1,6 @@
 repos:
   - repo: https://gitlab.com/flywheel-io/tools/etc/qa-ci
-    rev: c30a44756904e67f74d08ded7dfc6cf177c5fbe9
+    rev: 053a9ee08d967147f9a69fc32a7f3acdfded78df
     hooks:
       - id: gearcheck
         always_run: true
