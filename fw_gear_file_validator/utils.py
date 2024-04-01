@@ -252,7 +252,6 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
 
     # If we have multiple casts, and "null" is one of them, and it's possible to cast as null, return that.
     if null in cast_types:
-        print("NULL IN CASTS")
         try:
             return null(val)
         except ValueError:
