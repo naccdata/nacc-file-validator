@@ -1,5 +1,6 @@
-from fw_gear_file_validator import utils
 import pytest
+
+from fw_gear_file_validator import utils
 
 JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool, "null": utils.null}
 
