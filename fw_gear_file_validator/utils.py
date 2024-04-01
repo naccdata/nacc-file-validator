@@ -267,12 +267,11 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
 
     # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
     castable = []
-    for i, cast_type in enumerate(cast_types):
+    for cast_type in enumerate(cast_types):
         try:
-            cast_type(val)
-            castable.append(i)
+            castable.append(cast_type(val))
         except ValueError:
-            pass
+            continue
 
     # Now we see how many of those casts were valid.  If it's more than one, we will error.
     # Optionally, we could just return the original value again.  I figured since we specifically don't want to support
@@ -286,7 +285,7 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
         return val
 
     # If we're here, there should be only one.  Phew
-    return cast_types[castable[0]](val)
+    return castable[0]
 
 
 def cast_one(val, cast_type: type):
