@@ -267,7 +267,7 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
 
     # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
     castable = []
-    for cast_type in enumerate(cast_types):
+    for cast_type in cast_types:
         try:
             castable.append(cast_type(val))
         except ValueError:
@@ -278,7 +278,7 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
     # multiple ambiguous casting possibilities, it's best to really call this out here and let the user know that
     # they shouldn't do this.
     if len(castable) > 1:
-        raise ValueError(f"Value {val} can be cast to multiple types {[cast_types[c] for c in castable]}, please specify")
+        raise ValueError(f"Value {val} can be cast to multiple types in {cast_types}, please specify")
 
     # If none are castable, just return the value, the jsonschema will catch it as an error.
     if len(castable) == 0:
