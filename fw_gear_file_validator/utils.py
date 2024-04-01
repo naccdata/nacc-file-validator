@@ -7,6 +7,7 @@ from pathlib import Path
 import flywheel
 import flywheel_gear_toolkit
 from flywheel_gear_toolkit.utils.datatypes import Container
+from fw_gear_file_validator.validator import null
 
 PARENT_ORDER = [
     "group",
@@ -221,7 +222,7 @@ def add_tags_metadata(
     context.metadata.add_file_tags(input_object, str(tag))
 
 
-def cast_csv_val(val: t.Any, cast_type: type):
+def cast_csv_val(val: t.Any, cast_types: [type]):
     """Attempt to cast a type.  Return original value if unsuccessful
 
     Args:
@@ -232,6 +233,46 @@ def cast_csv_val(val: t.Any, cast_type: type):
         cast_type(val) | val
 
     """
+    # Earlier in the code we enforce that the ONLY accepted double type is null and something else.
+    # So in theory at this point we only have a list of length one or two, where one element is null.
+    # But it WOULD be nice to kinda automate this...
+
+    # So here is a first stab with no assumptions on the incoming data:
+    # If we're only attempting one cast:
+    if len(cast_types) == 1:
+        return cast_one(val, cast_types[0])
+
+    # If we have multiple casts, and "null" is one of them, and it's possible to cast, return that.
+    if null in cast_types:
+        try:
+            return null(val)
+        except ValueError:
+            # Remove null so we dont mess with it in the future
+            cast_types.remove(null)
+
+    # If there were only two, "null" and some other value, just try to cast it, whatever
+    if len(cast_types) == 1:
+        return cast_one(val, cast_types[0])
+
+    # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
+    castable = []
+    for i, cast_type in enumerate(cast_types):
+        try:
+            cast_type(val)
+            castable.append(i)
+        except ValueError:
+            pass
+
+    if len(castable) > 1:
+        raise ValueError(f"Value {val} can be cast to multiple types {[cast_types[c] for c in castable]}, please specify")
+    if not any(castable):
+        # If nothing works return the value, the validator will catch it
+        return val
+    # If we're here, there should be only one.  Phew
+    return cast_types[castable[0]](val)
+
+
+def cast_one(val, cast_type: type):
     try:
         return cast_type(val)
     except ValueError:
