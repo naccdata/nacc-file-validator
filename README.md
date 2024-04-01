@@ -149,6 +149,7 @@ when configured as such or be used as part of a validation pipeline.
 
 **Supported Filetypes**: Json, Csv.
 
+
 #### Validation steps:
 
 ##### JSON:
@@ -166,6 +167,62 @@ has any extra columns NOT specified in the schema.
 come from the cells in the given row.  Each row is then validated against the
 schema.
 
+#### Typing for CSV
+CSVs are inherently untyped, so the exact type of each column must be provided 
+in the jsonschema file.  By default, python will read everything as a string, 
+including black spaces, which get read as an empty string (`''`).  We then use 
+default python casting rules to attempt to cast these values to specified types.
+Because of the complications of determining a true intended type on an untyped 
+list of string, we do NOT allow columns to be multiple types.  This means that 
+in your jsonschema, a property's `type` can NOT be a list of types.  
+
+Not allowed:
+` "INVALID_property": {"type": ["integer", "bool"]`
+
+However we do allow one exception.  You MAY have a list of exactly two
+types, as long as ONE of the types is 'null'.  This allows the program to 
+properly handle validation of rows that ARE allowed to be optional and not
+have a value.  
+
+Allowed:
+` "VALID_property": {"type": ["integer", "null"]`
+
+Here is a list of considerations when setting types for CSV:
+1. If a column is a REQUIRED property, that every row MUST have a value for,
+then only ONE type is allowed to be specified for that column.
+2. If a column is an OPTIONAL property, that some rows may have no value for,
+then TWO types must be specified, the desired type (for rows with values), and
+`"null"` (for the blank rows to still be considered valid.)
+3. The use of two or more types for a column is NEVER allowed in any case other
+than the one listed above.
+4. Casting is done using python's built in type casting.  Json types and python
+types aren't perfectly aligned, but we have assigned the following conversions:
+
+| JSON    | Python |
+|---------|--------|
+| string  | str    |
+| number  | float  |
+| integer | int    |
+| boolean | bool   |
+| null    | None   |
+
+5. All data is initially read in as string.  This is important for casting in 
+python for the following reasons:
+6. Python sees ANY string of ANY value as "true" when you try
+to cast the string to a boolean.  Only the empty string `''` is recognized as
+`False` in python.  This can lead to confusing behavior, for example:
+```python
+bool("FALSE")
+>>> True
+```
+7. Python will convert an integer to a float if it's a string.  Technically this
+aligns with javascript's type definition anyways, as "number" means either an 
+int or a float, but it is important to be aware that a column with type "number"
+will convert `"123"` to `123.0`:
+```python
+float("123")
+>>>  123.0
+```
 
 
 #### File Specifications

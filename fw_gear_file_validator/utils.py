@@ -235,7 +235,7 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
 
     Args:
         val: the value to cast
-        cast_type: the type to cast it to
+        cast_types: the type to cast it to
 
     Returns:
         cast_type(val) | val
@@ -248,44 +248,44 @@ def cast_csv_val(val: t.Any, cast_types: list[type]):
     # So here is a first stab with no assumptions on the incoming data:
     # If we're only attempting one cast:
     if len(cast_types) == 1:
-        print("ONLY ONE CAST TYPE CHECK 1")
         return cast_one(val, cast_types[0])
 
-    # If we have multiple casts, and "null" is one of them, and it's possible to cast, return that.
+    # If we have multiple casts, and "null" is one of them, and it's possible to cast as null, return that.
     if null in cast_types:
         print("NULL IN CASTS")
         try:
-            print(f"ATTEMPTING TO CAST {val} as None")
             return null(val)
         except ValueError:
-            print("COULD NOT CAST REMOVING")
+            # If null can't be cast, let's see if we can cast the other type.
+            # null must be tried first because "" can be cast as string.  I was debating just doing
+            # "if val" here but we may want to allow the string "null" or "NA" to be cast as null in the future,
+            # so making a null class where we can put the checks seems prudent.
+
+            # Anyway, if it can't be cast as null, remove the null and... RECURSE
             # Remove null so we dont mess with it in the future
             cast_types.remove(null)
-
-    # If there were only two, "null" and some other value, just try to cast it, whatever
-    if len(cast_types) == 1:
-        print("ONLY ONE MORE CAST TYPE, ATTEMPTING TO CAST")
-        return cast_one(val, cast_types[0])
+            return cast_csv_val(val, cast_types)
 
     # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
     castable = []
     for i, cast_type in enumerate(cast_types):
-        print(f"TRYING CAST TYPE {cast_type}")
         try:
             cast_type(val)
             castable.append(i)
         except ValueError:
             pass
 
+    # Now we see how many of those casts were valid.  If it's more than one, we will error.
+    # Optionally, we could just return the original value again.  I figured since we specifically don't want to support
+    # multiple ambiguous casting possibilities, it's best to really call this out here and let the user know that
+    # they shouldn't do this.
     if len(castable) > 1:
-        print("TOO MANY VALIDS")
-        # Or should I just return val here?
         raise ValueError(f"Value {val} can be cast to multiple types {[cast_types[c] for c in castable]}, please specify")
-        #
-    if not any(castable):
-        print("NO POSSIBLE CASTS")
-        # If nothing works return the value, the validator will catch it
+
+    # If none are castable, just return the value, the jsonschema will catch it as an error.
+    if len(castable) == 0:
         return val
+
     # If we're here, there should be only one.  Phew
     return cast_types[castable[0]](val)
 
