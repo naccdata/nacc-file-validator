@@ -29,30 +29,6 @@
     }
   },
   "custom": {
-    "flywheel": {
-      "classification": {
-        "function": [
-          "Utility"
-        ],
-        "modality": [
-          "Any"
-        ],
-        "organ": [
-          "Other"
-        ],
-        "species": [
-          "Phantom",
-          "Human",
-          "Animal",
-          "Other"
-        ],
-        "therapeutic_area": [
-          "Any"
-        ]
-      },
-      "show-job": true,
-      "suite": "Utility"
-    },
     "gear-builder": {
       "category": "qa",
       "image": "flywheel/file-validator:0.2.3"
