@@ -7,7 +7,6 @@ from pathlib import Path
 import flywheel
 import flywheel_gear_toolkit
 from flywheel_gear_toolkit.utils.datatypes import Container
-from fw_gear_file_validator.validator import null
 
 PARENT_ORDER = [
     "group",
@@ -24,6 +23,15 @@ log = logging.getLogger()
 N_TRIES = 5
 SLEEP_TIME = 5
 
+
+class null:
+    def __init__(self, value):
+        pass
+
+    def __new__(cls, value):
+        if value:
+            raise ValueError(f"Value {value} cannot be cast as null")
+        return None
 
 @dataclass
 class FwReference:
@@ -222,7 +230,7 @@ def add_tags_metadata(
     context.metadata.add_file_tags(input_object, str(tag))
 
 
-def cast_csv_val(val: t.Any, cast_types: [type]):
+def cast_csv_val(val: t.Any, cast_types: list[type]):
     """Attempt to cast a type.  Return original value if unsuccessful
 
     Args:
@@ -240,23 +248,29 @@ def cast_csv_val(val: t.Any, cast_types: [type]):
     # So here is a first stab with no assumptions on the incoming data:
     # If we're only attempting one cast:
     if len(cast_types) == 1:
+        print("ONLY ONE CAST TYPE CHECK 1")
         return cast_one(val, cast_types[0])
 
     # If we have multiple casts, and "null" is one of them, and it's possible to cast, return that.
     if null in cast_types:
+        print("NULL IN CASTS")
         try:
+            print(f"ATTEMPTING TO CAST {val} as None")
             return null(val)
         except ValueError:
+            print("COULD NOT CAST REMOVING")
             # Remove null so we dont mess with it in the future
             cast_types.remove(null)
 
     # If there were only two, "null" and some other value, just try to cast it, whatever
     if len(cast_types) == 1:
+        print("ONLY ONE MORE CAST TYPE, ATTEMPTING TO CAST")
         return cast_one(val, cast_types[0])
 
     # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
     castable = []
     for i, cast_type in enumerate(cast_types):
+        print(f"TRYING CAST TYPE {cast_type}")
         try:
             cast_type(val)
             castable.append(i)
@@ -264,8 +278,12 @@ def cast_csv_val(val: t.Any, cast_types: [type]):
             pass
 
     if len(castable) > 1:
+        print("TOO MANY VALIDS")
+        # Or should I just return val here?
         raise ValueError(f"Value {val} can be cast to multiple types {[cast_types[c] for c in castable]}, please specify")
+        #
     if not any(castable):
+        print("NO POSSIBLE CASTS")
         # If nothing works return the value, the validator will catch it
         return val
     # If we're here, there should be only one.  Phew

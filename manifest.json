@@ -56,5 +56,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.2.3"
+  "version": "0.2.3-dev1"
 }

@@ -1,7 +1,6 @@
 import json
 import typing as t
 from pathlib import Path
-from types import NoneType
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
@@ -10,18 +9,8 @@ from fw_gear_file_validator import errors as err
 from fw_gear_file_validator import utils
 
 
-class null:
-    def __init__(self, value):
-        pass
-
-    def __new__(cls, value):
-        if value:
-            raise ValueError(f"Value {value} cannot be cast as null")
-        return None
-
-
 # We are not supporting array, object, or null.  OK we are supporting null but it's for a good reason.
-JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool, "null": null}
+JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool, "null": utils.null}
 
 
 class JsonValidator:
@@ -145,9 +134,9 @@ class CsvValidator(JsonValidator):
         return column_types
 
     @staticmethod
-    def convert_json_types_to_python(json_type: str) -> [type]:
+    def convert_json_types_to_python(json_type: t.Union[str, list[str]]) -> list[type]:
         if isinstance(json_type, list):
-            if 'null' not in list or len(list) > 2:
+            if 'null' not in json_type or len(json_type) > 2:
                 raise ValueError(
                     "Multiple possible datatypes not allowed for csv validation.  Check your schema."
                 )

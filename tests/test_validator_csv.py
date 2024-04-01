@@ -97,3 +97,31 @@ def test_correct_header_csv():
     valid, errors = cvalidator.validate([{"list": "ab", "num": 6}])
     assert valid is True
     assert len(errors) == 0
+
+
+
+def test_valid_null_type():
+    schema = {
+        "properties": {
+            "list": {"type": ["integer", "null"], "maxLength": 3},
+            "num": {"type": "number"},
+        }
+    }
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([{"list": ""}])
+    assert valid is True
+    assert len(errors) == 0
+
+
+def test_invalid_null_type():
+    schema = {
+        "properties": {
+            "list": {"type": ["integer", "null"], "maxLength": 3},
+            "num": {"type": "number"},
+        }
+    }
+    cvalidator = validator.CsvValidator(schema)
+    valid, errors = cvalidator.validate([{"list": "abc"}])
+    assert valid is False
+    assert len(errors) == 1
+
