@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import typing as t
 
@@ -8,6 +9,10 @@ from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
 log = logging.getLogger(__name__)
 
+# Globals:
+TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
+RUNTIME = datetime.now()
+TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
 
 def validator_error_to_standard(schema_error):
     return {
@@ -19,6 +24,7 @@ def validator_error_to_standard(schema_error):
         "value": str(schema_error.instance),
         "expected": str(schema_error.schema),
         "message": schema_error.message,
+        "timestamp": TIMESTAMP
     }
 
 
