@@ -177,24 +177,21 @@ list of string, we do NOT allow columns to be multiple types.  This means that
 in your jsonschema, a property's `type` can NOT be a list of types.  
 
 Not allowed:
-` "INVALID_property": {"type": ["integer", "bool"]`
+` "INVALID_property": {"type": ["integer", "bool"] }`
 
-However we do allow one exception.  You MAY have a list of exactly two
-types, as long as ONE of the types is 'null'.  This allows the program to 
-properly handle validation of rows that ARE allowed to be optional and not
-have a value.  
+Nulls are handled in the following way:  If a row has a blank cell, that value
+is treated as null, and
+is removed from the row dictionary for validation.  This does not modify the
+original data in any way, just the data that's passed to the validator.  
 
-Allowed:
-` "VALID_property": {"type": ["integer", "null"]`
+This way, if that cell was required, the schema will catch it as a missing 
+vaule, but if it was optional, the schema will pass as intended.
 
 Here is a list of considerations when setting types for CSV:
 1. If a column is a REQUIRED property, that every row MUST have a value for,
 then only ONE type is allowed to be specified for that column.
-2. If a column is an OPTIONAL property, that some rows may have no value for,
-then TWO types must be specified, the desired type (for rows with values), and
-`"null"` (for the blank rows to still be considered valid.)
-3. The use of two or more types for a column is NEVER allowed in any case other
-than the one listed above.
+2. If a column is an OPTIONAL property, that some rows may have no value for it.
+3. The use of two or more types for a column is NEVER allowed in any case.
 4. Casting is done using python's built in type casting.  Json types and python
 types aren't perfectly aligned, but we have assigned the following conversions:
 
@@ -206,11 +203,33 @@ types aren't perfectly aligned, but we have assigned the following conversions:
 | boolean | bool   |
 | null    | None   |
 
+5. If your data has a custom null value ("NA", "None", etc), then you will need
+to modify your schema to account for this in the following way:
+   1. any "optional" fields must have something like this to allow a custom
+   "null" value:
+```json
+   {
+    "anyOf": [
+    {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    {
+      "type": "string",
+      "enum": [
+        "null",
+        "NA"
+      ]
+    }
+  ]
+}
+```
 
 
-5. All data is initially read in as string.  This is important for casting in 
+6. All data is initially read in as string.  This is important for casting in 
 python for the following reasons:
-6. Python sees ANY string of ANY value as "true" when you try
+7. Python sees ANY string of ANY value as "true" when you try
 to cast the string to a boolean.  Only the empty string `''` is recognized as
 `False` in python.  This can lead to confusing behavior, for example:
 ```python
@@ -225,6 +244,20 @@ will convert `"123"` to `123.0`:
 float("123")
 >>>  123.0
 ```
+
+The chart below shows the various casting results from different strings
+that might be read in, to different types. 
+
+| value        | int(value)   | float(value) | bool(value) | `str(value)` |
+|--------------|--------------|--------------|------------|--------------|
+| "123"        | 123          | 123.0        | `True`     | "123"        |
+| "12.3"       | `ValueError` | 12.3         | `True`     | "12.3"       |
+| "any string" | `ValueError` | `ValueError` | `True`     | "any string" |
+| ""           | `ValueError`  | `ValueError`  | `False`    | ""           |
+
+
+
+
 
 
 #### File Specifications
@@ -306,76 +339,3 @@ graph LR;
 [For more information about how to get started contributing to that gear,
 checkout [CONTRIBUTING.md](CONTRIBUTING.md).]
 <!-- markdownlint-disable-file -->
-
-
-| n  | value        | int(value)   | float(value) | bool(value) | `str(value)` |
-|----|--------------|--------------|--------------|------------|--------------|
-| 3  | "123"        | 123          | 123.0        | `True`     | "123"        |
-| 4  | "12.3"       | `ValueError` | 12.3         | `True`     | "12.3"       |
-| 6  | "any string" | `ValueError` | `ValueError` | `True`     | "any string" |
-| 11 | ""           | `ValueError`  | `ValueError`  | `False`    | ""           |
-
-
-
-
-### Converting to `int()`
-
-| n  | value         | `int(value)` | Expected |
-|----|---------------|--------------|-------|
-| 1  | 123           | 123          | ✅     |
-| 2  | 12.3          | 12           | ❌️     |
-| 3  | "123"         | 123          | ✅     |
-| 4  | "12.3"        | `ValueError` |  ⚠️    |
-| 5  | "1.2.3"       | `ValueError` |  ✅    |
-| 6  | "string"      | `ValueError` |  ✅    |
-| 7  | `True`        | 1            |  ⚠️     |
-| 8  | `False`       | 0            |  ⚠️     |
-| 9  | "True"        | `ValueError` |  ✅    |
-| 10 | "False"       | `ValueError` |  ✅    |
-| 11 | ""            | `ValueError` |  ✅    |
-| 12 | `None`        | `TypeError`  |  ✅    |
-| 13 | null: `str()` | 0            |  ❌    |
-
-#### Considerations:
-1. item 2, 4, 7, 8
-
-### Converting to `float()`
-
-| n  | value           | `float(value)` | Expected | 
-|----|-----------------|----------------|--------| 
-| 1  | 123             | 123.0          |  ✅     | 
-| 2  | 12.3            | 12.3           |  ✅     | 
-| 3  | "123"           | 123.0          |  ✅     | 
-| 4  | "12.3"          | 12.3           |  ✅     | 
-| 5  | "1.2.3"         | `ValueError`   |  ✅     | 
-| 6  | "string"        | `ValueError`   |  ✅     | 
-| 7  | `True`          | 1.0            |  ⚠️      | 
-| 8  | `False`         | 0.0            |  ⚠️      | 
-| 9  | "True"          | `ValueError`   |  ✅     | 
-| 10 | "False"         | `ValueError`   |  ✅     | 
-| 11 | ""              | `ValueError`   |  ✅     | 
-| 12 | `None`          | `TypeError`    |  ✅     | 
-| 13 | null: `float()` | 0.0            |  ❌      | 
-
-#### Considerations:
-1. item 1,3,7,8
-
-
-### Converting to `bool()`
-
-| n  | value          | `bool(value)` | Expected | 
-|----|----------------|---------------|---------| 
-| 1  | 123            | `True`        | ❌       | 
-| 2  | 12.3           | `True`        | ❌       | 
-| 3  | "123"          | `True`        | ❌       | 
-| 4  | "12.3"         | `True`        | ❌       | 
-| 5  | "1.2.3"        | `True`        | ❌       | 
-| 6  | "string"       | `True`        | ❌       | 
-| 7  | `True`         | `True`        | ✅       | 
-| 8  | `False`        | `False`       | ✅       | 
-| 9  | "True"         | `True`        | ✅       | 
-| 10 | "False"        | `True`        | ❌       | 
-| 11 | ""             | `False`       | ⚠️        | 
-| 12 | `None`         | `False`       | ✅       | 
-| 13 | null: `bool()` | `False`       | ❌       | 
-

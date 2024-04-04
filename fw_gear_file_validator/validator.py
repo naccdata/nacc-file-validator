@@ -8,7 +8,7 @@ from jsonschema.exceptions import ValidationError
 from fw_gear_file_validator import errors as err
 from fw_gear_file_validator import utils
 
-# We are not supporting array, object, or null.  OK we are supporting null but it's for a good reason.
+# We are not supporting array, object, or null.
 JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool}
 
 
@@ -133,7 +133,7 @@ class CsvValidator(JsonValidator):
         return column_types
 
     @staticmethod
-    def convert_json_types_to_python(json_type: t.Union[str, list[str]]) -> type:
+    def convert_json_types_to_python(json_type: str) -> type:
         if isinstance(json_type, list):
             raise ValueError(
                 "Multiple possible datatypes not allowed for csv validation.  Check your schema."
