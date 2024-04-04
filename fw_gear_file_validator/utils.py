@@ -24,15 +24,6 @@ N_TRIES = 5
 SLEEP_TIME = 5
 
 
-class null:
-    def __init__(self, value):
-        pass
-
-    def __new__(cls, value):
-        if value:
-            raise ValueError(f"Value {value} cannot be cast as null")
-        return None
-
 @dataclass
 class FwReference:
     """A reference to a flywheel object (being a container or a gear input file).
@@ -230,65 +221,17 @@ def add_tags_metadata(
     context.metadata.add_file_tags(input_object, str(tag))
 
 
-def cast_csv_val(val: t.Any, cast_types: list[type]):
+def cast_csv_val(val: t.Any, cast_type: type):
     """Attempt to cast a type.  Return original value if unsuccessful
 
     Args:
         val: the value to cast
-        cast_types: the type to cast it to
+        cast_type: the type to cast it to
 
     Returns:
         cast_type(val) | val
 
     """
-    # Earlier in the code we enforce that the ONLY accepted double type is null and something else.
-    # So in theory at this point we only have a list of length one or two, where one element is null.
-    # But it WOULD be nice to kinda automate this...
-
-    # So here is a first stab with no assumptions on the incoming data:
-    # If we're only attempting one cast:
-    if len(cast_types) == 1:
-        return cast_one(val, cast_types[0])
-
-    # If we have multiple casts, and "null" is one of them, and it's possible to cast as null, return that.
-    if null in cast_types:
-        try:
-            return null(val)
-        except ValueError:
-            # If null can't be cast, let's see if we can cast the other type.
-            # null must be tried first because "" can be cast as string.  I was debating just doing
-            # "if val" here but we may want to allow the string "null" or "NA" to be cast as null in the future,
-            # so making a null class where we can put the checks seems prudent.
-
-            # Anyway, if it can't be cast as null, remove the null and... RECURSE
-            # Remove null so we dont mess with it in the future
-            cast_types.remove(null)
-            return cast_csv_val(val, cast_types)
-
-    # If we have more than one element AND "null" is not present, see if each element is castable to the desired type:
-    castable = []
-    for cast_type in cast_types:
-        try:
-            castable.append(cast_type(val))
-        except ValueError:
-            continue
-
-    # Now we see how many of those casts were valid.  If it's more than one, we will error.
-    # Optionally, we could just return the original value again.  I figured since we specifically don't want to support
-    # multiple ambiguous casting possibilities, it's best to really call this out here and let the user know that
-    # they shouldn't do this.
-    if len(castable) > 1:
-        raise ValueError(f"Value {val} can be cast to multiple types in {cast_types}, please specify")
-
-    # If none are castable, just return the value, the jsonschema will catch it as an error.
-    if len(castable) == 0:
-        return val
-
-    # If we're here, there should be only one.  Phew
-    return castable[0]
-
-
-def cast_one(val, cast_type: type):
     try:
         return cast_type(val)
     except ValueError:

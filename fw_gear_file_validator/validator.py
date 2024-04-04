@@ -8,9 +8,8 @@ from jsonschema.exceptions import ValidationError
 from fw_gear_file_validator import errors as err
 from fw_gear_file_validator import utils
 
-
 # We are not supporting array, object, or null.  OK we are supporting null but it's for a good reason.
-JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool, "null": utils.null}
+JSON_TYPES = {"string": str, "number": float, "integer": int, "boolean": bool}
 
 
 class JsonValidator:
@@ -134,14 +133,12 @@ class CsvValidator(JsonValidator):
         return column_types
 
     @staticmethod
-    def convert_json_types_to_python(json_type: t.Union[str, list[str]]) -> list[type]:
+    def convert_json_types_to_python(json_type: t.Union[str, list[str]]) -> type:
         if isinstance(json_type, list):
-            if 'null' not in json_type or len(json_type) > 2:
-                raise ValueError(
-                    "Multiple possible datatypes not allowed for csv validation.  Check your schema."
-                )
-            return [JSON_TYPES.get(jt, str) for jt in json_type]
-        return [JSON_TYPES.get(json_type, str)]  # default to type str if not supported
+            raise ValueError(
+                "Multiple possible datatypes not allowed for csv validation.  Check your schema."
+            )
+        return JSON_TYPES.get(json_type, str)  # default to type str if not supported
 
     def validate(self, csv_dicts: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
         valid, empty_error = self.validate_file_not_empty(csv_dicts)

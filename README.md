@@ -170,7 +170,7 @@ schema.
 #### Typing for CSV
 CSVs are inherently untyped, so the exact type of each column must be provided 
 in the jsonschema file.  By default, python will read everything as a string, 
-including black spaces, which get read as an empty string (`''`).  We then use 
+including blank spaces, which get read as an empty string (`''`).  We then use 
 default python casting rules to attempt to cast these values to specified types.
 Because of the complications of determining a true intended type on an untyped 
 list of string, we do NOT allow columns to be multiple types.  This means that 
@@ -205,6 +205,8 @@ types aren't perfectly aligned, but we have assigned the following conversions:
 | integer | int    |
 | boolean | bool   |
 | null    | None   |
+
+
 
 5. All data is initially read in as string.  This is important for casting in 
 python for the following reasons:
@@ -304,3 +306,76 @@ graph LR;
 [For more information about how to get started contributing to that gear,
 checkout [CONTRIBUTING.md](CONTRIBUTING.md).]
 <!-- markdownlint-disable-file -->
+
+
+| n  | value        | int(value)   | float(value) | bool(value) | `str(value)` |
+|----|--------------|--------------|--------------|------------|--------------|
+| 3  | "123"        | 123          | 123.0        | `True`     | "123"        |
+| 4  | "12.3"       | `ValueError` | 12.3         | `True`     | "12.3"       |
+| 6  | "any string" | `ValueError` | `ValueError` | `True`     | "any string" |
+| 11 | ""           | `ValueError`  | `ValueError`  | `False`    | ""           |
+
+
+
+
+### Converting to `int()`
+
+| n  | value         | `int(value)` | Expected |
+|----|---------------|--------------|-------|
+| 1  | 123           | 123          | ✅     |
+| 2  | 12.3          | 12           | ❌️     |
+| 3  | "123"         | 123          | ✅     |
+| 4  | "12.3"        | `ValueError` |  ⚠️    |
+| 5  | "1.2.3"       | `ValueError` |  ✅    |
+| 6  | "string"      | `ValueError` |  ✅    |
+| 7  | `True`        | 1            |  ⚠️     |
+| 8  | `False`       | 0            |  ⚠️     |
+| 9  | "True"        | `ValueError` |  ✅    |
+| 10 | "False"       | `ValueError` |  ✅    |
+| 11 | ""            | `ValueError` |  ✅    |
+| 12 | `None`        | `TypeError`  |  ✅    |
+| 13 | null: `str()` | 0            |  ❌    |
+
+#### Considerations:
+1. item 2, 4, 7, 8
+
+### Converting to `float()`
+
+| n  | value           | `float(value)` | Expected | 
+|----|-----------------|----------------|--------| 
+| 1  | 123             | 123.0          |  ✅     | 
+| 2  | 12.3            | 12.3           |  ✅     | 
+| 3  | "123"           | 123.0          |  ✅     | 
+| 4  | "12.3"          | 12.3           |  ✅     | 
+| 5  | "1.2.3"         | `ValueError`   |  ✅     | 
+| 6  | "string"        | `ValueError`   |  ✅     | 
+| 7  | `True`          | 1.0            |  ⚠️      | 
+| 8  | `False`         | 0.0            |  ⚠️      | 
+| 9  | "True"          | `ValueError`   |  ✅     | 
+| 10 | "False"         | `ValueError`   |  ✅     | 
+| 11 | ""              | `ValueError`   |  ✅     | 
+| 12 | `None`          | `TypeError`    |  ✅     | 
+| 13 | null: `float()` | 0.0            |  ❌      | 
+
+#### Considerations:
+1. item 1,3,7,8
+
+
+### Converting to `bool()`
+
+| n  | value          | `bool(value)` | Expected | 
+|----|----------------|---------------|---------| 
+| 1  | 123            | `True`        | ❌       | 
+| 2  | 12.3           | `True`        | ❌       | 
+| 3  | "123"          | `True`        | ❌       | 
+| 4  | "12.3"         | `True`        | ❌       | 
+| 5  | "1.2.3"        | `True`        | ❌       | 
+| 6  | "string"       | `True`        | ❌       | 
+| 7  | `True`         | `True`        | ✅       | 
+| 8  | `False`        | `False`       | ✅       | 
+| 9  | "True"         | `True`        | ✅       | 
+| 10 | "False"        | `True`        | ❌       | 
+| 11 | ""             | `False`       | ⚠️        | 
+| 12 | `None`         | `False`       | ✅       | 
+| 13 | null: `bool()` | `False`       | ❌       | 
+

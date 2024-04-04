@@ -1,6 +1,7 @@
 import csv
 import json
 from pathlib import Path
+import pytest
 
 from fw_gear_file_validator import validator
 
@@ -99,20 +100,6 @@ def test_correct_header_csv():
     assert len(errors) == 0
 
 
-
-def test_valid_null_type():
-    schema = {
-        "properties": {
-            "list": {"type": ["integer", "null"], "maxLength": 3},
-            "num": {"type": "number"},
-        }
-    }
-    cvalidator = validator.CsvValidator(schema)
-    valid, errors = cvalidator.validate([{"list": ""}])
-    assert valid is True
-    assert len(errors) == 0
-
-
 def test_invalid_null_type():
     schema = {
         "properties": {
@@ -120,8 +107,9 @@ def test_invalid_null_type():
             "num": {"type": "number"},
         }
     }
-    cvalidator = validator.CsvValidator(schema)
-    valid, errors = cvalidator.validate([{"list": "abc"}])
-    assert valid is False
-    assert len(errors) == 1
+
+    with pytest.raises(ValueError):
+        cvalidator = validator.CsvValidator(schema)
+        _, _ = cvalidator.validate([{"list": "ab", "num": 6}])
+
 
