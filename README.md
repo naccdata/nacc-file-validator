@@ -149,6 +149,7 @@ when configured as such or be used as part of a validation pipeline.
 
 **Supported Filetypes**: Json, Csv.
 
+
 #### Validation steps:
 
 ##### JSON:
@@ -163,8 +164,101 @@ For a csv file, two validation checks are performed:
 has any extra columns NOT specified in the schema.
 3. Schema Validation - Each row is turned into a json object with
 `key:value` pairs, where the key comes from the column headers, and the values
-come from the cells in the given row.  Each row is then validated against the
+come from the cells in the given row. Each row is then validated against the
 schema.
+
+#### Typing for CSV
+CSVs are inherently untyped, so the exact type of each column must be provided 
+in the jsonschema file. By default, python will read everything as a string, 
+including blank spaces, which get read as an empty string (`''`). We then use 
+default python casting rules to attempt to cast these values to specified types.
+Because of the complications of determining a true intended type on an untyped 
+list of string, we do NOT allow columns to be multiple types. This means that 
+in your jsonschema, a property's `type` can NOT be a list of types. 
+
+Not allowed:
+` "INVALID_property": {"type": ["integer", "bool"] }`
+
+Nulls are handled in the following way: If a row has a blank cell, that value
+is treated as null, and
+is removed from the row dictionary for validation. This does not modify the
+original data in any way, just the data that's passed to the validator. 
+
+This way, if that cell was required, the schema will catch it as a missing 
+vaule, but if it was optional, the schema will pass as intended.
+
+Here is a list of considerations when setting types for CSV:
+1. If a column is a REQUIRED property, that every row MUST have a value for,
+then only ONE type is allowed to be specified for that column.
+2. If a column is an OPTIONAL property, that some rows may have no value for it.
+3. The use of two or more types for a column is NEVER allowed in any case.
+4. Casting is done using python's built in type casting. Json types and python
+types aren't perfectly aligned, but we have assigned the following conversions:
+
+| JSON    | Python |
+|---------|--------|
+| string  | str    |
+| number  | float  |
+| integer | int    |
+| boolean | bool   |
+| null    | None   |
+
+5. If your data has a custom null value ("NA", "None", etc), then you will need
+to modify your schema to account for this in the following way:
+   1. any "optional" fields must have something like this to allow a custom
+   "null" value:
+```json
+   {
+    "anyOf": [
+    {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    {
+      "type": "string",
+      "enum": [
+        "null",
+        "NA"
+      ]
+    }
+  ]
+}
+```
+
+
+6. All data is initially read in as string. This is important for casting in 
+python for the following reasons:
+   - Python sees ANY string of ANY value as "true" when you try
+   to cast the string to a boolean. Only the empty string `''` is recognized as
+   `False` in python. This can lead to confusing behavior, for example:
+    ```python
+    bool("FALSE")
+    >>> True
+    ```
+
+   - Python will convert an integer to a float if it's a string. Technically this
+     aligns with javascript's type definition anyways, as "number" means either an 
+     int or a float, but it is important to be aware that a column with type "number"
+     will convert `"123"` to `123.0`:
+
+    ```python
+    float("123")
+    >>> 123.0
+    ```
+
+The chart below shows the various casting results from different strings
+that might be read in, to different types. 
+
+| value        | int(value)   | float(value) | bool(value) | `str(value)` |
+|--------------|--------------|--------------|------------|--------------|
+| "123"        | 123          | 123.0        | `True`     | "123"        |
+| "12.3"       | `ValueError` | 12.3         | `True`     | "12.3"       |
+| "any string" | `ValueError` | `ValueError` | `True`     | "any string" |
+| ""           | `ValueError`  | `ValueError`  | `False`    | ""           |
+
+
+
 
 
 
@@ -215,7 +309,7 @@ and the following JSONSchema is used:
 ```
 
 The gear will validate the content of the `input_file` and generates a report 
-of any validation errors it finds.  The report is saved on the metadata.
+of any validation errors it finds. The report is saved on the metadata.
 
 
 ### Workflow

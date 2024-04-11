@@ -29,7 +29,7 @@
     }
   },
   "custom": {
-    "flywheel": {
+        "flywheel": {
       "classification": {
         "function": [
           "Utility"

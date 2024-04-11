@@ -121,7 +121,7 @@ class CsvLoader(Loader):
         """Returns the content of the csv file as a list of dicts."""
         try:
             with open(file_path) as csv_file:
-                csv_dict = csv.DictReader(csv_file)
+                csv_dict = [{k: v for k,v in row.items() if v} for row in csv.DictReader(csv_file)]
                 return list(csv_dict)
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
