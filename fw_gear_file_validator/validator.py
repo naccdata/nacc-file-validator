@@ -115,7 +115,6 @@ class JsonValidator:
         return error_report
 
 
-
 class CsvValidator(JsonValidator):
     """CSV Validator class."""
 
