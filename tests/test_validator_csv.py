@@ -1,6 +1,7 @@
 import csv
 import json
 from pathlib import Path
+
 import pytest
 
 from fw_gear_file_validator import validator

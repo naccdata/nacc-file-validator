@@ -1,4 +1,3 @@
-import pytest
 
 from fw_gear_file_validator import utils
 
