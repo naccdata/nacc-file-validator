@@ -71,7 +71,7 @@ def test_no_header_csv():
     valid, errors = cvalidator.validate([{"a": "as", "b": "bs"}])
     assert valid is False
     assert len(errors) == 1
-    assert errors[0]["code"] == "unknown-field"
+    assert errors[0]["code"] == "missing-header"
 
 
 def test_incorrect_header_csv():
@@ -85,7 +85,7 @@ def test_incorrect_header_csv():
     valid, errors = cvalidator.validate([{"list": "as", "b": "bs"}])
     assert valid is False
     assert len(errors) == 1
-    assert errors[0]["code"] == "incorrect-column"
+    assert errors[0]["code"] == "unknown-field"
 
 
 def test_correct_header_csv():
