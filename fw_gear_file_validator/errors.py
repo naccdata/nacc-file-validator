@@ -17,6 +17,7 @@ TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
 RUNTIME = datetime.now()
 TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
 
+
 class FileError(BaseModel):
     """Represents an error that might be found in file during a step in a
     pipeline."""
@@ -42,9 +43,6 @@ class FileError(BaseModel):
             self.location = {"key_path": key}
             self.value = ""
             self.expected = ""
-
-
-
 
 def validator_error_to_standard(schema_error):
     fwerror = FileError(**{
@@ -88,7 +86,7 @@ def make_missing_header_error():
 def make_incorrect_header_error(column_name):
     return ValidationError(
         **{
-            "validator": "incorrect-column",
+            "validator": "unknown-field",
             "schema_path": [""],
             "instance": "",
             "schema": "",
