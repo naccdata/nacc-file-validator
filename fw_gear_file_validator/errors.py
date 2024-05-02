@@ -6,7 +6,7 @@ import typing as t
 from flywheel_gear_toolkit import GearToolkitContext
 from jsonschema.exceptions import ValidationError
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Dict, Optional, Literal, List, Any
+from typing import Optional, Literal, Any
 
 from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
