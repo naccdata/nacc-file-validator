@@ -4,6 +4,8 @@ import typing as t
 
 from flywheel_gear_toolkit import GearToolkitContext
 from jsonschema.exceptions import ValidationError
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional, Literal, Any
 
 from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
@@ -14,24 +16,50 @@ TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
 RUNTIME = datetime.now()
 TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
 
+
+class FileError(BaseModel):
+    """Represents an error that might be found in file during a step in a
+    pipeline."""
+    model_config = ConfigDict(populate_by_name=True)
+    type: Literal['alert', 'error'] = Field(serialization_alias='type')
+    code: str = Field(serialization_alias='code')
+    location: Optional[Any] = None
+    value: Optional[str] = None
+    expected: Optional[str] = None
+    message: str = None
+    timestamp: Optional[str] = None
+
+    def model_post_init(self, __context):
+        # handle the error location options
+        if self.location == [""]:
+            self.location = ""
+        else:
+            self.location = {"key_path": ".".join(list(self.location)[:-1])}
+
+        # handle required:
+        if self.code == "required":
+            key = self.message[1:self.message.find("' is a required property")]
+            self.location = {"key_path": key}
+            self.value = ""
+            self.expected = ""
+
 def validator_error_to_standard(schema_error):
-    return {
+    fwerror = FileError(**{
         "type": "error",  # For now, jsonValidaor can only produce errors.
         "code": str(schema_error.validator),
-        "location": ""
-        if schema_error.schema_path == [""]
-        else {"key_path": ".".join(list(schema_error.schema_path)[:-1])},
+        "location": schema_error.schema_path,
         "value": str(schema_error.instance),
         "expected": str(schema_error.schema),
         "message": schema_error.message,
         "timestamp": TIMESTAMP
-    }
+    })
 
+    return fwerror.model_dump()
 
 def make_empty_file_error():
     return ValidationError(
         **{
-            "validator": "EmptyFile",
+            "validator": "empty-file",
             "schema_path": [""],
             "instance": "",
             "schema": "",
@@ -44,7 +72,7 @@ def make_empty_file_error():
 def make_missing_header_error():
     return ValidationError(
         **{
-            "validator": "MissingHeader",
+            "validator": "missing-header",
             "schema_path": [""],
             "instance": "",
             "schema": "",
@@ -57,7 +85,7 @@ def make_missing_header_error():
 def make_incorrect_header_error(column_name):
     return ValidationError(
         **{
-            "validator": "IncorrectColumnName",
+            "validator": "unknown-field",
             "schema_path": [""],
             "instance": "",
             "schema": "",

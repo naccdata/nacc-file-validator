@@ -57,4 +57,4 @@ def test_empty_json():
     valid, errors = jvalidator.validate({})
     assert valid is False
     assert len(errors) == 1
-    assert errors[0]["code"] == "EmptyFile"
+    assert errors[0]["code"] == "empty-file"
