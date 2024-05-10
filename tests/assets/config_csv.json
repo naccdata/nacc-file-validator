@@ -1,76 +1,76 @@
 {
-    "destination": {
+  "destination": {
+    "id": "63bece9e873b883e03663191",
+    "type": "acquisition"
+  },
+  "inputs": {
+    "input_file": {
+      "hierarchy": {
         "id": "63bece9e873b883e03663191",
         "type": "acquisition"
-    },
-    "inputs": {
-        "input_file": {
-            "hierarchy": {
-                "id": "63bece9e873b883e03663191",
-                "type": "acquisition"
-            },
-            "object": {
-                "container_type": "file",
-                "type": "tabular data",
-                "mimetype": "text/csv",
-                "modality": "",
-                "classification": {},
-                "tags": [
-                    "file-validator",
-                    "form-classifier"
-                ],
-                "info": {},
-                "size": 532,
-                "zip_member_count": null,
-                "version": 1,
-                "file_id": "6442f29a9bb0718c0adfaf9f",
-                "origin": {
-                    "type": "user",
-                    "id": "davidparker@flywheel.io"
-                }
-            },
-            "location": {
-                "path": "assets/test_input_valid.csv",
-                "name": "test_input_valid.csv"
-            },
-            "base": "file"
-        },
-        "validation_schema": {
-            "hierarchy": {
-                "id": "609ed5cd75c0590334bb5313",
-                "type": "project"
-            },
-            "object": {
-                "container_type": "file",
-                "type": "source code",
-                "mimetype": "application/json",
-                "modality": null,
-                "classification": {},
-                "tags": [],
-                "info": {},
-                "size": 87203,
-                "zip_member_count": null,
-                "version": 1,
-                "file_id": "63ffba45c241d877f5579d06",
-                "origin": {
-                    "type": "user",
-                    "id": "davidparker@flywheel.io"
-                }
-            },
-            "location": {
-                "path": "assets/test_schema_csv.json",
-                "name": "test_schema_csv.json"
-            },
-            "base": "file"
-        },
-        "api-key": {
-            "key": "fake_key"
+      },
+      "object": {
+        "container_type": "file",
+        "type": "tabular data",
+        "mimetype": "text/csv",
+        "modality": "",
+        "classification": {},
+        "tags": [
+          "file-validator",
+          "form-classifier"
+        ],
+        "info": {},
+        "size": 532,
+        "zip_member_count": null,
+        "version": 1,
+        "file_id": "6442f29a9bb0718c0adfaf9f",
+        "origin": {
+          "type": "user",
+          "id": "davidparker@flywheel.io"
         }
+      },
+      "location": {
+        "path": "assets/test_input_valid.csv",
+        "name": "test_input_valid.csv"
+      },
+      "base": "file"
     },
-    "config": {
-        "debug": false,
-        "tag": "file-validator",
-        "validation_level": "Validate File Contents",
-        "add_parents": false
+    "validation_schema": {
+      "hierarchy": {
+        "id": "609ed5cd75c0590334bb5313",
+        "type": "project"
+      },
+      "object": {
+        "container_type": "file",
+        "type": "source code",
+        "mimetype": "application/json",
+        "modality": null,
+        "classification": {},
+        "tags": [],
+        "info": {},
+        "size": 87203,
+        "zip_member_count": null,
+        "version": 1,
+        "file_id": "63ffba45c241d877f5579d06",
+        "origin": {
+          "type": "user",
+          "id": "davidparker@flywheel.io"
+        }
+      },
+      "location": {
+        "path": "assets/test_schema_csv.json",
+        "name": "test_schema_csv.json"
+      },
+      "base": "file"
+    },
+    "api-key": {
+      "key": "fake_key"
     }
+  },
+  "config": {
+    "debug": false,
+    "tag": "file-validator",
+    "validation_level": "Validate File Contents",
+    "add_parents": false
+  }
 }

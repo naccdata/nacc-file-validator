@@ -1,11 +1,11 @@
-from datetime import datetime
 import logging
 import typing as t
+from datetime import datetime
+from typing import Any, Literal, Optional
 
 from flywheel_gear_toolkit import GearToolkitContext
 from jsonschema.exceptions import ValidationError
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional, Literal, Any
 
 from fw_gear_file_validator.utils import PARENT_ORDER, FwReference
 
@@ -19,10 +19,12 @@ TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
 
 class FileError(BaseModel):
     """Represents an error that might be found in file during a step in a
-    pipeline."""
+    pipeline.
+    """
+
     model_config = ConfigDict(populate_by_name=True)
-    type: Literal['alert', 'error'] = Field(serialization_alias='type')
-    code: str = Field(serialization_alias='code')
+    type: Literal["alert", "error"] = Field(serialization_alias="type")
+    code: str = Field(serialization_alias="code")
     location: Optional[Any] = None
     value: Optional[str] = None
     expected: Optional[str] = None
@@ -38,23 +40,27 @@ class FileError(BaseModel):
 
         # handle required:
         if self.code == "required":
-            key = self.message[1:self.message.find("' is a required property")]
+            key = self.message[1 : self.message.find("' is a required property")]
             self.location = {"key_path": key}
             self.value = ""
             self.expected = ""
 
+
 def validator_error_to_standard(schema_error):
-    fwerror = FileError(**{
-        "type": "error",  # For now, jsonValidaor can only produce errors.
-        "code": str(schema_error.validator),
-        "location": schema_error.schema_path,
-        "value": str(schema_error.instance),
-        "expected": str(schema_error.schema),
-        "message": schema_error.message,
-        "timestamp": TIMESTAMP
-    })
+    fwerror = FileError(
+        **{
+            "type": "error",  # For now, jsonValidaor can only produce errors.
+            "code": str(schema_error.validator),
+            "location": schema_error.schema_path,
+            "value": str(schema_error.instance),
+            "expected": str(schema_error.schema),
+            "message": schema_error.message,
+            "timestamp": TIMESTAMP,
+        }
+    )
 
     return fwerror.model_dump()
+
 
 def make_empty_file_error():
     return ValidationError(

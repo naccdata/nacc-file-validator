@@ -1,4 +1,5 @@
 """Module to test parser.py"""
+
 import json
 from pathlib import Path
 from unittest.mock import MagicMock

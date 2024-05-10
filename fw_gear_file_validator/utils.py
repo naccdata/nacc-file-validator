@@ -71,8 +71,7 @@ class FwReference:
         gear_input: t.Union[dict, flywheel.models.JobFileInput],
         content: str = None,
     ):
-        """
-        Initialize a flywheel reference object from a gear input file
+        """Initialize a flywheel reference object from a gear input file
         Args:
             fw_client: a flywheel client
             gear_input: a JobFileInput
@@ -83,7 +82,6 @@ class FwReference:
             FwReference
 
         """
-
         if "label" in gear_input:
             raise ValueError("Only files are valid FwReference Inputs")
 
@@ -112,7 +110,7 @@ class FwReference:
 
     @cached_property
     def file_path(self) -> t.Union[Path, None]:
-        """If present returns the file path"""
+        """If present returns the file path."""
         if self.input_object and "location" in self.input_object:
             path = Path(self.input_object["location"]["path"])
         else:
@@ -187,7 +185,7 @@ class FwReference:
         if level not in self.ref.keys():
             return None
         if level == "group":
-            return flywheel.Group(label=self.parents['group'])
+            return flywheel.Group(label=self.parents["group"])
 
         p_id = self.ref[level]
         getter = getattr(self.client, f"get_{level}")
@@ -222,7 +220,7 @@ def add_tags_metadata(
 
 
 def cast_csv_val(val: t.Any, cast_type: type):
-    """Attempt to cast a type.  Return original value if unsuccessful
+    """Attempt to cast a type.  Return original value if unsuccessful.
 
     Args:
         val: the value to cast

@@ -85,7 +85,7 @@ class JsonValidator:
              'schema': {'type': 'array', 'maxItems': 3},
              'parent': None,
              '_type_checker': <TypeChecker types={'array', 'boolean', 'integer', 'null', 'number', 'object', 'string'}>
-         }
+         }.
 
         This must be converted to the FW Error standard:
         type: str – “error” (always error)
@@ -106,7 +106,6 @@ class JsonValidator:
             - container_id
 
         """
-
         file_errors = sorted(file_errors, key=lambda e: e.path)
 
         error_report = []
@@ -207,7 +206,6 @@ class CsvValidator(JsonValidator):
             (list(dict) or None): a list of errors detected, or None
 
         """
-
         csv_valid = True
         csv_errors = []
         column_types = self.get_column_dtypes()

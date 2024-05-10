@@ -1,12 +1,15 @@
 #!/usr/bin/env python
-"""The run script"""
+"""The run script."""
+
 import logging
 
 from flywheel_gear_toolkit import GearToolkitContext
 
 from fw_gear_file_validator import validator
-from fw_gear_file_validator.errors import (add_flywheel_location_to_errors,
-                                           save_errors_metadata)
+from fw_gear_file_validator.errors import (
+    add_flywheel_location_to_errors,
+    save_errors_metadata,
+)
 from fw_gear_file_validator.loader import Loader
 from fw_gear_file_validator.parser import parse_config
 from fw_gear_file_validator.utils import add_tags_metadata, get_loader_type
@@ -16,7 +19,6 @@ log = logging.getLogger(__name__)
 
 def main(context: GearToolkitContext) -> None:  # pragma: no cover
     """Parses gear config, runs main algorithm, and performs flywheel-specific actions."""
-
     (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
 
     loader_type = get_loader_type(fw_ref)
