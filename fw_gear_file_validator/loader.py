@@ -1,6 +1,7 @@
 """ loader.py
 Functions relating to loading files.
 """
+
 import csv
 import json
 import typing as t

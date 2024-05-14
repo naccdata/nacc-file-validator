@@ -1,6 +1,7 @@
 """ errors.py
 Functions related to errors.
 """
+
 import logging
 import typing as t
 from datetime import datetime

@@ -1,3 +1,6 @@
+""" utils.py
+Commonly used functions to aid in the execution of the main code.
+"""
 import logging
 import typing as t
 from dataclasses import dataclass
@@ -72,6 +75,7 @@ class FwReference:
         content: str = None,
     ):
         """Initialize a flywheel reference object from a gear input file
+
         Args:
             fw_client: a flywheel client
             gear_input: a JobFileInput
@@ -98,6 +102,7 @@ class FwReference:
         )
 
     def __post_init__(self) -> None:
+        """Additional processing to be done post initialization"""
         self.path_is_valid()
         self.parents = {k: v for k, v in self.parents.items() if v}  # remove None's
         self.ref = {**self.parents, self.type: self.id}
@@ -171,7 +176,8 @@ class FwReference:
         return self.get_level_object(self.type)
 
     @cached_property
-    def hierarchy_objects(self):
+    def hierarchy_objects(self) -> dict:
+        """Loads the full representation of fw objects in a hierarchy."""
         hierarchy = {}
         for level in self.ref.keys():
             fw_object = self.get_level_object(level)
@@ -198,7 +204,19 @@ def add_tags_metadata(
     fw_ref: FwReference,
     valid,
     tag,
-):
+) -> None:
+    """ Add gear completion tags to metadata.
+
+    Add the specified base tag to the target fw object's metadata,
+    appended with "-PASS" if the validation succeeded, "-FAIL" otherwise
+
+    Args:
+        context: the gear toolkit context
+        fw_ref: the object to append the tag to
+        valid: True if validation passed, else False
+        tag: the base to use for the tag
+
+    """
     state = "PASS" if valid else "FAIL"
 
     log.debug("tagging file")
@@ -219,7 +237,7 @@ def add_tags_metadata(
     context.metadata.add_file_tags(input_object, str(tag))
 
 
-def cast_csv_val(val: t.Any, cast_type: type):
+def cast_csv_val(val: t.Any, cast_type: type) -> t.Union[int, float, str, bool]:
     """Attempt to cast a type.  Return original value if unsuccessful.
 
     Args:
@@ -236,7 +254,16 @@ def cast_csv_val(val: t.Any, cast_type: type):
         return val
 
 
-def get_loader_type(fw_ref):
+def get_loader_type(fw_ref: FwReference) -> str:
+    """ Gets the type of loader needed to load an object.
+
+    Args:
+        fw_ref: a FwReference of a file or container
+
+    Returns:
+        the type of loader needed.
+
+    """
     if fw_ref.contents == "flywheel":
         return fw_ref.contents
     return fw_ref.file_type
