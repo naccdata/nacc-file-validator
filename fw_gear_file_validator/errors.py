@@ -1,4 +1,4 @@
-"""errors.py
+"""errors.py.
 
 Functions related to errors.
 """

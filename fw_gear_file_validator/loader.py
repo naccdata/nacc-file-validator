@@ -1,4 +1,4 @@
-"""loader.py
+"""loader.py.
 
 Functions relating to loading files.
 """

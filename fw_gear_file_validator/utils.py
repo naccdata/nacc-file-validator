@@ -1,4 +1,4 @@
-"""utils.py
+"""utils.py.
 
 Commonly used functions to aid in the execution of the main code.
 """

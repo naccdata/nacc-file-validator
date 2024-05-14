@@ -12,4 +12,3 @@ variables:
   CACHE_CLEAR: "1"  # Set to true to clear runner cache on gitlab CI
 test:gear:
   extends: [.test:gear, .gitlab-runner-medium]
-
