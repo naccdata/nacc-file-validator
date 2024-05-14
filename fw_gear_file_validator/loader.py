@@ -141,7 +141,7 @@ class CsvLoader(Loader):
     has_config = False
 
     def __init__(self):
-        """Initializes the CsvLoader object.  DO I REALLY NEED A DOCSTRING FOR THIS, RUFF?!
+        """Surprisingly this does not initialize this class.  NO, OF COURSE IT DOES, WHY DO I NEED A DOCSTRING?
         """
         super().__init__()
 
