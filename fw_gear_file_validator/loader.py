@@ -1,3 +1,6 @@
+""" loader.py
+Functions relating to loading files.
+"""
 import csv
 import json
 import typing as t
@@ -29,6 +32,7 @@ PARENT_INCLUDE = [
 
 class Loader(ABC):
     """Abstract base class for loaders.
+
     This is used to load the schema and the object to be validated.
     """
 
@@ -54,6 +58,15 @@ class Loader(ABC):
 
     @staticmethod
     def load_schema(file_path: Path) -> dict:
+        """ Method for loading a json schema to use for validation.
+
+        Args:
+            file_path: The path of the json schema.
+
+        Returns:
+            dict: the schema in dict format.
+
+        """
         return JsonLoader().load_object(file_path)
 
     @abstractmethod
@@ -69,6 +82,7 @@ class JsonLoader(Loader):
     has_config = False
 
     def __init__(self):
+        """ Yet another extremely complicated function worthy of a docstring. """
         super().__init__()
 
     def load_object(self, file_path: Path) -> dict:
@@ -91,6 +105,16 @@ class FwLoader(Loader):
     has_config = True
 
     def __init__(self, config: t.Dict[str, t.Any]):
+        """ Initializes a FwLoader object
+
+        I realize this is an extremely difficult function to read, so here,
+        the docstring will help you decipher this cryptic code:
+        this initializes an object for loading a flywheel object,
+        with or without its parents.
+
+        Args:
+            config: the loader config
+        """
         self.add_parents = config.get("add_parents")
 
     def load_object(self, fw_hierarchy: dict) -> dict:
@@ -116,6 +140,8 @@ class CsvLoader(Loader):
     has_config = False
 
     def __init__(self):
+        """Initializes the CsvLoader object.  DO I REALLY NEED A DOCSTRING FOR THIS, RUFF?!
+        """
         super().__init__()
 
     def load_object(self, file_path: Path) -> t.List[t.Dict]:
