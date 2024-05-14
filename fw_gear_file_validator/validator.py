@@ -2,6 +2,7 @@
 
 Creates validators for different object/file types
 """
+
 import json
 import typing as t
 from pathlib import Path
@@ -277,7 +278,7 @@ class CsvValidator(JsonValidator):
 
     @staticmethod
     def add_csv_location_spec(
-            row_num: int, row_errors: t.Union[t.List[t.Dict], None]
+        row_num: int, row_errors: t.Union[t.List[t.Dict], None]
     ) -> None:
         """Include the row number in the 'location' element of the error.
 

@@ -2,6 +2,7 @@
 
 Commonly used functions to aid in the execution of the main code.
 """
+
 import logging
 import typing as t
 from dataclasses import dataclass

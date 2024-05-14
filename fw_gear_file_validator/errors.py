@@ -21,6 +21,7 @@ TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
 RUNTIME = datetime.now()
 TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
 
+
 class FileError(BaseModel):
     """Represents an error that might be found in file."""
 
