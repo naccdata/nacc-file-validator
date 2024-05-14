@@ -1,182 +1,182 @@
 {
-    "destination": {
+  "destination": {
+    "id": "6556596f215ac8633d0590ca",
+    "type": "acquisition"
+  },
+  "inputs": {
+    "input_file": {
+      "hierarchy": {
         "id": "6556596f215ac8633d0590ca",
         "type": "acquisition"
-    },
-    "inputs": {
-        "input_file": {
-            "hierarchy": {
-                "id": "6556596f215ac8633d0590ca",
-                "type": "acquisition"
-            },
-            "object": {
-                "container_type": "file",
-                "type": "source code",
-                "mimetype": "application/json",
-                "modality": "Form",
-                "classification": {
-                    "Custom": [
-                        "v3"
-                    ],
-                    "type": [
-                        "FTLD"
-                    ]
-                },
-                "tags": [
-                    "file-validator",
-                    "form-classifier"
-                ],
-                "info": {
-                    "forms": {
-                        "json": {
-                            "-id": "FTLDv3",
-                            "ADCID": 12190,
-                            "FORMVER": 3,
-                            "FTDGSEV": 1,
-                            "FTDGTYP": 7,
-                            "FTDGTYPG": "LUMBERING",
-                            "LDATEDY": 22,
-                            "LDATEMO": 4839683,
-                            "LDATEYR": 2022,
-                            "NACCID": "NACC283268",
-                            "PACKET": "IF",
-                            "PTID": 4,
-                            "VISITNUM": 12
-                        }
-                    },
-                    "qc": {
-                        "file-classifier": {
-                            "classification": {
-                                "state": "PASS"
-                            },
-                            "job_info": {
-                                "config": {
-                                    "debug": false,
-                                    "tag": "form-classifier"
-                                },
-                                "inputs": {
-                                    "file-input": {
-                                        "file_id": "63e410b863f5924e85240486",
-                                        "file_name": "NACC283268_FTLDv3_Visit12.json",
-                                        "parent": {
-                                            "id": "63bece9e873b883e03663191",
-                                            "type": "acquisition"
-                                        },
-                                        "version": 1
-                                    },
-                                    "profile": {
-                                        "file_id": "63e4131663f5924e85240487",
-                                        "file_name": "json.yml",
-                                        "parent": {
-                                            "id": "609ed5cd75c0590334bb5313",
-                                            "type": "project"
-                                        },
-                                        "version": 7
-                                    }
-                                },
-                                "job_id": "63e4237d2cc2b10f5bdc0274",
-                                "version": "0.5.1-custom"
-                            }
-                        },
-                        "form-classifier-nacc": {
-                            "classification": {
-                                "state": "PASS"
-                            },
-                            "job_info": {
-                                "config": {
-                                    "debug": false,
-                                    "tag": "form-classifier"
-                                },
-                                "inputs": {
-                                    "file-input": {
-                                        "file_id": "63e410b863f5924e85240486",
-                                        "file_name": "NACC283268_FTLDv3_Visit12.json",
-                                        "parent": {
-                                            "id": "63bece9e873b883e03663191",
-                                            "type": "acquisition"
-                                        },
-                                        "version": 1
-                                    }
-                                },
-                                "job_id": "63f396f5f6ad05631b7d57fa",
-                                "version": "0.0.1"
-                            }
-                        },
-                        "form-importer": {
-                            "job_info": {
-                                "config": {
-                                    "debug": false,
-                                    "tag": "form-importer"
-                                },
-                                "inputs": {
-                                    "input-file": {
-                                        "file_id": "63e410b863f5924e85240486",
-                                        "file_name": "NACC283268_FTLDv3_Visit12.json",
-                                        "parent": {
-                                            "id": "63bece9e873b883e03663191",
-                                            "type": "acquisition"
-                                        },
-                                        "version": 1
-                                    }
-                                },
-                                "job_id": "63e410df193d732f4e2404a0",
-                                "version": "0.0.1_alpha"
-                            },
-                            "metadata-extraction": {
-                                "data": {},
-                                "state": "PASS"
-                            }
-                        }
-                    }
-                },
-                "size": 532,
-                "zip_member_count": null,
-                "version": 1,
-                "file_id": "65565972c88a09c05168e463",
-                "origin": {
-                    "type": "user",
-                    "id": "davidparker@flywheel.io"
-                }
-            },
-            "location": {
-                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_input_valid.json",
-                "name": "sub01-new-ses_UDSv4.json"
-            },
-            "base": "file"
+      },
+      "object": {
+        "container_type": "file",
+        "type": "source code",
+        "mimetype": "application/json",
+        "modality": "Form",
+        "classification": {
+          "Custom": [
+            "v3"
+          ],
+          "type": [
+            "FTLD"
+          ]
         },
-        "validation_schema": {
-            "hierarchy": {
-                "id": "609ed5cd75c0590334bb5313",
-                "type": "project"
+        "tags": [
+          "file-validator",
+          "form-classifier"
+        ],
+        "info": {
+          "forms": {
+            "json": {
+              "-id": "FTLDv3",
+              "ADCID": 12190,
+              "FORMVER": 3,
+              "FTDGSEV": 1,
+              "FTDGTYP": 7,
+              "FTDGTYPG": "LUMBERING",
+              "LDATEDY": 22,
+              "LDATEMO": 4839683,
+              "LDATEYR": 2022,
+              "NACCID": "NACC283268",
+              "PACKET": "IF",
+              "PTID": 4,
+              "VISITNUM": 12
+            }
+          },
+          "qc": {
+            "file-classifier": {
+              "classification": {
+                "state": "PASS"
+              },
+              "job_info": {
+                "config": {
+                  "debug": false,
+                  "tag": "form-classifier"
+                },
+                "inputs": {
+                  "file-input": {
+                    "file_id": "63e410b863f5924e85240486",
+                    "file_name": "NACC283268_FTLDv3_Visit12.json",
+                    "parent": {
+                      "id": "63bece9e873b883e03663191",
+                      "type": "acquisition"
+                    },
+                    "version": 1
+                  },
+                  "profile": {
+                    "file_id": "63e4131663f5924e85240487",
+                    "file_name": "json.yml",
+                    "parent": {
+                      "id": "609ed5cd75c0590334bb5313",
+                      "type": "project"
+                    },
+                    "version": 7
+                  }
+                },
+                "job_id": "63e4237d2cc2b10f5bdc0274",
+                "version": "0.5.1-custom"
+              }
             },
-            "object": {
-                "container_type": "file",
-                "type": "source code",
-                "mimetype": "application/json",
-                "modality": null,
-                "classification": {},
-                "tags": [],
-                "info": {},
-                "size": 87203,
-                "zip_member_count": null,
-                "version": 1,
-                "file_id": "651f174376ab892eb1b67afb",
-                "origin": {
-                    "type": "user",
-                    "id": "davidparker@flywheel.io"
-                }
+            "form-classifier-nacc": {
+              "classification": {
+                "state": "PASS"
+              },
+              "job_info": {
+                "config": {
+                  "debug": false,
+                  "tag": "form-classifier"
+                },
+                "inputs": {
+                  "file-input": {
+                    "file_id": "63e410b863f5924e85240486",
+                    "file_name": "NACC283268_FTLDv3_Visit12.json",
+                    "parent": {
+                      "id": "63bece9e873b883e03663191",
+                      "type": "acquisition"
+                    },
+                    "version": 1
+                  }
+                },
+                "job_id": "63f396f5f6ad05631b7d57fa",
+                "version": "0.0.1"
+              }
             },
-            "location": {
-                "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_schema.json",
-                "name": "test_schema.json"
-            },
-            "base": "file"
+            "form-importer": {
+              "job_info": {
+                "config": {
+                  "debug": false,
+                  "tag": "form-importer"
+                },
+                "inputs": {
+                  "input-file": {
+                    "file_id": "63e410b863f5924e85240486",
+                    "file_name": "NACC283268_FTLDv3_Visit12.json",
+                    "parent": {
+                      "id": "63bece9e873b883e03663191",
+                      "type": "acquisition"
+                    },
+                    "version": 1
+                  }
+                },
+                "job_id": "63e410df193d732f4e2404a0",
+                "version": "0.0.1_alpha"
+              },
+              "metadata-extraction": {
+                "data": {},
+                "state": "PASS"
+              }
+            }
+          }
+        },
+        "size": 532,
+        "zip_member_count": null,
+        "version": 1,
+        "file_id": "65565972c88a09c05168e463",
+        "origin": {
+          "type": "user",
+          "id": "davidparker@flywheel.io"
         }
+      },
+      "location": {
+        "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_input_valid.json",
+        "name": "sub01-new-ses_UDSv4.json"
+      },
+      "base": "file"
     },
-    "config": {
-        "debug": false,
-        "tag": "file-validator",
-        "validation_level": "Validate File Contents",
-        "add_parents": false
+    "validation_schema": {
+      "hierarchy": {
+        "id": "609ed5cd75c0590334bb5313",
+        "type": "project"
+      },
+      "object": {
+        "container_type": "file",
+        "type": "source code",
+        "mimetype": "application/json",
+        "modality": null,
+        "classification": {},
+        "tags": [],
+        "info": {},
+        "size": 87203,
+        "zip_member_count": null,
+        "version": 1,
+        "file_id": "651f174376ab892eb1b67afb",
+        "origin": {
+          "type": "user",
+          "id": "davidparker@flywheel.io"
+        }
+      },
+      "location": {
+        "path": "/Users/davidparker/Documents/Flywheel/SSE/MyWork/Gears/file-validator/file-validator/tests/assets/test_schema.json",
+        "name": "test_schema.json"
+      },
+      "base": "file"
     }
+  },
+  "config": {
+    "debug": false,
+    "tag": "file-validator",
+    "validation_level": "Validate File Contents",
+    "add_parents": false
+  }
 }

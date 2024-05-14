@@ -15,8 +15,7 @@ SUPPORTED_FLYWHEEL_MIMETYPES = {"application/json": "json", "text/csv": "csv"}
 def parse_config(
     context: GearToolkitContext,
 ) -> Tuple[bool, str, Path, FwReference, dict]:
-    """Parses necessary items out of the context object"""
-
+    """Parses necessary items out of the context object."""
     debug = context.config.get("debug")
     tag = context.config.get("tag")
     add_parents = context.config.get("add_parents")
@@ -58,7 +57,7 @@ def get_fw_type_info(input_file: dict) -> (str, str):
 
 
 def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
-    """Extracts the extension from a string or Path"""
+    """Extracts the extension from a string or Path."""
     if isinstance(input_file, str):
         input_file = Path(input_file)
     if not isinstance(input_file, Path):
@@ -67,7 +66,7 @@ def get_ext(input_file: Union[Path, str]) -> Union[str, None]:
 
 
 def validate_filetype(ext: str, mime: str) -> Union[str, None]:
-    """Ensures detected filetype is supported and errors if not"""
+    """Ensures detected filetype is supported and errors if not."""
     if (
         ext not in SUPPORTED_FILE_EXTENSIONS.keys()
         and mime not in SUPPORTED_FLYWHEEL_MIMETYPES.keys()
@@ -77,6 +76,15 @@ def validate_filetype(ext: str, mime: str) -> Union[str, None]:
 
 
 def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
+    """Gets data about a file's filetype.
+
+    Args:
+        input_file: a flywheel file object or a path to a file
+
+    Returns:
+        the file's extension and mimetype, if applicable
+
+    """
     if not input_file:
         return None, None
     # Order is done this way, because IF it's a flywheel file, it's possible that the
@@ -92,7 +100,7 @@ def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
 def identify_file_type(
     ext: Union[str, None] = None, mime: Union[str, None] = None
 ) -> str:
-    """Given a flywheel config input file object, identify a valid file type if possible"""
+    """Given a flywheel config input file object, identify a valid file type if possible."""
     # see if the input file object has a value
     if ext:
         input_file_type = SUPPORTED_FILE_EXTENSIONS.get(ext)

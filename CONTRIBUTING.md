@@ -110,7 +110,6 @@ reviewer to identify what relevant changes
 they should expect and look for in the MR, and
 2. It makes it easier to create a release.
 
-
 ### Creating a release
 
 When your merge request is reviewed and approved, you should pull from main locally:

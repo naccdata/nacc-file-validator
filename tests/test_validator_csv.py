@@ -113,13 +113,14 @@ def test_invalid_null_type():
         cvalidator = validator.CsvValidator(schema)
         _, _ = cvalidator.validate([{"list": "ab", "num": 6}])
 
+
 def test_missing_value():
     schema = {
         "required": ["list", "num"],
         "properties": {
             "list": {"type": "string", "maxLength": 3},
             "num": {"type": "number"},
-        }
+        },
     }
     cvalidator = validator.CsvValidator(schema)
     valid, errors = cvalidator.validate([{"list": "ab"}])
