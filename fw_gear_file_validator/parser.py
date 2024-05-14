@@ -76,7 +76,7 @@ def validate_filetype(ext: str, mime: str) -> Union[str, None]:
 
 
 def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
-    """ Gets data about a file's filetype.
+    """Gets data about a file's filetype.
 
     Args:
         input_file: a flywheel file object or a path to a file

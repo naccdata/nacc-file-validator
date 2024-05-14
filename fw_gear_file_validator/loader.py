@@ -1,4 +1,5 @@
-""" loader.py
+"""loader.py
+
 Functions relating to loading files.
 """
 
@@ -59,7 +60,7 @@ class Loader(ABC):
 
     @staticmethod
     def load_schema(file_path: Path) -> dict:
-        """ Method for loading a json schema to use for validation.
+        """Method for loading a json schema to use for validation.
 
         Args:
             file_path: The path of the json schema.
@@ -83,7 +84,7 @@ class JsonLoader(Loader):
     has_config = False
 
     def __init__(self):
-        """ Yet another extremely complicated function worthy of a docstring. """
+        """Yet another extremely complicated function worthy of a docstring."""
         super().__init__()
 
     def load_object(self, file_path: Path) -> dict:
@@ -106,7 +107,7 @@ class FwLoader(Loader):
     has_config = True
 
     def __init__(self, config: t.Dict[str, t.Any]):
-        """ Initializes a FwLoader object
+        """Initializes a FwLoader object.
 
         I realize this is an extremely difficult function to read, so here,
         the docstring will help you decipher this cryptic code:
@@ -141,8 +142,7 @@ class CsvLoader(Loader):
     has_config = False
 
     def __init__(self):
-        """Surprisingly this does not initialize this class.  NO, OF COURSE IT DOES, WHY DO I NEED A DOCSTRING?
-        """
+        """Surprisingly this does not initialize this class.  NO, OF COURSE IT DOES, WHY DO I NEED A DOCSTRING?"""
         super().__init__()
 
     def load_object(self, file_path: Path) -> t.List[t.Dict]:

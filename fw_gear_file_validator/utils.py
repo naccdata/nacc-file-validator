@@ -1,4 +1,5 @@
-""" utils.py
+"""utils.py
+
 Commonly used functions to aid in the execution of the main code.
 """
 import logging
@@ -74,7 +75,7 @@ class FwReference:
         gear_input: t.Union[dict, flywheel.models.JobFileInput],
         content: str = None,
     ):
-        """Initialize a flywheel reference object from a gear input file
+        """Initialize a flywheel reference object from a gear input file.
 
         Args:
             fw_client: a flywheel client
@@ -102,7 +103,7 @@ class FwReference:
         )
 
     def __post_init__(self) -> None:
-        """Additional processing to be done post initialization"""
+        """Additional processing to be done post initialization."""
         self.path_is_valid()
         self.parents = {k: v for k, v in self.parents.items() if v}  # remove None's
         self.ref = {**self.parents, self.type: self.id}
@@ -205,7 +206,7 @@ def add_tags_metadata(
     valid,
     tag,
 ) -> None:
-    """ Add gear completion tags to metadata.
+    """Add gear completion tags to metadata.
 
     Add the specified base tag to the target fw object's metadata,
     appended with "-PASS" if the validation succeeded, "-FAIL" otherwise
@@ -255,7 +256,7 @@ def cast_csv_val(val: t.Any, cast_type: type) -> t.Union[int, float, str, bool]:
 
 
 def get_loader_type(fw_ref: FwReference) -> str:
-    """ Gets the type of loader needed to load an object.
+    """Gets the type of loader needed to load an object.
 
     Args:
         fw_ref: a FwReference of a file or container
