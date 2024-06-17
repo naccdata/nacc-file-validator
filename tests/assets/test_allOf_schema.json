@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$comment": "JSON schema for UDSv4 packet",
+  "$id": "http://naccdata.org/schemas/udsv4-schema.json",
+  "title": "UDSv4",
+  "type": "object",
+  "required": [
+    "ptid",
+    "adcid"
+  ],
+  "definitions": {
+    "ptid": {
+      "type": "string"
+    },
+    "adcid": {
+      "type": "integer"
+    },
+    "visitnum": {
+      "type": "string"
+    }
+  },
+  "properties": {
+    "ptid": {
+      "$ref": "#/definitions/ptid"
+    },
+    "adcid": {
+      "$ref": "#/definitions/adcid"
+    },
+    "visitnum": {
+      "$ref": "#/definitions/visitnum"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "ptid": {
+                "enum": [
+                  "I",
+                  "I4"
+                ]
+              }
+            },
+            "required": [
+              "ptid"
+            ]
+          },
+          {
+            "properties": {
+              "adcid": {
+                "enum": [
+                  1,
+                  2
+                ]
+              }
+            },
+            "required": [
+              "adcid"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "required": [
+          "visitnum"
+        ]
+      }
+    }
+
+  ]
+}

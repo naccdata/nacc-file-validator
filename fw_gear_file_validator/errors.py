@@ -40,7 +40,7 @@ class FileError(BaseModel):
         if self.location == [""]:
             self.location = ""
         else:
-            self.location = {"key_path": ".".join(list(self.location)[:-1])}
+            self.location = {"key_path": ".".join(list(str(self.location))[:-1])}
 
         # handle required:
         if self.code == "required":
@@ -59,6 +59,7 @@ def validator_error_to_standard(schema_error: ValidationError) -> dict:
     Returns:
         a dictionary representation of a flywheel FileError
     """
+    print(schema_error)
     fwerror = FileError(
         **{
             "type": "error",  # For now, jsonValidaor can only produce errors.
