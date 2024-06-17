@@ -1,11 +1,9 @@
-import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import flywheel
 
 from fw_gear_file_validator import errors, utils
-from fw_gear_file_validator import loader
 
 BASE_DIR = d = Path(__file__).resolve().parents[1]
 BASE_DIR = BASE_DIR / "tests"
@@ -33,26 +31,30 @@ def test_save_errors_metadata():
         file_name, "validation", state="FAIL", data=error_dict
     )
 
+
 def test_validator_error_to_standard():
     from fw_gear_file_validator import validator
+
     test_validator = validator.JsonValidator(test_allOf)
 
     json_object_notrigger_noerror = {
-                                "ptid": "aser",
-                                "adcid": 3,
-                            }
+        "ptid": "aser",
+        "adcid": 3,
+    }
 
-    test_errors = list(test_validator.validator.iter_errors(json_object_notrigger_noerror))
+    test_errors = list(
+        test_validator.validator.iter_errors(json_object_notrigger_noerror)
+    )
 
     assert test_errors == []
     json_object_notrigger_error = {
-                                "ptid": "aser",
-                                "adcid": 2,
-                            }
-    test_errors = list(test_validator.validator.iter_errors(json_object_notrigger_error))
+        "ptid": "aser",
+        "adcid": 2,
+    }
+    test_errors = list(
+        test_validator.validator.iter_errors(json_object_notrigger_error)
+    )
     assert len(test_errors) == 1
     standard_error = errors.validator_error_to_standard(test_errors[0])
-    assert standard_error["location"] == {'key_path': 'visitnum'}
-    assert standard_error["code"] == 'required'
-
-
+    assert standard_error["location"] == {"key_path": "visitnum"}
+    assert standard_error["code"] == "required"
