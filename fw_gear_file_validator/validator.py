@@ -29,6 +29,7 @@ class JsonValidator:
                 schema = json.load(schema_instance)
         self.validator = jsonschema.Draft7Validator(schema)
 
+
     def validate_file_not_empty(
         self, file_contents: t.Union[dict, list, None]
     ) -> t.Tuple[bool, t.List[dict]]:
