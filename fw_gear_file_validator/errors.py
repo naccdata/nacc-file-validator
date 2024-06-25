@@ -40,7 +40,9 @@ class FileError(BaseModel):
         if self.location == [""]:
             self.location = ""
         else:
-            self.location = {"key_path": ".".join([str(loc) for loc in self.location][:-1])}
+            self.location = {
+                "key_path": ".".join([str(loc) for loc in self.location][:-1])
+            }
 
         # handle required:
         if self.code == "required":
