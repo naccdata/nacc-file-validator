@@ -5,29 +5,29 @@
   "title": "UDSv4",
   "type": "object",
   "required": [
-    "ptid",
-    "adcid"
+    "required_key1",
+    "required_key2"
   ],
   "definitions": {
-    "ptid": {
+    "required_key1": {
       "type": "string"
     },
-    "adcid": {
+    "required_key2": {
       "type": "integer"
     },
-    "visitnum": {
+    "conditional_key1": {
       "type": "string"
     }
   },
   "properties": {
-    "ptid": {
-      "$ref": "#/definitions/ptid"
+    "required_key1": {
+      "$ref": "#/definitions/required_key1"
     },
-    "adcid": {
-      "$ref": "#/definitions/adcid"
+    "required_key2": {
+      "$ref": "#/definitions/required_key2"
     },
-    "visitnum": {
-      "$ref": "#/definitions/visitnum"
+    "conditional_key1": {
+      "$ref": "#/definitions/conditional_key1"
     }
   },
   "allOf": [
@@ -36,7 +36,7 @@
         "anyOf": [
           {
             "properties": {
-              "ptid": {
+              "required_key1": {
                 "enum": [
                   "I",
                   "I4"
@@ -44,12 +44,12 @@
               }
             },
             "required": [
-              "ptid"
+              "required_key1"
             ]
           },
           {
             "properties": {
-              "adcid": {
+              "required_key2": {
                 "enum": [
                   1,
                   2
@@ -57,14 +57,14 @@
               }
             },
             "required": [
-              "adcid"
+              "required_key2"
             ]
           }
         ]
       },
       "then": {
         "required": [
-          "visitnum"
+          "conditional_key1"
         ]
       }
     }

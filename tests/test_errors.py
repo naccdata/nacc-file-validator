@@ -38,8 +38,8 @@ def test_validator_error_to_standard():
     test_validator = validator.JsonValidator(test_allOf)
 
     json_object_notrigger_noerror = {
-        "ptid": "aser",
-        "adcid": 3,
+        "required_key1": "aser",
+        "required_key2": 3,
     }
 
     test_errors = list(
@@ -48,13 +48,13 @@ def test_validator_error_to_standard():
 
     assert test_errors == []
     json_object_notrigger_error = {
-        "ptid": "aser",
-        "adcid": 2,
+        "required_key1": "aser",
+        "required_key2": 2,
     }
     test_errors = list(
         test_validator.validator.iter_errors(json_object_notrigger_error)
     )
     assert len(test_errors) == 1
     standard_error = errors.validator_error_to_standard(test_errors[0])
-    assert standard_error["location"] == {"key_path": "visitnum"}
+    assert standard_error["location"] == {"key_path": "conditional_key1"}
     assert standard_error["code"] == "required"
