@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$comment": "JSON schema for UDSv4 packet",
+  "$id": "http://naccdata.org/schemas/udsv4-schema.json",
+  "title": "UDSv4",
+  "type": "object",
+  "required": [
+    "required_key1",
+    "required_key2"
+  ],
+  "definitions": {
+    "required_key1": {
+      "type": "string"
+    },
+    "required_key2": {
+      "type": "integer"
+    },
+    "conditional_key1": {
+      "type": "string"
+    }
+  },
+  "properties": {
+    "required_key1": {
+      "$ref": "#/definitions/required_key1"
+    },
+    "required_key2": {
+      "$ref": "#/definitions/required_key2"
+    },
+    "conditional_key1": {
+      "$ref": "#/definitions/conditional_key1"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "required_key1": {
+                "enum": [
+                  "I",
+                  "I4"
+                ]
+              }
+            },
+            "required": [
+              "required_key1"
+            ]
+          },
+          {
+            "properties": {
+              "required_key2": {
+                "enum": [
+                  1,
+                  2
+                ]
+              }
+            },
+            "required": [
+              "required_key2"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "required": [
+          "conditional_key1"
+        ]
+      }
+    }
+
+  ]
+}
