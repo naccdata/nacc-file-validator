@@ -1,7 +1,8 @@
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from fw_gear_file_validator.loader import CsvLoader, FwLoader, JsonLoader
@@ -88,11 +89,14 @@ def test_load_empty_csv():
         fp.seek(0)
         file_object = loader.load_object(Path(fp.name))
     assert file_object == []
-    
+
+
 def test_validate_csv_headers_valid():
     mock_csv_dict = MagicMock()
     mock_csv_dict.fieldnames = ["header1", "header2", "header3"]
-    with patch("fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
+    with patch(
+        "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
+    ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
         try:
             csv_path = Path("dummy_path.csv")
             CsvLoader.validate_csv_headers(csv_path)
@@ -103,7 +107,9 @@ def test_validate_csv_headers_valid():
 def test_validate_csv_headers_duplicate():
     mock_csv_dict = MagicMock()
     mock_csv_dict.fieldnames = ["header1", "header2", "header2"]
-    with patch("fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
+    with patch(
+        "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
+    ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
         csv_path = Path("dummy_path.csv")
         with pytest.raises(ValueError, match="CSV file contains duplicate headers"):
             CsvLoader.validate_csv_headers(csv_path)

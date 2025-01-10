@@ -157,7 +157,7 @@ class CsvLoader(Loader):
                 return list(csv_dict)
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
-        
+
     @staticmethod
     def validate_csv_headers(csv_path: Path) -> None:
         """Validates that the headers in the CSV file match the schema."""
