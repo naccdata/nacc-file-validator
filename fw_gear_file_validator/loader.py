@@ -163,5 +163,7 @@ class CsvLoader(Loader):
         """Validates that the headers in the CSV file match the schema."""
         with open(csv_path) as csv_file:
             csv_headers = csv.DictReader(csv_file).fieldnames
+            if not csv_headers:
+                return
         if len(csv_headers) != len(set(csv_headers)):
             raise ValueError("CSV file contains duplicate headers")
