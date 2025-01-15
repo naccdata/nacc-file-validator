@@ -49,7 +49,7 @@ def parse_config(
     return debug, tag, schema_file_path, fw_ref, loader_config
 
 
-def get_fw_type_info(input_file: dict) -> (str, str):
+def get_fw_type_info(input_file: dict) -> tuple[str, str]:
     """Gets a mimetype from a flywheel config input file object, and extracts the local path of that file."""
     mime = input_file.get("object", {}).get("mimetype")
     path = Path(input_file.get("location", {}).get("name"))
@@ -75,7 +75,7 @@ def validate_filetype(ext: str, mime: str) -> Union[str, None]:
     return
 
 
-def get_filetype_data(input_file: Union[dict, str, Path]) -> (str, str):
+def get_filetype_data(input_file: Union[dict, str, Path]) -> tuple[str, str]:
     """Gets data about a file's filetype.
 
     Args:

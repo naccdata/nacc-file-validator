@@ -148,6 +148,7 @@ class CsvLoader(Loader):
     def load_object(self, file_path: Path) -> t.List[t.Dict]:
         """Returns the content of the csv file as a list of dicts."""
         try:
+            self.validate_csv_headers(file_path)
             with open(file_path) as csv_file:
                 csv_dict = [
                     {k: v for k, v in row.items() if v}
@@ -156,3 +157,13 @@ class CsvLoader(Loader):
                 return list(csv_dict)
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
+
+    @staticmethod
+    def validate_csv_headers(csv_path: Path) -> None:
+        """Validates that the headers in the CSV file match the schema."""
+        with open(csv_path) as csv_file:
+            csv_headers = csv.DictReader(csv_file).fieldnames
+            if not csv_headers:
+                return
+        if len(csv_headers) != len(set(csv_headers)):
+            raise ValueError("CSV file contains duplicate headers")
