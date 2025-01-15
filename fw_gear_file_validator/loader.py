@@ -72,8 +72,8 @@ class Loader(ABC):
         return JsonLoader().load_object(file_path)
 
     @abstractmethod
-    def load_object(self, file: t.Union[Path, dict]) -> dict:
-        """Returns the object to be validated as a dict."""
+    def load_object(self, file: t.Union[Path, dict]) -> t.Tuple[dict, t.List[t.Dict]]:
+        """Returns the object to be validated as a dict. Performs file structure validation"""
         pass
 
 
