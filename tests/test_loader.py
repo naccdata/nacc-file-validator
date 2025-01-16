@@ -4,7 +4,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from fw_gear_file_validator.loader import CsvLoader, FwLoader, JsonLoader
 from fw_gear_file_validator.utils import FwReference
 
@@ -95,11 +94,14 @@ def test_load_empty_csv():
 
 def test_validate_file_format_valid():
     mock_file = MagicMock()
-    mock_file.__iter__.return_value = iter(["header1,header2,header3\n", "value1,value2,value3\n"])
+    mock_file.__iter__.return_value = iter(
+        ["header1,header2,header3\n", "value1,value2,value3\n"]
+    )
     with patch("fw_gear_file_validator.loader.open", return_value=mock_file):
         loader = CsvLoader()
         result = loader.validate_file_format(Path("dummy_path.csv"))
         assert result is None
+
 
 def test_validate_file_format_syntax_error():
     mock_return_value = io.StringIO("header1,header2,header3\nvalue1,value2\n")
@@ -108,25 +110,30 @@ def test_validate_file_format_syntax_error():
         result = loader.validate_file_format(Path("dummy_path.csv"))
         assert result is not None
 
+
 def test_validate_num_commas_valid():
     mock_file = io.StringIO("header1,header2,header3\nvalue1,value2,value3\n")
     result = CsvLoader.validate_num_commas(mock_file)
     assert result is None
+
 
 def test_validate_num_commas_invalid():
     mock_file = io.StringIO("header1,header2,header3\nvalue1,value2\n")
     result = CsvLoader.validate_num_commas(mock_file)
     assert result is not None
 
+
 def test_validate_file_header_valid():
     mock_file = io.StringIO("header1,header2,header3\n")
     result = CsvLoader.validate_file_header(mock_file)
     assert result is None
 
+
 def test_validate_file_header_empty():
     mock_file = io.StringIO("\n")
     result = CsvLoader.validate_file_header(mock_file)
     assert result is not None
+
 
 def test_validate_file_header_duplicate():
     mock_file = io.StringIO("header1,header2,header2\n")

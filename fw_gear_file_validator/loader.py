@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from flywheel_gear_toolkit.utils.datatypes import Container
+
 import fw_gear_file_validator.errors as err
 
 PARENT_INCLUDE = [
@@ -75,7 +76,7 @@ class Loader(ABC):
 
     @abstractmethod
     def load_object(self, file: t.Union[Path, dict]) -> t.Tuple[dict, t.List[t.Dict]]:
-        """Returns the object to be validated as a dict. Performs file structure validation"""
+        """Returns the object to be validated as a dict. Performs file structure validation."""
         pass
 
     @staticmethod
@@ -108,20 +109,21 @@ class JsonLoader(Loader):
             return content, None
         except (FileNotFoundError, json.JSONDecodeError) as e:
             raise ValueError(f"Error loading JSON object: {e}")
-        
 
-    def validate_file_format(self, file_path: Path) -> t.Union[err.ValidationError, None]:
-        """Validates some basic file format items"""
+    def validate_file_format(
+        self, file_path: Path
+    ) -> t.Union[err.ValidationError, None]:
+        """Validates some basic file format items."""
         errors = []
-        
+
         if file_path.stat().st_size == 0:
             errors.append(err.make_empty_file_error())
 
         if errors:
             return self.handle_errors(errors)
-        
+
         return None
-    
+
 
 class FwLoader(Loader):
     """Loads a Flywheel object."""
@@ -184,8 +186,10 @@ class CsvLoader(Loader):
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")
 
-    def validate_file_format(self, csv_path: Path) -> t.Union[err.ValidationError, None]:
-        """Validates some basic file format items"""
+    def validate_file_format(
+        self, csv_path: Path
+    ) -> t.Union[err.ValidationError, None]:
+        """Validates some basic file format items."""
         errors = []
         try:
             with open(csv_path) as csv_file:
@@ -203,34 +207,38 @@ class CsvLoader(Loader):
             unknown_error = err.make_malformed_file_error()
             unknown_error.message = str(e)
             errors.append(unknown_error)
-        
+
         if errors:
             return self.handle_errors(errors)
         return None
 
     @staticmethod
-    def validate_num_commas(csv_file: io.TextIOWrapper) -> t.Union[err.ValidationError, None]:
+    def validate_num_commas(
+        csv_file: io.TextIOWrapper,
+    ) -> t.Union[err.ValidationError, None]:
         """Validates that the number of commas in each row is consistent."""
         first_line = csv_file.readline().strip()
-        commas_in_header = first_line.count(',')
+        commas_in_header = first_line.count(",")
         line_num = 1
         for line in csv_file:
-            if line.count(',') != commas_in_header:
+            if line.count(",") != commas_in_header:
                 error = err.make_malformed_file_error()
-                error.message = "The number of commas in row %s do not match the number of headers." % line_num
+                error.message = (
+                    "The number of commas in row %s do not match the number of headers."
+                    % line_num
+                )
                 return error
             line_num += 1
         return None
 
     @staticmethod
-    def validate_file_header(csv_file: io.TextIOWrapper) -> t.Union[err.ValidationError, None]:
+    def validate_file_header(
+        csv_file: io.TextIOWrapper,
+    ) -> t.Union[err.ValidationError, None]:
         first_line = csv_file.readline().strip()
         if not first_line:
             return err.make_empty_file_error()
-        csv_headers = first_line.split(',')
+        csv_headers = first_line.split(",")
         if len(csv_headers) != len(set(csv_headers)):
             return err.make_duplicate_header_error()
         return None
-    
-
-    

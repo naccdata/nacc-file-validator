@@ -30,7 +30,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
         save_errors_metadata(errors, fw_ref, context)
         add_tags_metadata(context, fw_ref, False, tag)
         return
-    
+
     schema, errors = loader.load_schema(schema_file_path)
     if errors:
         log.error("Invalid schema file.")

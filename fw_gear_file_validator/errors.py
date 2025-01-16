@@ -135,6 +135,7 @@ def make_incorrect_header_error(column_name: str) -> ValidationError:
         }
     )
 
+
 def make_duplicate_header_error() -> ValidationError:
     """Makes an error for a csv file with a header that contains duplicate values.
 
@@ -156,6 +157,7 @@ def make_duplicate_header_error() -> ValidationError:
         }
     )
 
+
 def make_malformed_file_error() -> ValidationError:
     """Makes an error for a csv file with a header that contains duplicate values.
 
@@ -176,6 +178,7 @@ def make_malformed_file_error() -> ValidationError:
             "path": "",
         }
     )
+
 
 def make_bad_file_error() -> ValidationError:
     """Makes an error for a csv file with a header that contains duplicate values.
