@@ -202,7 +202,7 @@ class CsvLoader(Loader):
         except Exception as e:
             unknown_error = err.make_malformed_file_error()
             unknown_error.message = str(e)
-            errors.append(syntax_errors)
+            errors.append(unknown_error)
         
         if errors:
             return self.handle_errors(errors)
