@@ -236,6 +236,7 @@ class CsvLoader(Loader):
     def validate_file_header(
         csv_file: io.TextIOWrapper,
     ) -> t.Union[err.ValidationError, None]:
+        """Validates that the first row of a csv is a valid header/exists."""
         first_line = csv_file.readline().strip()
         if not first_line:
             return err.make_empty_file_error()
