@@ -24,12 +24,18 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     loader_type = get_loader_type(fw_ref)
     loader = Loader.factory(loader_type, config=loader_config)
     d, errors = loader.load_object(fw_ref.loc)
-    schema = loader.load_schema(schema_file_path)
 
+    if errors:
+        errors = add_flywheel_location_to_errors(fw_ref, errors)
+        save_errors_metadata(errors, fw_ref, context)
+        add_tags_metadata(context, fw_ref, False, tag)
+        return
+    
+    schema = loader.load_schema(schema_file_path)
     schema_validator = validator.initialize_validator(loader_type, schema)
     valid, errors = schema_validator.validate(d)
-    errors = add_flywheel_location_to_errors(fw_ref, errors)
 
+    errors = add_flywheel_location_to_errors(fw_ref, errors)
     save_errors_metadata(errors, fw_ref, context)
     add_tags_metadata(context, fw_ref, valid, tag)
 

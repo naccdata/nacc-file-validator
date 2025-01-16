@@ -177,6 +177,27 @@ def make_malformed_file_error() -> ValidationError:
         }
     )
 
+def make_bad_file_error() -> ValidationError:
+    """Makes an error for a csv file with a header that contains duplicate values.
+
+    Args:
+        column_name: the name of the column that's not correct
+
+    Returns:
+        ValidationError with validator = "unknown-field"
+
+    """
+    return ValidationError(
+        **{
+            "validator": "malformed-file",
+            "schema_path": [""],
+            "instance": "",
+            "schema": "",
+            "message": "The file cannot be properly opened by the loader.",
+            "path": "",
+        }
+    )
+
 
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
     """Takes a set of packaged errors and adds flywheel hierarchy info to them."""
