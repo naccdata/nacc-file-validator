@@ -139,27 +139,3 @@ def test_validate_file_header_duplicate():
     mock_file = io.StringIO("header1,header2,header2\n")
     result = CsvLoader.validate_file_header(mock_file)
     assert result is not None
-
-
-# def test_validate_file_header_valid():
-#     mock_csv_dict = MagicMock()
-#     mock_csv_dict.fieldnames = ["header1", "header2", "header3"]
-#     with patch(
-#         "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
-#     ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
-#         try:
-#             csv_path = Path("dummy_path.csv")
-#             CsvLoader.validate_file_header(csv_path)
-#         except ValueError:
-#             pytest.fail("validate_csv_headers raised ValueError unexpectedly!")
-
-
-# def test_validate_file_header_duplicate():
-#     mock_csv_dict = MagicMock()
-#     mock_csv_dict.fieldnames = ["header1", "header2", "header2"]
-#     with patch(
-#         "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
-#     ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
-#         csv_path = Path("dummy_path.csv")
-#         with pytest.raises(ValueError, match="CSV file contains duplicate headers"):
-#             CsvLoader.validate_file_header(csv_path)
