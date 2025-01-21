@@ -139,11 +139,8 @@ def make_incorrect_header_error(column_name: str) -> ValidationError:
 def make_duplicate_header_error() -> ValidationError:
     """Makes an error for a csv file with a header that contains duplicate values.
 
-    Args:
-        column_name: the name of the column that's not correct
-
     Returns:
-        ValidationError with validator = "unknown-field"
+        ValidationError
 
     """
     return ValidationError(
@@ -161,8 +158,8 @@ def make_duplicate_header_error() -> ValidationError:
 def make_malformed_file_error() -> ValidationError:
     """Makes an error for a csv file with a header that contains duplicate values.
 
-    Args:
-        column_name: the name of the column that's not correct
+    In this case, the file can be opened and loaded, but the reader will not 
+    be able to properly parse every line.
 
     Returns:
         ValidationError with validator = "unknown-field"
@@ -181,10 +178,10 @@ def make_malformed_file_error() -> ValidationError:
 
 
 def make_bad_file_error() -> ValidationError:
-    """Makes an error for a csv file with a header that contains duplicate values.
-
-    Args:
-        column_name: the name of the column that's not correct
+    """Makes an error for a file that cannot be loaded.
+    
+    In this case, the reader or loader cannot even properly open the file or
+    read anything from it.
 
     Returns:
         ValidationError with validator = "unknown-field"
