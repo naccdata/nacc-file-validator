@@ -1,9 +1,8 @@
+import io
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from fw_gear_file_validator.loader import CsvLoader, FwLoader, JsonLoader
 from fw_gear_file_validator.utils import FwReference
@@ -50,12 +49,13 @@ def test_loader_init():
     fw_reference.__post_init__()
     config = {"add_parents": True}
     loader = FwLoader(config=config)
-    validation_dict = loader.load_object(fw_reference.loc)
+    validation_dict, errors = loader.load_object(fw_reference.loc)
 
     client.get_file.assert_called()
     client.get_file().parents.keys.assert_called()
     client.get_acquisition.assert_called()
     assert validation_dict == {"acquisition": {}, "file": {}}
+    assert errors is None
 
     client2 = MagicMock()
     fw_reference = FwReference.init_from_gear_input(
@@ -77,8 +77,9 @@ def test_load_empty_json():
         # create an empty file
         fp.write(b"")
         fp.seek(0)
-        file_object = loader.load_object(Path(fp.name))
-    assert file_object == {}
+        file_object, errors = loader.load_object(Path(fp.name))
+    assert file_object is None
+    assert errors[0]["message"] == "The File Is Empty"
 
 
 def test_load_empty_csv():
@@ -87,29 +88,54 @@ def test_load_empty_csv():
         # create an empty file
         fp.write(b"")
         fp.seek(0)
-        file_object = loader.load_object(Path(fp.name))
-    assert file_object == []
+        file_object, _errors = loader.load_object(Path(fp.name))
+    assert file_object is None
 
 
-def test_validate_csv_headers_valid():
-    mock_csv_dict = MagicMock()
-    mock_csv_dict.fieldnames = ["header1", "header2", "header3"]
-    with patch(
-        "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
-    ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
-        try:
-            csv_path = Path("dummy_path.csv")
-            CsvLoader.validate_csv_headers(csv_path)
-        except ValueError:
-            pytest.fail("validate_csv_headers raised ValueError unexpectedly!")
+def test_validate_file_format_valid():
+    mock_file = MagicMock()
+    mock_file.__iter__.return_value = iter(
+        ["header1,header2,header3\n", "value1,value2,value3\n"]
+    )
+    with patch("fw_gear_file_validator.loader.open", return_value=mock_file):
+        loader = CsvLoader()
+        result = loader.validate_file_format(Path("dummy_path.csv"))
+        assert result is None
 
 
-def test_validate_csv_headers_duplicate():
-    mock_csv_dict = MagicMock()
-    mock_csv_dict.fieldnames = ["header1", "header2", "header2"]
-    with patch(
-        "fw_gear_file_validator.loader.csv.DictReader", return_value=mock_csv_dict
-    ), patch("fw_gear_file_validator.loader.open", return_value=MagicMock()):
-        csv_path = Path("dummy_path.csv")
-        with pytest.raises(ValueError, match="CSV file contains duplicate headers"):
-            CsvLoader.validate_csv_headers(csv_path)
+def test_validate_file_format_syntax_error():
+    mock_return_value = io.StringIO("header1,header2,header3\nvalue1,value2\n")
+    with patch("fw_gear_file_validator.loader.open", return_value=mock_return_value):
+        loader = CsvLoader()
+        result = loader.validate_file_format(Path("dummy_path.csv"))
+        assert result is not None
+
+
+def test_validate_num_commas_valid():
+    mock_file = io.StringIO("header1,header2,header3\nvalue1,value2,value3\n")
+    result = CsvLoader.validate_num_commas(mock_file)
+    assert result is None
+
+
+def test_validate_num_commas_invalid():
+    mock_file = io.StringIO("header1,header2,header3\nvalue1,value2\n")
+    result = CsvLoader.validate_num_commas(mock_file)
+    assert result is not None
+
+
+def test_validate_file_header_valid():
+    mock_file = io.StringIO("header1,header2,header3\n")
+    result = CsvLoader.validate_file_header(mock_file)
+    assert result is None
+
+
+def test_validate_file_header_empty():
+    mock_file = io.StringIO("\n")
+    result = CsvLoader.validate_file_header(mock_file)
+    assert result is not None
+
+
+def test_validate_file_header_duplicate():
+    mock_file = io.StringIO("header1,header2,header2\n")
+    result = CsvLoader.validate_file_header(mock_file)
+    assert result is not None

@@ -136,6 +136,69 @@ def make_incorrect_header_error(column_name: str) -> ValidationError:
     )
 
 
+def make_duplicate_header_error() -> ValidationError:
+    """Makes an error for a csv file with a header that contains duplicate values.
+
+    Returns:
+        ValidationError
+
+    """
+    return ValidationError(
+        **{
+            "validator": "invalid-header",
+            "schema_path": [""],
+            "instance": "",
+            "schema": "",
+            "message": "The file has duplicate columns in the header.",
+            "path": "",
+        }
+    )
+
+
+def make_malformed_file_error() -> ValidationError:
+    """Makes an error for a csv file with a header that contains duplicate values.
+
+    In this case, the file can be opened and loaded, but the reader will not
+    be able to properly parse every line.
+
+    Returns:
+        ValidationError with validator = "unknown-field"
+
+    """
+    return ValidationError(
+        **{
+            "validator": "malformed-file",
+            "schema_path": [""],
+            "instance": "",
+            "schema": "",
+            "message": "The file has improper formatting and cannot be parsed.",
+            "path": "",
+        }
+    )
+
+
+def make_bad_file_error() -> ValidationError:
+    """Makes an error for a file that cannot be loaded.
+
+    In this case, the reader or loader cannot even properly open the file or
+    read anything from it.
+
+    Returns:
+        ValidationError with validator = "unknown-field"
+
+    """
+    return ValidationError(
+        **{
+            "validator": "malformed-file",
+            "schema_path": [""],
+            "instance": "",
+            "schema": "",
+            "message": "The file cannot be properly opened by the loader.",
+            "path": "",
+        }
+    )
+
+
 def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
     """Takes a set of packaged errors and adds flywheel hierarchy info to them."""
     hierarchy = fw_ref.hierarchy_objects
