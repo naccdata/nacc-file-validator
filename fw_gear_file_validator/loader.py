@@ -218,7 +218,7 @@ class CsvLoader(Loader):
         csv_file: io.TextIOWrapper,
     ) -> t.Union[err.ValidationError, None]:
         """Validates that the number of fields in each row is consistent.
-        
+
         Properly handles quoted fields that may contain commas.
         """
         csv_file.seek(0)  # Ensure we're at the start of the file
@@ -229,9 +229,7 @@ class CsvLoader(Loader):
             for line_num, row in enumerate(reader, start=2):
                 if len(row) != expected_fields:
                     error = err.make_malformed_file_error()
-                    error.message = (
-                        f"Row {line_num} has {len(row)} fields while the header has {expected_fields} fields."
-                    )
+                    error.message = f"Row {line_num} has {len(row)} fields while the header has {expected_fields} fields."
                     return error
             return None
         except csv.Error as e:
