@@ -226,7 +226,7 @@ class CsvLoader(Loader):
             reader = csv.reader(csv_file)
             header = next(reader)
             expected_fields = len(header)
-            for line_num, row in enumerate(reader, start=2):
+            for line_num, row in enumerate(reader, start=1):
                 if len(row) != expected_fields:
                     error = err.make_malformed_file_error()
                     error.message = f"Row {line_num} has {len(row)} fields while the header has {expected_fields} fields."
