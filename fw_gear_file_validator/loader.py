@@ -217,20 +217,27 @@ class CsvLoader(Loader):
     def validate_num_commas(
         csv_file: io.TextIOWrapper,
     ) -> t.Union[err.ValidationError, None]:
-        """Validates that the number of commas in each row is consistent."""
-        first_line = csv_file.readline().strip()
-        commas_in_header = first_line.count(",")
-        line_num = 1
-        for line in csv_file:
-            if line.count(",") != commas_in_header:
-                error = err.make_malformed_file_error()
-                error.message = (
-                    "The number of commas in row %s do not match the number of headers."
-                    % line_num
-                )
-                return error
-            line_num += 1
-        return None
+        """Validates that the number of fields in each row is consistent.
+        
+        Properly handles quoted fields that may contain commas.
+        """
+        csv_file.seek(0)  # Ensure we're at the start of the file
+        try:
+            reader = csv.reader(csv_file)
+            header = next(reader)
+            expected_fields = len(header)
+            for line_num, row in enumerate(reader, start=2):
+                if len(row) != expected_fields:
+                    error = err.make_malformed_file_error()
+                    error.message = (
+                        f"Row {line_num} has {len(row)} fields while the header has {expected_fields} fields."
+                    )
+                    return error
+            return None
+        except csv.Error as e:
+            error = err.make_malformed_file_error()
+            error.message = f"CSV parsing error: {str(e)}"
+            return error
 
     @staticmethod
     def validate_file_header(

@@ -117,10 +117,27 @@ def test_validate_num_commas_valid():
     assert result is None
 
 
-def test_validate_num_commas_invalid():
-    mock_file = io.StringIO("header1,header2,header3\nvalue1,value2\n")
+def test_validate_num_commas_with_quotes():
+    # Test CSV with quoted fields containing commas
+    mock_file = io.StringIO('header1,header2,header3\nvalue1,"value2,with,commas",value3\n')
+    result = CsvLoader.validate_num_commas(mock_file)
+    assert result is None
+
+
+def test_validate_num_commas_with_quotes_error():
+    # Test CSV with incorrect number of fields, even with quotes
+    mock_file = io.StringIO('header1,header2,header3\nvalue1,"value2,with,commas"\n')
     result = CsvLoader.validate_num_commas(mock_file)
     assert result is not None
+    assert "Row 2 has 2 fields while the header has 3 fields" in result.message
+
+
+def test_validate_num_commas_with_invalid_quotes():
+    # Test CSV with incorrectly quoted fields
+    mock_file = io.StringIO('header1,header2,header3\nvalue1,"value2,with,unclosed quote,value3\n')
+    result = CsvLoader.validate_num_commas(mock_file)
+    assert result is not None
+    assert "CSV parsing error" in result.message
 
 
 def test_validate_file_header_valid():
