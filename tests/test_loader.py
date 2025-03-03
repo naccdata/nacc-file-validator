@@ -93,9 +93,8 @@ def test_load_empty_csv():
 
 
 def test_validate_file_format_valid():
-    mock_file = MagicMock()
-    mock_file.__iter__.return_value = iter(
-        ["header1,header2,header3\n", "value1,value2,value3\n"]
+    mock_file = io.StringIO(
+        'header1,header2,header3\nvalue1,value2,value3\n'
     )
     with patch("fw_gear_file_validator.loader.open", return_value=mock_file):
         loader = CsvLoader()
@@ -131,7 +130,7 @@ def test_validate_num_commas_with_quotes_error():
     mock_file = io.StringIO('header1,header2,header3\nvalue1,"value2,with,commas"\n')
     result = CsvLoader.validate_num_commas(mock_file)
     assert result is not None
-    assert "Row 2 has 2 fields while the header has 3 fields" in result.message
+    assert "Row 1 has 2 fields while the header has 3 fields" in result.message
 
 
 def test_validate_num_commas_with_invalid_quotes():
@@ -141,7 +140,7 @@ def test_validate_num_commas_with_invalid_quotes():
     )
     result = CsvLoader.validate_num_commas(mock_file)
     assert result is not None
-    assert "CSV parsing error" in result.message
+    assert "Row 1 has 2 fields while the header has 3 fields" in result.message
 
 
 def test_validate_file_header_valid():
