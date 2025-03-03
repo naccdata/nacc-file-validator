@@ -93,9 +93,7 @@ def test_load_empty_csv():
 
 
 def test_validate_file_format_valid():
-    mock_file = io.StringIO(
-        'header1,header2,header3\nvalue1,value2,value3\n'
-    )
+    mock_file = io.StringIO("header1,header2,header3\nvalue1,value2,value3\n")
     with patch("fw_gear_file_validator.loader.open", return_value=mock_file):
         loader = CsvLoader()
         result = loader.validate_file_format(Path("dummy_path.csv"))
