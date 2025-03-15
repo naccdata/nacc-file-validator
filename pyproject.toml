@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fw_gear_file_validator"
-version = "0.3.2-dev0"
+version = "0.3.2-dev1"
 description = "Validates a file"
 authors = ["Flywheel <support@flywheel.io>"]
 readme = "README.md"

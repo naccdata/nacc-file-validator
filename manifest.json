@@ -55,7 +55,7 @@
     },
     "gear-builder": {
       "category": "qa",
-      "image": "naccdata/file-validator:0.3.2-dev0"
+      "image": "naccdata/file-validator:0.3.2-dev1"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -80,5 +80,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.3.2-dev0"
+  "version": "0.3.2-dev1"
 }
