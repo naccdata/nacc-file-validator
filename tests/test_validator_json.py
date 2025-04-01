@@ -58,3 +58,16 @@ def test_empty_json():
     assert valid is False
     assert len(errors) == 1
     assert errors[0]["code"] == "empty-file"
+
+
+def test_cast_json():
+    schema =  {"properties": {"num_value": {"type": "number"}}}
+    jvalidator = validator.JsonValidator(schema)
+    valid, errors = jvalidator.validate({"num_value": 1})
+    assert valid
+
+    valid, errors = jvalidator.validate({"num_value": 1.0})
+    assert valid
+
+    valid, errors = jvalidator.validate({"num_value": "1.0"})
+    assert valid
