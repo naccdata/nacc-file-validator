@@ -267,7 +267,7 @@ class CsvValidator(JsonValidator):
             row_contents,
         ) in enumerate(csv_dicts):
             cast_row = {
-                key: utils.cast_csv_val(value, column_types[key])
+                key: utils.cast_csv_val(value, column_types.get(key, "string"))
                 for key, value in row_contents.items()
             }
             valid, errors = self.process_item(cast_row)
