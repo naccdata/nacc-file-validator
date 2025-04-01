@@ -180,7 +180,7 @@ class CsvValidator(JsonValidator):
             )
         return JSON_TYPES.get(json_type, str)  # default to type str if not supported
 
-    def validate(self, csv_dicts: t.List[t.Dict]) -> t.Tuple[bool, t.List[t.Dict]]:
+    def validate(self, csv_dicts: t.List[t.Dict], drop_empty: bool = True) -> t.Tuple[bool, t.List[t.Dict]]:
         """Performs the validation of a CSV file.
 
         Args:
@@ -192,6 +192,7 @@ class CsvValidator(JsonValidator):
 
 
         """
+
         valid, empty_error = self.validate_file_not_empty(csv_dicts)
         if not valid:
             return valid, empty_error
@@ -199,6 +200,12 @@ class CsvValidator(JsonValidator):
         valid, header_errors = self.validate_header(csv_dicts)
         if not valid:
             return valid, header_errors
+        
+        if drop_empty:
+            csv_dicts = [
+                {k: v for k, v in row.items() if v}
+                for row in csv_dicts
+            ]
 
         valid, errors = self.process_file(csv_dicts)
 
