@@ -14,7 +14,7 @@
       "type": "boolean"
     },
     "tag": {
-      "default": "file-validator",
+      "default": "nacc-file-validator",
       "description": "Tag to attach to files that gear runs on upon run completion",
       "type": "string"
     },
@@ -55,7 +55,7 @@
     },
     "gear-builder": {
       "category": "qa",
-      "image": "naccdata/file-validator:0.3.2"
+      "image": "naccdata/nacc-file-validator:0.3.2"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -76,9 +76,9 @@
   },
   "label": "File Validator",
   "license": "Other",
-  "maintainer": "Flywheel <support@flywheel.io>",
-  "name": "file-validator",
-  "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
+  "maintainer": "nacchelp@uw.edu",
+  "name": "nacc-file-validator",
+  "source": "https://github.com/naccdata/nacc-file-validator.git",
+  "url": "https://github.com/naccdata/nacc-file-validator",
   "version": "0.3.2"
 }
