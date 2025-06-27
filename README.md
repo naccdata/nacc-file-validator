@@ -1,3 +1,7 @@
+# IMPORTANT
+
+This repo is a fork of the [FW file-validator](https://github.com/naccdata/file-validator). In order to maintain NACC-specific changes with FW, **merge any NACC-specific work to the [nacc-release](https://github.com/naccdata/nacc-file-validator/tree/nacc-release) branch**. FW-specific changes should be synced to main as usual and merged in to the `nacc-release` branch as well.
+
 # file-validator (File Validator)
 
 ## Overview
