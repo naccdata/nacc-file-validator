@@ -106,7 +106,12 @@ class JsonLoader(Loader):
             if format_errors:
                 return None, format_errors
             with open(file_path, "r", encoding="UTF-8") as fp:
-                content = json.load(fp)
+                raw_content = json.load(fp)
+                # remove empty strings/nulls
+                content = {
+                    k: v for k, v in raw_content.items()
+                    if v not in [None, '']}
+
             return content, None
         except (FileNotFoundError, json.JSONDecodeError) as e:
             raise ValueError(f"Error loading JSON object: {e}")

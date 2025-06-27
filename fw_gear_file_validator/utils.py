@@ -239,7 +239,7 @@ def add_tags_metadata(
     context.metadata.add_file_tags(input_object, str(tag))
 
 
-def cast_csv_val(val: t.Any, cast_type: type) -> t.Union[int, float, str, bool]:
+def cast_value(val: t.Any, cast_type: type) -> t.Union[int, float, str, bool]:
     """Attempt to cast a type.  Return original value if unsuccessful.
 
     Args:
