@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
 RUNTIME = datetime.now()
 TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
+MAX_ERRORS = 50_000
 
 
 class FileError(BaseModel):
@@ -162,7 +163,7 @@ def make_malformed_file_error() -> ValidationError:
     be able to properly parse every line.
 
     Returns:
-        ValidationError with validator = "unknown-field"
+        ValidationError with validator = "malformed-file"
 
     """
     return ValidationError(
@@ -175,6 +176,28 @@ def make_malformed_file_error() -> ValidationError:
             "path": "",
         }
     )
+
+
+def make_too_many_errors_error() -> dict:
+    """Makes an error for a csv file that needed its errors truncated due to hitting
+    maximum limit.
+
+    Returns:
+        Serialized too-many-errors ValidationError
+
+    """
+    error = ValidationError(
+        **{
+            "validator": "too-many-errors",
+            "schema_path": [""],
+            "instance": "",
+            "schema": "",
+            "message": f"This file had too many errors and had to be truncated (max {MAX_ERRORS}).",
+            "path": "",
+        }
+    )
+
+    return validator_error_to_standard(error)
 
 
 def make_bad_file_error() -> ValidationError:
@@ -230,6 +253,12 @@ def save_errors_metadata(
         meta_dict = {}
     else:
         state = "FAIL"
+        """There is a BSON limit of 16793598 bytes, so cap out error list at 50k."""
+        if len(errors) > MAX_ERRORS:
+            log.warning(f"Errors list too large, truncating to {MAX_ERRORS}")
+            errors = errors[0:MAX_ERRORS]
+            errors.append(make_too_many_errors_error())
+
         meta_dict = {"data": errors}
 
     gtk_context.metadata.add_qc_result(
