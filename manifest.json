@@ -57,7 +57,7 @@
     },
     "gear-builder": {
       "category": "qa",
-      "image": "flywheel/nacc-file-validator:0.3.4a"
+      "image": "flywheel/nacc-file-validator:0.3.4"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -90,5 +90,5 @@
   "name": "nacc-file-validator",
   "source": "https://github.com/naccdata/nacc-file-validator.git",
   "url": "https://github.com/naccdata/nacc-file-validator.git",
-  "version": "0.3.4a"
+  "version": "0.3.4"
 }
