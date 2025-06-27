@@ -253,7 +253,7 @@ def save_errors_metadata(
         meta_dict = {}
     else:
         state = "FAIL"
-        """There is a BSON limit of 22699725 bytes, so cap out error list at 50k."""
+        """There is a BSON limit of 16793598 bytes, so cap out error list at 50k."""
         if len(errors) > MAX_ERRORS:
             log.warning(f"Errors list too large, truncating to {MAX_ERRORS}")
             errors = errors[0:MAX_ERRORS]
