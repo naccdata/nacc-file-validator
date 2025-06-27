@@ -187,48 +187,6 @@ class CsvValidator(JsonValidator):
         """Initializes a CsvValidator object."""
         super().__init__(schema)
 
-    def get_column_dtypes(self) -> dict[str:type]:
-        """Get the specified datatypes of each csv column from a Json Schema.
-
-        Returns:
-            A dictionary containing {column-name : python type} for every column
-
-        """
-        column_types = {}
-        schema = self.validator.schema
-        for schema_property, property_val in schema["properties"].items():
-            if "$ref" in property_val:
-                _, property_val = self.validator.resolver.resolve(property_val["$ref"])
-            json_type = property_val.get("type")
-            column_types[schema_property] = self.convert_json_types_to_python(json_type)
-        return column_types
-
-    @staticmethod
-    def convert_json_types_to_python(json_type: str) -> type:
-        """Converts json types to python types as best as possible.
-
-            Conversion table:
-            | JSON    | Python |
-            |---------|--------|
-            | string  | str    |
-            | number  | float  |
-            | integer | int    |
-            | boolean | bool   |
-            | null    | None   |
-
-        Args:
-            json_type: a json type specified by the schema
-
-        Returns:
-            a python type-equivalent of the specified json-type
-
-        """
-        if isinstance(json_type, list):
-            raise ValueError(
-                "Multiple possible datatypes not allowed for csv validation.  Check your schema."
-            )
-        return JSON_TYPES.get(json_type, str)  # default to type str if not supported
-
     def validate(
         self, csv_dicts: t.List[t.Dict], drop_empty: bool = True
     ) -> t.Tuple[bool, t.List[t.Dict]]:
