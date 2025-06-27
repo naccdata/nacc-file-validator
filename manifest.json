@@ -51,15 +51,25 @@
         ]
       },
       "show-job": true,
-      "suite": "Utility"
+      "suite": "Utility",
+      "uid": 31337,
+      "git": 31337
     },
     "gear-builder": {
       "category": "qa",
-      "image": "flywheel/file-validator:0.3.1"
+      "image": "flywheel/file-validator:0.3.3-rc2"
     }
   },
   "description": "Validates a file based on a provided validation schema",
-  "environment": {},
+  "environment": {
+    "FLYWHEEL": "/flywheel/v0",
+    "PYTHON_VERSION": "3.10.18",
+    "PWD": "/flywheel/v0",
+    "LANG": "C.UTF-8",
+    "VIRTUAL_ENV": "/venv",
+    "PYTHONPATH": "/venv/lib/python/site-packages",
+    "PATH": "/venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+  },
   "inputs": {
     "api-key": {
       "base": "api-key"
@@ -80,5 +90,5 @@
   "name": "file-validator",
   "source": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
   "url": "https://gitlab.com/flywheel-io/scientific-solutions/gears/file-validator.git",
-  "version": "0.3.1"
+  "version": "0.3.3-rc2"
 }

@@ -179,10 +179,7 @@ class CsvLoader(Loader):
             if format_errors:
                 return None, format_errors
             with open(file_path) as csv_file:
-                csv_dict = [
-                    {k: v for k, v in row.items() if v}
-                    for row in csv.DictReader(csv_file)
-                ]
+                csv_dict = csv.DictReader(csv_file)
                 return list(csv_dict), None
         except (FileNotFoundError, TypeError) as e:
             raise ValueError(f"Error loading CSV object: {e}")

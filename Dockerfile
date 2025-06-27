@@ -1,21 +1,57 @@
-FROM python:3.10-slim
+# -----------------------------------------------------------------------------
+# Base stage: set up environment and install system dependencies
+# -----------------------------------------------------------------------------
+
+FROM flywheel/python:3.10-main AS base
+
+# Set environment variable for the application directory
 ENV FLYWHEEL="/flywheel/v0"
+# Set the working directory
 WORKDIR ${FLYWHEEL}
 
-# Dev install. git for pip editable install.
-RUN apt-get update &&  \
-    apt-get install --no-install-recommends -y git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Set the default entrypoint
+ENTRYPOINT ["python", "/flywheel/v0/run.py"]
 
-# Installing main dependencies
-COPY requirements.txt $FLYWHEEL/
-RUN pip install --no-cache-dir -r $FLYWHEEL/requirements.txt
 
-# Installing the current project (most likely to change, above layer can be cached)
-COPY ./ $FLYWHEEL/
-RUN pip install --no-cache-dir .
+# -----------------------------------------------------------------------------
+# Build stage: install production Python dependencies
+# -----------------------------------------------------------------------------
+FROM base AS build
 
-# Configure entrypoint
-RUN chmod a+x $FLYWHEEL/run.py
-ENTRYPOINT ["python","/flywheel/v0/run.py"]
+# Copy production requirements and install them globally
+COPY requirements.txt ${FLYWHEEL}/
+RUN uv pip install -r requirements.txt --no-cache-dir
+
+
+
+# -----------------------------------------------------------------------------
+# Dev stage: install development dependencies and set up app in editable mode
+# -----------------------------------------------------------------------------
+FROM build AS dev
+# Copy and install development-specific requirements
+COPY requirements-dev.txt ${FLYWHEEL}/
+RUN uv pip install -r requirements-dev.txt --no-cache-dir
+
+# Copy the full application code and install the package without additional dependency resolution
+COPY . .
+RUN uv pip install --no-deps -e. --no-cache-dir
+
+
+# -----------------------------------------------------------------------------
+# Final production image: assemble the app for production use
+# -----------------------------------------------------------------------------
+FROM base
+
+# Copy the virtual environment built in the 'build' stage
+COPY --from=build /venv /venv
+
+# Copy the complete application code
+COPY . .
+
+# Install the package in editable mode (without additional dependency resolution)
+RUN uv pip install --no-deps -e. --no-cache-dir
+
+# Ensure the entrypoint script is executable
+RUN chmod a+x "${FLYWHEEL}/run.py"
+
+USER flywheel
