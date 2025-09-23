@@ -26,6 +26,11 @@
         "Validate Flywheel Objects"
       ],
       "type": "string"
+    },
+    "max_errors": {
+      "default": 5000,
+      "description": "Maximum number of errors to report",
+      "type": "integer"
     }
   },
   "custom": {
@@ -57,7 +62,7 @@
     },
     "gear-builder": {
       "category": "qa",
-      "image": "flywheel/nacc-file-validator:0.3.4"
+      "image": "flywheel/nacc-file-validator:0.3.5"
     }
   },
   "description": "Validates a file based on a provided validation schema",
@@ -90,5 +95,5 @@
   "name": "nacc-file-validator",
   "source": "https://github.com/naccdata/nacc-file-validator.git",
   "url": "https://github.com/naccdata/nacc-file-validator.git",
-  "version": "0.3.4"
+  "version": "0.3.5"
 }

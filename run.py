@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 def main(context: GearToolkitContext) -> None:  # pragma: no cover
     """Parses gear config, runs main algorithm, and performs flywheel-specific actions."""
-    (debug, tag, schema_file_path, fw_ref, loader_config) = parse_config(context)
+    (debug, tag, schema_file_path, fw_ref, loader_config, max_errors) = parse_config(context)
 
     loader_type = get_loader_type(fw_ref)
     loader = Loader.factory(loader_type, config=loader_config)
@@ -39,7 +39,7 @@ def main(context: GearToolkitContext) -> None:  # pragma: no cover
     valid, errors = schema_validator.validate(d)
 
     errors = add_flywheel_location_to_errors(fw_ref, errors)
-    save_errors_metadata(errors, fw_ref, context)
+    save_errors_metadata(errors, fw_ref, context, max_errors)
     add_tags_metadata(context, fw_ref, valid, tag)
 
 

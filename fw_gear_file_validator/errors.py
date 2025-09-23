@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
 RUNTIME = datetime.now()
 TIMESTAMP = RUNTIME.strftime(TIMEFORMAT)
-MAX_ERRORS = 50_000
 
 
 class FileError(BaseModel):
@@ -178,9 +177,12 @@ def make_malformed_file_error() -> ValidationError:
     )
 
 
-def make_too_many_errors_error() -> dict:
+def make_too_many_errors_error(max_errors: int = 5000) -> dict:
     """Makes an error for a csv file that needed its errors truncated due to hitting
     maximum limit.
+
+    Args:
+        max_errors: number of max errors allowed
 
     Returns:
         Serialized too-many-errors ValidationError
@@ -192,7 +194,7 @@ def make_too_many_errors_error() -> dict:
             "schema_path": [""],
             "instance": "",
             "schema": "",
-            "message": f"This file had too many errors and had to be truncated (max {MAX_ERRORS}).",
+            "message": f"This file had too many errors and had to be truncated (max {max_errors}).",
             "path": "",
         }
     )
@@ -245,7 +247,8 @@ def add_flywheel_location_to_errors(fw_ref: FwReference, packaged_errors: list):
 
 
 def save_errors_metadata(
-    errors: t.List[t.Dict], input_file: FwReference, gtk_context: GearToolkitContext
+    errors: t.List[t.Dict], input_file: FwReference, gtk_context: GearToolkitContext,
+    max_errors: int = 5000,
 ):
     """Saves the packaged errors to file metadata."""
     if not errors:
@@ -254,10 +257,10 @@ def save_errors_metadata(
     else:
         state = "FAIL"
         """There is a BSON limit of 16793598 bytes, so cap out error list at 50k."""
-        if len(errors) > MAX_ERRORS:
-            log.warning(f"Errors list too large, truncating to {MAX_ERRORS}")
-            errors = errors[0:MAX_ERRORS]
-            errors.append(make_too_many_errors_error())
+        if len(errors) > max_errors:
+            log.warning(f"Errors list too large, truncating to {max_errors}")
+            errors = errors[0:max_errors]
+            errors.append(make_too_many_errors_error(max_errors))
 
         meta_dict = {"data": errors}
 
