@@ -22,6 +22,11 @@ def parse_config(
     schema_file_path = Path(context.get_input_path("validation_schema"))
     validation_level = level_dict[context.config.get("validation_level")]
 
+    try:
+        max_errors = int(context.config.get('max_errors', 5000))
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Max errors must be an integer: {e}")
+
     file_to_validate = context.get_input("input_file")
     ext, mime = get_filetype_data(file_to_validate)
 
@@ -46,7 +51,7 @@ def parse_config(
 
     loader_config = {"add_parents": add_parents}
 
-    return debug, tag, schema_file_path, fw_ref, loader_config
+    return debug, tag, schema_file_path, fw_ref, loader_config, max_errors
 
 
 def get_fw_type_info(input_file: dict) -> tuple[str, str]:
